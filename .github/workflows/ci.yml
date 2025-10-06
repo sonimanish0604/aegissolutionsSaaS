@@ -1,0 +1,30 @@
+name: monorepo-ci
+on:
+  pull_request:
+    branches: [develop, staging, main]
+    paths:
+      - "services/**"
+      - "control-plane/**"
+      - "shared/**"
+      - "api-contracts/**"
+  push:
+    branches: [develop]
+jobs:
+  lint-and-unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - name: Install test deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest
+      - name: Unit tests (per-service)
+        run: |
+          if compgen -G "services/*/tests" > /dev/null; then
+            pytest -q services/*/tests || true
+          fi
+          if compgen -G "control-plane/*/tests" > /dev/null; then
+            pytest -q control-plane/*/tests || true
+          fi

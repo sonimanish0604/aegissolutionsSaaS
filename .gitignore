@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+.venv/
+venv/
+dist/
+build/
+.eggs/
+*.egg-info/
+
+# Node / Frontend
+node_modules/
+.next/
+dist/
+coverage/
+
+# IDE/OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Docker
+*.log
+docker-data/
+
+# Terraform
+.terraform/
+terraform.tfstate*
+.crash
+
+# Helm
+charts/**/charts/
