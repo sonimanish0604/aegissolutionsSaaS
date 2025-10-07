@@ -1,35 +1,63 @@
-# Control Plane TODOs
+# ✅ Control Plane TODO Tracker
 
-This file tracks in-flight and planned items across the Control Plane microservices.
-
----
-
-## ✅ Onboarding Service
-
-- [x] Idempotency table and logic implemented
-- [x] Alembic migrations working
-- [ ] Add TTL cleanup job for `idempotency_keys`
-- [ ] Implement Audit Logging (`feature/onboarding-audit-logging`)
-- [ ] Add unit + integration tests for audit logging
-- [ ] Enable structured logs (JSON) with correlation IDs
-- [ ] Add rate-limit telemetry metrics
-- [ ] Prepare staging config (Render → AWS RDS)
+Use `[x]` to mark completion; `[~]` for partial progress (optional emoji 🔄 = in progress).  
+Each item can have nested sub-items or linked branches / PRs.
 
 ---
 
-## 🧾 Billing & Plans (up next)
-- [ ] Define plan catalog (Free, Dev, Pro, Enterprise)
-- [ ] Map plan → quota → rate-limits
-- [ ] Implement usage counters and reset jobs
-- [ ] Prepare stub billing adapter
+## 🧠 Service: Onboarding
+
+| Area | Item | Status | Branch / PR | Notes |
+|------|------|---------|--------------|-------|
+| **Core** | Idempotency logic | ✅ Done | `feature/onboarding-idempotency` | merged to `develop` |
+| **Core** | TTL cleanup job | 🔄 In progress | — | to add after staging infra (pg_cron/ECS) |
+| **Audit** | Audit logging DB + service | ☐ Not started | `feature/onboarding-audit-logging` | quick-win target |
+| **Audit** | Integration tests for audit log | ☐ | — | after schema merged |
+| **Infra** | Structured logging (JSON) | ☐ | — | align format with other control-plane services |
+| **Infra** | Correlation-ID propagation | ☐ | — | middleware level |
+| **Docs** | Update OpenAPI v1 spec | ☐ | — | after audit endpoints ready |
 
 ---
 
-## 🧩 Identity / Access
-- [ ] Add basic API key auth + tenant roles
-- [ ] Add OAuth2/OIDC scaffolding
-- [ ] Configure admin RBAC (`owner/admin/auditor`)
+## 💳 Service: Billing
+
+| Area | Item | Status | Branch / PR | Notes |
+|------|------|---------|--------------|-------|
+| **Plans** | Define plan catalog | ☐ | — | Free/Dev/Pro/Enterprise |
+| **Limits** | Implement plan→quota mapping | ☐ | — | ties to Redis limits |
+| **Usage** | Usage counters + reset jobs | ☐ | — | daily/monthly rollover |
+| **Integration** | Billing adapter (stub) | ☐ | — | to mock AWS Marketplace billing |
 
 ---
 
-_Last updated: 2025-10-07_
+## 🧰 Service: Identity / Access
+
+| Area | Item | Status | Branch / PR | Notes |
+|------|------|---------|--------------|-------|
+| **AuthN** | API key authentication | ☐ | — | align with rate-limit middleware |
+| **AuthZ** | RBAC roles (owner/admin/auditor) | ☐ | — | base policy JSON |
+| **SSO** | OIDC scaffolding | ☐ | — | stub for enterprise tenants |
+
+---
+
+## 🧮 Service: Telemetry / Metrics
+
+| Area | Item | Status | Branch / PR | Notes |
+|------|------|---------|--------------|-------|
+| **Metrics** | Redis + Postgres usage metrics | ☐ | — |  |
+| **Health** | `/healthz` & `/readyz` endpoints | ☐ | — |  |
+| **Monitoring** | Dashboard setup | ☐ | — | CloudWatch or Grafana |
+
+---
+
+### 🔄 Legend
+
+| Symbol | Meaning |
+|---------|----------|
+| ✅ | Completed |
+| 🔄 / `[~]` | In progress / partially done |
+| ☐ | Not started |
+
+---
+
+_Last updated: {2025-10-07}_
