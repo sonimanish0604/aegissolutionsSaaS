@@ -1,0 +1,9 @@
+apiVersion: install.istio.io/v1alpha1
+kind: IstioOperator
+spec:
+  meshConfig:
+    defaultConfig:
+      tracing:
+        sampling: 100.0
+        openTelemetry:
+          endpoint: otel-collector-opentelemetry-collector.observability.svc.cluster.local:4317
