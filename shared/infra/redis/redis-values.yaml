@@ -1,0 +1,28 @@
+# Bitnami Redis (standalone) with AOF persistence
+architecture: standalone
+
+master:
+  persistence:
+    enabled: true
+    size: 2Gi
+    storageClass: ""   # default SC
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 300m
+      memory: 256Mi
+  # enable Append Only File for durable writes
+  configuration: |
+    appendonly yes
+    # (optional) fsync every second; tune as needed
+    appendfsync everysec
+
+# Metrics for Prometheus/Grafana
+metrics:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    namespace: observability
+    interval: 30s

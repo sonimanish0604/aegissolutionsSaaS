@@ -1,0 +1,14 @@
+image:
+  repository: onboarding-service           # change if you push to a registry
+  tag: dev
+  pullPolicy: IfNotPresent
+
+service:
+  port: 8000
+  targetPort: 8080
+
+otel:
+  enabled: true
+  endpoint: http://otel-collector-opentelemetry-collector.observability.svc.cluster.local:4318
+  serviceName: onboarding-service
+  resourceAttributes: service.namespace=aegis,env=dev

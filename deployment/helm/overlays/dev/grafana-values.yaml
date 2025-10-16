@@ -1,0 +1,26 @@
+adminUser: admin
+adminPassword: aegis
+
+service:
+  type: ClusterIP
+
+# Auto-provision data sources
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+      - name: Tempo
+        type: tempo
+        access: proxy
+        url: http://tempo-query-frontend.observability.svc.cluster.local:3200
+        isDefault: true
+      - name: Loki
+        type: loki
+        access: proxy
+        url: http://loki.observability.svc.cluster.local:3100
+      - name: Prometheus
+        type: prometheus
+        access: proxy
+        url: http://kps-kube-prometheus-stack-prometheus.observability.svc.cluster.local:9090
+
+# Optional: a couple of useful dashboards could be added later

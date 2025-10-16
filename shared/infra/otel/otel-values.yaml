@@ -1,28 +1,58 @@
 mode: deployment
-presets:
-  kubernetesAttributes: true
+
+image:
+  repository: otel/opentelemetry-collector-contrib
+  tag: 0.136.0
+  pullPolicy: IfNotPresent
+
+resources:
+  limits:
+    cpu: "500m"
+    memory: "512Mi"
+  requests:
+    cpu: "100m"
+    memory: "128Mi"
+
 config:
   receivers:
     otlp:
       protocols:
         grpc: {}
         http: {}
+
   processors:
+    memory_limiter:
+      limit_percentage: 75
+      spike_limit_percentage: 25
+      check_interval: 5s
     batch: {}
+
   exporters:
-    logging:
-      loglevel: info
+    # Traces → Tempo (gRPC)
+    otlp/tempo:
+      endpoint: tempo-distributor.observability.svc.cluster.local:4317
+      tls:
+        insecure: true
+
+    # Logs → Loki via OTLP/HTTP (replacement for removed 'loki' exporter)
+    otlphttp/loki:
+      endpoint: http://loki.observability.svc.cluster.local:3100/otlp
+
+    # Optional debugging
+    debug:
+      verbosity: normal
+
   service:
     pipelines:
       traces:
         receivers: [otlp]
-        processors: [batch]
-        exporters: [logging]
-      metrics:
-        receivers: [otlp]
-        processors: [batch]
-        exporters: [logging]
+        processors: [memory_limiter, batch]
+        exporters: [otlp/tempo, debug]
       logs:
         receivers: [otlp]
-        processors: [batch]
-        exporters: [logging]
+        processors: [memory_limiter, batch]
+        exporters: [otlphttp/loki, debug]
+      metrics:
+        receivers: [otlp]
+        processors: [memory_limiter, batch]
+        exporters: [debug]

@@ -1,21 +1,27 @@
 # app/infra/db_async.py
 import os
-from typing import AsyncGenerator
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
+from typing import AsyncGenerator, Optional
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.orm import sessionmaker
 
-ASYNC_DATABASE_URL = os.getenv("DATABASE_URL_ASYNC")
-SYNC_DATABASE_URL  = os.getenv("DATABASE_URL", "postgresql+psycopg2://aegis:aegis@localhost:5432/controlplane")
+_ENGINE = None
+_SESSION_FACTORY = None
 
-if not ASYNC_DATABASE_URL:
-    # derive async URL from the sync one for local dev
-    ASYNC_DATABASE_URL = SYNC_DATABASE_URL.replace("postgresql+psycopg2", "postgresql+asyncpg").replace(
-        "postgresql://", "postgresql+asyncpg://"
-    )
+def _get_db_url() -> str:
+    url = os.getenv("ASYNC_DATABASE_URL", "").strip()
+    # expected format e.g. postgresql+asyncpg://user:pass@host:5432/dbname
+    if not url:
+        raise RuntimeError("ASYNC_DATABASE_URL is not set")
+    return url
 
-engine = create_async_engine(ASYNC_DATABASE_URL, future=True, pool_pre_ping=True)
-
-SessionLocal = async_sessionmaker(bind=engine, expire_on_commit=False, class_=AsyncSession)
+def _ensure_engine():
+    global _ENGINE, _SESSION_FACTORY
+    if _ENGINE is None:
+        url = _get_db_url()
+        _ENGINE = create_async_engine(url, future=True, pool_pre_ping=True)
+        _SESSION_FACTORY = sessionmaker(bind=_ENGINE, class_=AsyncSession, expire_on_commit=False)
 
 async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
-    async with SessionLocal() as session:
+    _ensure_engine()
+    async with _SESSION_FACTORY() as session:
         yield session
