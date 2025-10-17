@@ -1,60 +1,91 @@
-# app/audit/middleware.py
+# app/middleware.py
 from __future__ import annotations
-import os, time
-from fastapi import Request
-from starlette.types import ASGIApp, Receive, Scope, Send
-from app.audit.schema import AuditEvent
-from app.audit.adapters import get_cache_stream
-from app.logging_config import get_correlation_id
+import json
+from typing import Optional
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request
+from starlette.responses import Response
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.services.audit import write_audit_event
+from app.db import async_session_maker
 
-AUDIT_SERVICE = os.getenv("AUDIT_SERVICE", "onboarding-service")
-AUDIT_ENV = os.getenv("AUDIT_ENV", "dev")
+SAFE_METHODS = {"GET", "HEAD", "OPTIONS"}
+ACTOR_TYPE_DEFAULT = "user"  # or "system" for machine calls
 
-class AuditMiddleware:
-    def __init__(self, app: ASGIApp):
-        self.app = app
-        self.stream = get_cache_stream()  # resolved via adapters layer
+async def _read_json_safely(request: Request) -> Optional[dict]:
+    try:
+        body = await request.body()
+        if not body:
+            return None
+        return json.loads(body.decode("utf-8"))
+    except Exception:
+        return None
 
-    async def __call__(self, scope: Scope, receive: Receive, send: Send):
-        if scope["type"] != "http":
-            return await self.app(scope, receive, send)
+def _reinject_body(request: Request, body: bytes):
+    async def receive():
+        return {"type": "http.request", "body": body, "more_body": False}
+    request._receive = receive  # type: ignore[attr-defined]
 
-        request = Request(scope, receive=receive)
-        t0 = time.time()
-        status_holder = {"code": 500}
+class AuditMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        # Read the body once; then put it back so downstream can read it
+        raw_body = await request.body()
+        _reinject_body(request, raw_body)
 
-        async def send_wrapper(message):
-            if message["type"] == "http.response.start":
-                status_holder["code"] = message["status"]
-            await send(message)
-
-        await self.app(scope, receive, send_wrapper)
-        latency_ms = int((time.time() - t0) * 1000)
-
-        method = request.method.upper()
-        if method not in ("POST", "PUT", "PATCH", "DELETE"):
-            return
-
-        evt = AuditEvent(
-            service=AUDIT_SERVICE,
-            env=AUDIT_ENV,
-            tenant_id=request.headers.get("x-tenant-id"),
-            actor_id=request.headers.get("x-actor-id"),
-            actor_type=request.headers.get("x-actor-type", "service"),
-            trace_id=get_correlation_id() or request.headers.get("x-correlation-id"),
-            request_id=request.headers.get("x-request-id"),
-            idempotency_key=request.headers.get("idempotency-key"),
-            method=method,
-            path=request.url.path,
-            status_code=status_holder["code"],
-            ip=(request.client.host if request.client else None),
-            user_agent=request.headers.get("user-agent"),
-            latency_ms=latency_ms,
-            payload=None,  # keep minimal; body hashing handled in schema if needed later
-        )
-
-        # fire-and-forget publish; never block or raise
+        # Process request
+        response: Response
         try:
-            await self.stream.publish(evt.model_dump())
+            response = await call_next(request)
+            status_code = response.status_code
         except Exception:
-            pass
+            # If handler crashes, still log a 500
+            status_code = 500
+            raise
+        finally:
+            # Only audit mutating methods
+            if request.method not in SAFE_METHODS:
+                try:
+                    payload = json.loads(raw_body.decode("utf-8")) if raw_body else None
+                except Exception:
+                    payload = None
+
+                # Pull common context (customize to your headers)
+                tenant_id        = request.headers.get("X-Tenant-Id")
+                actor_id         = request.headers.get("X-Actor-Id")
+                actor_type       = request.headers.get("X-Actor-Type", ACTOR_TYPE_DEFAULT)
+                correlation_id   = request.headers.get("X-Correlation-Id")
+                idempotency_key  = request.headers.get("Idempotency-Key")
+                user_agent       = request.headers.get("User-Agent")
+                source_ip        = request.client.host if request.client else None
+
+                # Derive action (e.g., POST /v1/tenants -> tenants.create)
+                route_path = request.url.path
+                seg = [s for s in route_path.split("/") if s]
+                resource = seg[1] if len(seg) > 1 else seg[0] if seg else ""
+                action = {
+                    "POST":   f"{resource}.create",
+                    "PUT":    f"{resource}.replace",
+                    "PATCH":  f"{resource}.update",
+                    "DELETE": f"{resource}.delete",
+                }.get(request.method, f"{resource}.{request.method.lower()}")
+
+                # Write audit row (synchronously for durability)
+                async with async_session_maker() as session:  # type: AsyncSession
+                    await write_audit_event(
+                        session=session,
+                        route=route_path,
+                        method=request.method,
+                        status_code=status_code,
+                        action=action,
+                        tenant_id=tenant_id,
+                        actor_id=actor_id,
+                        actor_type=actor_type,
+                        source_ip=source_ip,
+                        user_agent=user_agent,
+                        correlation_id=correlation_id,
+                        idempotency_key=idempotency_key,
+                        payload=payload,
+                    )
+            # else: skip auditing GET/HEAD/OPTIONS
+
+        return response
