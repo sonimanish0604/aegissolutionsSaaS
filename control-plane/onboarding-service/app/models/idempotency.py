@@ -3,7 +3,8 @@ from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import BigInteger, Integer, Text
 from sqlalchemy.dialects.postgresql import UUID, TIMESTAMP, BYTEA
 from datetime import datetime
-from app.db import Base  # your declarative base
+#from app.infra.db import Base  # your declarative base
+from app.domain.models import Base  # <-- Base = declarative_base() lives here get Base from single source
 
 class IdempotencyKey(Base):
     __tablename__ = "idempotency_keys"

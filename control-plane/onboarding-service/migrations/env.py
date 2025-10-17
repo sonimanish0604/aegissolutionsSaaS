@@ -9,35 +9,28 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 
-# --- Ensure service root is on sys.path so "app" is importable ---
+# --- Make sure service root is importable (so "app..." works) ---
 SERVICE_ROOT = Path(__file__).resolve().parents[1]  # .../onboarding-service
 if str(SERVICE_ROOT) not in sys.path:
     sys.path.insert(0, str(SERVICE_ROOT))
 
-# Import your Base
-from app.domain.models import Base  # <-- Base = declarative_base() lives here
+# Import your models Base
+from app.domain.models import Base  # Base = declarative_base()
 
-# If your ORM models are split across files and NOT imported by models.py,
-# import them explicitly here so they attach to Base.metadata:
-# from app.models import user, tenant, something  # noqa: F401
-# or
-# from app.domain import user_models  # noqa: F401
-
-# Alembic Config object
+# Alembic Config object, provides access to .ini values
 config = context.config
 
-# Prefer DATABASE_URL env var over alembic.ini default
+# If DATABASE_URL is set, prefer it over .ini
 db_url = os.getenv("DATABASE_URL")
 if db_url:
+    # alembic.ini usually has sqlalchemy.url; override it here
     config.set_main_option("sqlalchemy.url", db_url)
 
-# Logging config
+# Interpret the config file for Python logging.
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# Target metadata
 target_metadata = Base.metadata
-
 
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode."""
@@ -46,14 +39,11 @@ def run_migrations_offline() -> None:
         url=url,
         target_metadata=target_metadata,
         literal_binds=True,
-        dialect_opts={"paramstyle": "named"},
         compare_type=True,
         compare_server_default=True,
     )
-
     with context.begin_transaction():
         context.run_migrations()
-
 
 def run_migrations_online() -> None:
     """Run migrations in 'online' mode (sync)."""
@@ -63,7 +53,6 @@ def run_migrations_online() -> None:
         poolclass=pool.NullPool,
         future=True,
     )
-
     with connectable.connect() as connection:
         context.configure(
             connection=connection,
@@ -71,10 +60,8 @@ def run_migrations_online() -> None:
             compare_type=True,
             compare_server_default=True,
         )
-
         with context.begin_transaction():
             context.run_migrations()
-
 
 if context.is_offline_mode():
     run_migrations_offline()

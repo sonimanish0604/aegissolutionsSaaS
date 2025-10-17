@@ -1,12 +1,18 @@
-from sqlalchemy.orm import declarative_base, relationship, Mapped, mapped_column
+# app/models.py  (or wherever your models live)
+from __future__ import annotations
+
 from sqlalchemy import String, Text, JSON, Enum, TIMESTAMP, ForeignKey
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+
 import enum
 import uuid
 from datetime import datetime, timezone
 
-Base = declarative_base()
+class Base(DeclarativeBase):
+    pass
 
-def now():
+
+def now() -> datetime:
     return datetime.now(timezone.utc)
 
 class TenantStatus(str, enum.Enum):

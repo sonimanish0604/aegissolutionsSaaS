@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: onboarding-service
+  namespace: aegis
+spec:
+  template:
+    spec:
+      containers:
+      - name: onboarding-service
+        env:
+        - name: OTEL_SERVICE_NAME
+          value: "onboarding-service"
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "http://otel-collector-opentelemetry-collector.observability.svc.cluster.local:4318"
+        - name: OTEL_EXPORTER_OTLP_PROTOCOL
+          value: "http/protobuf"
+        - name: OTEL_TRACES_EXPORTER
+          value: "otlp"
+        - name: OTEL_LOGS_EXPORTER
+          value: "otlp"
+        - name: OTEL_RESOURCE_ATTRIBUTES
+          value: "service.namespace=aegis,env=dev"
+        - name: OTEL_PYTHON_LOG_CORRELATION
+          value: "true"

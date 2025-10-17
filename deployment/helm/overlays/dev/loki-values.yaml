@@ -1,0 +1,57 @@
+deploymentMode: SingleBinary
+
+singleBinary:
+  replicas: 1
+  persistence:
+    enabled: false                    # no PVC
+  # Mount a writable tmp volume at /var/loki
+  extraVolumes:
+    - name: loki-tmp
+      emptyDir: {}
+  extraVolumeMounts:
+    - name: loki-tmp
+      mountPath: /var/loki
+  # keep root fs read-only; /var/loki will still be writable via emptyDir
+  containerSecurityContext:
+    readOnlyRootFilesystem: true
+
+loki:
+  auth_enabled: false
+  commonConfig:
+    replication_factor: 1
+  storage:
+    type: filesystem
+    filesystem:
+      chunks_directory: /var/loki/chunks
+      rules_directory: /var/loki/rules
+  ruler:
+    storage:
+      type: local
+      local:
+        directory: /var/loki/rules
+  schemaConfig:
+    configs:
+      - from: 2024-01-01
+        store: tsdb
+        object_store: filesystem
+        schema: v13
+        index:
+          prefix: loki_index_
+          period: 24h
+
+# keep extras off for a clean dev install
+gateway:
+  enabled: false
+canary:
+  enabled: false
+resultsCache:
+  enabled: false
+chunksCache:
+  enabled: false
+monitoring:
+  selfMonitoring:
+    enabled: false
+  lokiCanary:
+    enabled: false
+  dashboards:
+    enabled: false
