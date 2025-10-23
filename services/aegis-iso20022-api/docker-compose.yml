@@ -1,0 +1,15 @@
+version: "3.9"
+
+services:
+  translator:
+    build: .
+    image: aegis-iso20022-api:dev
+    container_name: aegis-iso20022-api
+    ports:
+      - "8080:8080"
+    environment:
+      - LOG_LEVEL=info
+    volumes:
+      - ./src:/app/src
+      - ../..:/workspace:ro
+    command: uvicorn src.translator_api.routes:app --host 0.0.0.0 --port 8080 --reload
