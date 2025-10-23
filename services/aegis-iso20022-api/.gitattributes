@@ -1,0 +1,14 @@
+# normalize line endings for text
+*.py text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.json text eol=lf
+*.puml text eol=lf
+*.md text eol=lf
+Makefile text eol=lf
+
+# mark big binaries (if ever added) as binary
+*.pdf binary
+*.zip binary
+*.xsd binary
+*.xslt binary
