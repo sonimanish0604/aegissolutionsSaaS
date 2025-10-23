@@ -1,0 +1,34 @@
+# venv & python junk
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+
+# local dev and tool caches
+.cache/
+.mypy_cache/
+.pytest_cache/
+.coverage
+dist/
+build/
+
+# editor/OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# generated artifacts
+iso-bootstrap/out/
+mappings/*.json
+mappings/*.xml
+logs/
+tmp/
+
+# big binaries (kept out of git)
+*.pdf
+*.zip
+*.xsd
+*.xslt
