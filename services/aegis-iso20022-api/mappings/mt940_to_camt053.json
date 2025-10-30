@@ -1,0 +1,25 @@
+{
+  "20": {
+    "description": "Transaction Reference Number",
+    "xpath": "Document.BkToCstmrStmt.GrpHdr.MsgId"
+  },
+  "25": {
+    "description": "Account Identification",
+    "xpath": "Document.BkToCstmrStmt.Stmt.Acct.Id.IBAN"
+  },
+  "60F": {
+    "description": "Opening Balance",
+    "xpath": "Document.BkToCstmrStmt.Stmt.Bal[0]"
+  },
+  "62F": {
+    "description": "Closing Balance",
+    "xpath": "Document.BkToCstmrStmt.Stmt.Bal[1]"
+  },
+  "_meta": {
+    "source": "MT940",
+    "target": "camt.053.001.08",
+    "generated_by": "Copilot",
+    "confidence": "high",
+    "timestamp": "2025-10-19T03:18:00Z"
+  }
+}

@@ -22,8 +22,9 @@ build/
 
 # generated artifacts
 iso-bootstrap/out/
-mappings/*.json
-mappings/*.xml
+# Keep critical mapping assets under version control
+# Patterns left empty intentionally so *.json mappings stay tracked
+# logs and tmp remain ignored for runtime output
 logs/
 tmp/
 
