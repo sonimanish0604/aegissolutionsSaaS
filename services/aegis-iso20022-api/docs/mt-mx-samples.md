@@ -138,6 +138,19 @@ Change `:72:` to alter routing:
 
 ---
 
+## MT196 → camt.029 / camt.111
+
+`MT196` answers are routed according to the content of field `:76:`:
+
+- If the narrative contains cancellation keywords (`CANCEL`, `CNCL`, `RJCR`, `PDCR`, `ACCR`) the engine emits **camt.029.001.13** (`ResolutionOfInvestigationV13`). The XML confirms the cancellation with `Sts/Conf`, and the free-form reason text is preserved inside `SplmtryData/Envlp/Cntt`.
+- Otherwise the message is treated as a response to an investigation/query and converted into **camt.111.001.02** (`InvestigationResponseV02`), carrying the answer inside `InvestigationData/RspnData/RspnNrrtv`.
+
+Both variants reuse the caller's `:20:` as the message identifier and `:21:` as the original reference. When RJCR/PDCR is reported, field `:76:` must also contain one of the SWIFT reason codes (`AC04`, `AGNT`, `AM04`, `ARDT`, `ARPL`, `CUST`, `INDM`, `LEGL`, `NOAS`, `NOOR`, `PTNA`, `RQDA`); the pre-validator enforces this before translation.
+
+Sample payloads live in `tests/category1_samples.py` entries `MT196-CANCEL` and `MT196-QUERY`, which can be posted to `/translate` in the same way as the other examples below.
+
+---
+
 ## MT202 (cover-style) → pacs.009.001.12
 
 ```

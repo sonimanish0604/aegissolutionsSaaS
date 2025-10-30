@@ -1,0 +1,345 @@
+- tag: '20'
+  name: Sender's Reference
+  sequence: A
+  presence: mandatory
+  format: 16x
+  description: Reference assigned by the sender to uniquely identify the message.
+  validations:
+  - id: 20-NR-1
+    type: network_rule
+    rule: no_leading_or_trailing_slash_or_double_slash
+    error_code: T26
+    message: Field must not start or end with '/' and must not contain '//' anywhere in its contents.
+- tag: 53a
+  name: Sender's Correspondent
+  sequence: A
+  presence: optional
+  options_allowed:
+  - A
+  - B
+  - D
+  option_A:
+    label: Party Identifier / Identifier Code
+    format: '[/1!a][/34x] 4!a2!a2!c[3!c]'
+    national_clearing_codes_ref: lookups.national_clearing_codes
+    validations:
+    - id: 53aA-NR-1
+      type: network_rule
+      rule: identifier_code_must_be_valid_bic
+      error_code: T27
+      message: Identifier Code must be a valid BIC in the required format (4!a2!a2!c[3!c]).
+    - id: 53aA-NR-2
+      type: network_rule
+      rule: identifier_code_must_be_fin_destination
+      error_code: T28
+      message: Identifier Code must correspond to a valid FIN destination.
+    - id: 53aA-NR-3
+      type: network_rule
+      rule: identifier_code_branch_identifier_validity
+      error_code: T29
+      message: Identifier Code must contain a valid branch identifier, when present.
+    - id: 53aA-NR-4
+      type: network_rule
+      rule: identifier_code_non_connected_validity
+      error_code: T45
+      message: Identifier Code must not reference an invalid non-connected BIC.
+    - id: 53aA-NR-5
+      type: network_rule
+      rule: identifier_code_must_be_financial_institution
+      error_code: C05
+      message: Identifier Code must identify a registered financial institution BIC.
+  option_B:
+    label: Party Identifier / Location
+    format: '[/1!a][/34x] 35x'
+  option_D:
+    label: Party Identifier / Name and Address
+    format: '[/1!a][/34x] 4*35x'
+- tag: 54a
+  name: Receiver's Correspondent
+  sequence: A
+  presence: optional
+  options_allowed:
+  - A
+  - B
+  - D
+  option_A:
+    label: Party Identifier / Identifier Code
+    format: '[/1!a][/34x] 4!a2!a2!c[3!c]'
+    national_clearing_codes_ref: lookups.national_clearing_codes
+    validations:
+    - id: 54aA-NR-1
+      type: network_rule
+      rule: identifier_code_must_be_valid_bic
+      error_code: T27
+      message: Identifier Code must be a valid BIC in the required format (4!a2!a2!c[3!c]).
+    - id: 54aA-NR-2
+      type: network_rule
+      rule: identifier_code_must_be_fin_destination
+      error_code: T28
+      message: Identifier Code must correspond to a valid FIN destination.
+    - id: 54aA-NR-3
+      type: network_rule
+      rule: identifier_code_branch_identifier_validity
+      error_code: T29
+      message: Identifier Code must contain a valid branch identifier, when present.
+    - id: 54aA-NR-4
+      type: network_rule
+      rule: identifier_code_non_connected_validity
+      error_code: T45
+      message: Identifier Code must not reference an invalid non-connected BIC.
+    - id: 54aA-NR-5
+      type: network_rule
+      rule: identifier_code_must_be_financial_institution
+      error_code: C05
+      message: Identifier Code must identify a registered financial institution BIC.
+  option_B:
+    label: Party Identifier / Location
+    format: '[/1!a][/34x] 35x'
+  option_D:
+    label: Party Identifier / Name and Address
+    format: '[/1!a][/34x] 4*35x'
+- tag: '72'
+  name: Sender to Receiver Information
+  sequence: A
+  presence: optional
+  format: 6*35x
+  description: Additional information for the receiver.
+  usage_notes:
+  - id: 72-U-1
+    description: Use only when bilaterally agreed.
+- tag: '21'
+  name: Cheque Number
+  sequence: B
+  presence: mandatory
+  format: 16x
+  description: Identifies the cheque number.
+- tag: '30'
+  name: Date of Issue
+  sequence: B
+  presence: mandatory
+  format: 6!n
+  description: Date on which the cheque was issued.
+  validations:
+  - id: 30-B-NR-1
+    type: network_rule
+    rule: must_be_valid_date_yymmdd
+    error_code: T50
+    message: Date must be a valid YYMMDD calendar date.
+- tag: 32a
+  name: Amount
+  sequence: B
+  presence: mandatory
+  options_allowed:
+  - A
+  - B
+  option_A:
+    label: Value Date / Currency / Amount
+    format: 6!n3!a15d
+    description: Value date, currency, and amount when settlement value is known.
+    validations:
+    - id: 32A-B-NR-1
+      type: network_rule
+      rule: must_be_valid_date_yymmdd
+      error_code: T50
+      message: Date must be a valid YYMMDD calendar date.
+    - id: 32A-B-NR-2
+      type: network_rule
+      rule: currency_must_be_valid_iso4217
+      error_code: T52
+      message: Currency must be a valid ISO 4217 code.
+    - id: 32A-B-NR-3
+      type: network_rule
+      rule: amount_integer_part_at_least_one_digit
+      error_code: C03
+      message: Amount must include at least one digit before the decimal comma.
+    - id: 32A-B-NR-4
+      type: network_rule
+      rule: amount_decimal_places_within_currency_precision
+      error_code: T40
+      message: Digits after the comma must not exceed the currency precision.
+    - id: 32A-B-NR-5
+      type: network_rule
+      rule: amount_decimal_comma_mandatory
+      error_code: T43
+      message: Amount must include a decimal comma.
+  option_B:
+    label: Currency / Amount
+    format: 3!a15d
+    description: Currency and amount when value date is not provided.
+    validations:
+    - id: 32B-B-NR-1
+      type: network_rule
+      rule: currency_must_be_valid_iso4217
+      error_code: T52
+      message: Currency must be a valid ISO 4217 code.
+    - id: 32B-B-NR-2
+      type: network_rule
+      rule: amount_integer_part_at_least_one_digit
+      error_code: C03
+      message: Amount must include at least one digit before the decimal comma.
+    - id: 32B-B-NR-3
+      type: network_rule
+      rule: amount_decimal_places_within_currency_precision
+      error_code: T40
+      message: Digits after the comma must not exceed the currency precision.
+    - id: 32B-B-NR-4
+      type: network_rule
+      rule: amount_decimal_comma_mandatory
+      error_code: T43
+      message: Amount must include a decimal comma.
+- tag: 50a
+  name: Payer
+  sequence: B
+  presence: mandatory
+  options_allowed:
+  - A
+  - F
+  option_A:
+    label: Account / Identifier Code
+    format: '[/34x] 4!a2!a2!c[3!c]'
+    validations:
+    - id: 50aA-B-NR-1
+      type: network_rule
+      rule: identifier_code_must_be_valid_bic
+      error_code: T27
+      message: Identifier Code must be a valid BIC in the required format (4!a2!a2!c[3!c]).
+    - id: 50aA-B-NR-2
+      type: network_rule
+      rule: identifier_code_must_be_fin_destination
+      error_code: T28
+      message: Identifier Code must correspond to a valid FIN destination.
+    - id: 50aA-B-NR-3
+      type: network_rule
+      rule: identifier_code_branch_identifier_validity
+      error_code: T29
+      message: Identifier Code must contain a valid branch identifier, when present.
+    - id: 50aA-B-NR-4
+      type: network_rule
+      rule: identifier_code_non_connected_validity
+      error_code: T45
+      message: Identifier Code must not reference an invalid non-connected BIC.
+  option_F:
+    label: Account / Number, Name and Address
+    format: '[/34x] 4*(1!n/33x)'
+    line_number_lookup_ref: lookups.payee_option_F_line_numbers
+    validations:
+    - id: 50aF-B-NR-1
+      type: network_rule
+      rule: payee_option_f_first_line_is_1
+      error_code: T56
+      message: First Number/Name and Address line must begin with number 1.
+    - id: 50aF-B-NR-2
+      type: network_rule
+      rule: payee_option_f_numbers_in_ascending_order
+      error_code: T56
+      message: Numbered lines must appear in ascending order.
+    - id: 50aF-B-NR-3
+      type: network_rule
+      rule: payee_option_f_requires_number_3
+      error_code: T56
+      message: At least one line 3 must be present for country/town information.
+    - id: 50aF-B-NR-4
+      type: network_rule
+      rule: payee_option_f_number_3_country_iso
+      error_code: T73
+      message: The first occurrence of number 3 must include a valid ISO country code.
+    - id: 50aF-B-NR-5
+      type: network_rule
+      rule: payee_option_f_number_repeat_constraints
+      error_code: T56
+      message: Numbers 1, 2, and 3 may each appear at most twice.
+- tag: 52a
+  name: Drawer Bank
+  sequence: B
+  presence: optional
+  options_allowed:
+  - A
+  - C
+  - D
+  option_A:
+    label: Party Identifier / Identifier Code
+    format: '[/1!a][/34x] 4!a2!a2!c[3!c]'
+    national_clearing_codes_ref: lookups.national_clearing_codes
+    validations:
+    - id: 52aA-B-NR-1
+      type: network_rule
+      rule: identifier_code_must_be_valid_bic
+      error_code: T27
+      message: Identifier Code must be a valid BIC in the required format (4!a2!a2!c[3!c]).
+    - id: 52aA-B-NR-2
+      type: network_rule
+      rule: identifier_code_must_be_fin_destination
+      error_code: T28
+      message: Identifier Code must correspond to a valid FIN destination.
+    - id: 52aA-B-NR-3
+      type: network_rule
+      rule: identifier_code_branch_identifier_validity
+      error_code: T29
+      message: Identifier Code must contain a valid branch identifier, when present.
+    - id: 52aA-B-NR-4
+      type: network_rule
+      rule: identifier_code_non_connected_validity
+      error_code: T45
+      message: Identifier Code must not reference an invalid non-connected BIC.
+    - id: 52aA-B-NR-5
+      type: network_rule
+      rule: identifier_code_must_be_financial_institution
+      error_code: C05
+      message: Identifier Code must identify a registered financial institution BIC.
+  option_C:
+    label: Party Identifier
+    format: /34x
+    national_clearing_codes_ref: lookups.national_clearing_codes
+  option_D:
+    label: Party Identifier / Name and Address
+    format: '[/1!a][/34x] 4*35x'
+    national_clearing_codes_ref: lookups.national_clearing_codes
+- tag: 59a
+  name: Payee
+  sequence: B
+  presence: mandatory
+  options_allowed:
+  - ''
+  - F
+  option_:
+    label: Account / Name and Address
+    format: '[/34x] 4*35x'
+  option_F:
+    label: Account / Number, Name and Address
+    format: '[/34x] 4*(1!n/33x)'
+    line_number_lookup_ref: lookups.payee_option_F_line_numbers
+    validations:
+    - id: 59aF-NR-1
+      type: network_rule
+      rule: payee_option_f_first_line_is_1
+      error_code: T56
+      message: First Number/Name and Address line must begin with number 1.
+    - id: 59aF-NR-2
+      type: network_rule
+      rule: payee_option_f_numbers_in_ascending_order
+      error_code: T56
+      message: Numbered lines must appear in ascending order.
+    - id: 59aF-NR-3
+      type: network_rule
+      rule: payee_option_f_requires_number_3
+      error_code: T56
+      message: At least one line 3 must be present for country/town information.
+    - id: 59aF-NR-4
+      type: network_rule
+      rule: payee_option_f_number_3_country_iso
+      error_code: T73
+      message: The first occurrence of number 3 must include a valid ISO country code.
+    - id: 59aF-NR-5
+      type: network_rule
+      rule: payee_option_f_number_repeat_constraints
+      error_code: T56
+      message: Numbers 1, 2, and 3 may each appear at most twice.
+    usage_notes:
+    - id: 59aF-U-1
+      description: Account line must not be populated.
+  validations:
+  - id: 59a-NR-1
+    type: network_rule
+    rule: payee_account_must_not_be_present
+    error_code: E10
+    message: Account line must remain empty for the payee.

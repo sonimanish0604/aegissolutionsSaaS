@@ -9,8 +9,15 @@ from ..translator_core.mx_builder import MXBuilder
 from ..translator_core.xsd_validator import XSDValidator
 from ..translator_core.audit import AuditRecord, new_correlation_id
 from ..translator_core.metrics import timer
+from ..prevalidator_api.routes import router as prevalidator_router
 
 app = FastAPI(title="Aegis ISO20022 Translator")
+app.include_router(prevalidator_router)
+
+
+@app.get("/")
+def healthcheck():
+    return {"status": "ok"}
 
 class TranslateRequest(BaseModel):
     mt_raw: str
@@ -33,6 +40,18 @@ def _classify_mt195_variant(parsed_fields: dict[str, list[str]] | dict) -> str |
     if "/QUERY/REQUEST FOR DUPLICATE" in text_normalized:
         return "request_duplicate"
     return None
+
+
+def _classify_mt196_variant(parsed_fields: dict[str, list[str]] | dict) -> str | None:
+    field76 = parsed_fields.get("76") if isinstance(parsed_fields, dict) else None
+    if not field76:
+        return None
+    if isinstance(field76, list):
+        text = "\n".join(field76).upper()
+    else:
+        text = str(field76).upper()
+    keywords = ("CANCEL", "RJCR", "PDCR", "CNCL", "ACCR")
+    return "cancellation" if any(key in text for key in keywords) else "information"
 
 
 def _classify_mt102_variant(parsed: dict) -> str | None:
@@ -63,14 +82,32 @@ def translate(req: TranslateRequest):
         if mt_type == "MT195":
             fields = parsed.get("fields", {}) if isinstance(parsed, dict) else {}
             variant = _classify_mt195_variant(fields)
+        elif mt_type == "MT196":
+            fields = parsed.get("fields", {}) if isinstance(parsed, dict) else {}
+            variant = _classify_mt196_variant(fields)
         elif mt_type == "MT102":
             variant = _classify_mt102_variant(parsed)
 
-        mapping, mx_type, xsd_dir = store.load_profile(mt_type, variant=variant)
-        if not mapping:
-            raise HTTPException(404, f"No mapping profile for {mt_type}")
+        def _pass_through():
+            return {
+                "status": "ok",
+                "code": "NO_CONVERSION_APPLICABLE",
+                "mt_type": mt_type.replace("MT", "", 1),
+                "mode": "pass_through",
+                "payload_preserved": True,
+                "notes": f"{mt_type} carried unchanged. No ISO 20022 conversion performed.",
+                "mt_raw": req.mt_raw,
+            }
+
+        try:
+            mapping, mx_type, xsd_dir = store.load_profile(mt_type, variant=variant)
+        except FileNotFoundError:
+            return _pass_through()
+
+        if not mapping or not mx_type or not xsd_dir:
+            return _pass_through()
         if not Path(xsd_dir).exists():
-            raise HTTPException(500, f"XSD dir missing: {xsd_dir}")
+            return _pass_through()
 
         # optional guard: lightweight XSD index (reuse your iso-bootstrap xsd_index.py if desired)
         transformer = Transformer(xsd_index=None)

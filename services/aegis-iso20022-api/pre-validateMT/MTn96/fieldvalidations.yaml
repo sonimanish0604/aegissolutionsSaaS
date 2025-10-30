@@ -1,0 +1,94 @@
+- tag: '20'
+  name: Transaction Reference Number
+  sequence: A
+  presence: mandatory
+  format: 16x
+  description: Reference assigned by the sender to unambiguously identify the MT n96 message.
+  validations:
+  - id: 20-NR-1
+    type: network_rule
+    rule: no_leading_or_trailing_slash_or_double_slash
+    error_code: T26
+    message: Field must not start or end with '/' and must not contain consecutive slashes.
+
+- tag: '21'
+  name: Related Reference
+  sequence: A
+  presence: mandatory
+  format: 16x
+  description: Reference of the original message (for example the MT n95 or MT n92) to which this answer relates.
+  validations:
+  - id: 21-NR-1
+    type: network_rule
+    rule: no_leading_or_trailing_slash_or_double_slash
+    error_code: T26
+    message: Field must not start or end with '/' and must not contain consecutive slashes.
+
+- tag: '76'
+  name: Answers
+  sequence: A
+  presence: mandatory
+  format: 6*35x
+  description: Carries the narrative answer(s) to the original query or cancellation request.
+  usage_notes:
+  - id: 76-U-1
+    description: May include structured answer lines (for example 1/4c/, narrative continuations, or ISO 20022-aligned codes such as CNCL, PDCR, RJCR).
+  validations:
+  - id: 76-NR-1
+    type: network_rule
+    rule: value_must_use_x_charset
+    error_code: T20
+    message: Narrative must use only SWIFT X character set characters.
+  - id: 76-NR-2
+    type: network_rule
+    rule: mt196_rjcr_pdcr_reason_codes
+    error_code: C25
+    message: When RJCR or PDCR is reported, a valid narrative reason code (AC04, AGNT, AM04, ARDT, ARPL, CUST, INDM, LEGL, NOAS, NOOR, PTNA, RQDA) must be present.
+
+- tag: '77A'
+  name: Narrative
+  sequence: A
+  presence: optional
+  format: 20*35x
+  description: Optional free-form narrative of the answer.
+  validations:
+  - id: 77A-NR-1
+    type: network_rule
+    rule: value_must_use_x_charset
+    error_code: T20
+    message: Narrative must use only SWIFT X character set characters.
+
+- tag: 11a
+  name: MT and Date of the Original Message
+  sequence: A
+  presence: optional
+  options_allowed:
+  - R
+  - S
+  option_R:
+    label: Message received - MT number / date [session/ISN]
+    format: "3!n 6!n [4!n6!n]"
+  option_S:
+    label: Message sent - MT number / date [session/ISN]
+    format: "3!n 6!n [4!n6!n]"
+  description: Identifies the original message (received or sent) and the date on which it was sent.
+  validations:
+  - id: 11a-NR-1
+    type: network_rule
+    rule: mt_number_and_date
+    error_code: T18
+    message: Value must contain a three-digit MT number (100-999) followed by a valid YYMMDD date.
+
+- tag: '79'
+  name: Narrative Description of Original Message
+  sequence: A
+  presence: conditional
+  presence_condition: "See usage rule C1: required when additional narrative is needed to identify the original message."
+  format: 35*50x
+  description: Narrative describing the original message referred to by the MT n96.
+  validations:
+  - id: 79-NR-1
+    type: network_rule
+    rule: value_must_use_x_charset
+    error_code: T20
+    message: Narrative must use only SWIFT X character set characters.

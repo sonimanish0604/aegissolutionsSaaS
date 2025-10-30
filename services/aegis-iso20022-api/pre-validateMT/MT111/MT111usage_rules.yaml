@@ -1,0 +1,17 @@
+MT111_Usage_Rules:
+  rules:
+    - id: U1
+      description: >
+        This message must not be used to request stop payment of a cheque issued without a specified payee.
+      applies_to: MT111
+      enforcement:
+        cheque_payee_specified: required
+        stop_payment_request: not_allowed_if_payee_missing
+
+    - id: U2
+      description: >
+        This message always requires a response, preferably by an MT112 Status of a Request for Stop Payment of a Cheque.
+      applies_to: MT111
+      enforcement:
+        response_required: true
+        preferred_response_format: MT112
