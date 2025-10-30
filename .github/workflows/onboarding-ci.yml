@@ -1,5 +1,7 @@
 # .github/workflows/onboarding-ci.yml
 name: onboarding-ci
+permissions:
+  contents: read
 on:
   pull_request:
     paths:
