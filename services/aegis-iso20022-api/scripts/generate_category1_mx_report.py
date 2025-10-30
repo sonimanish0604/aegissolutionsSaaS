@@ -20,11 +20,11 @@ from src.translator_core.mapping_store import MappingStore
 from src.translator_core.transformer import Transformer
 from src.translator_core.mx_builder import MXBuilder
 from src.translator_core.xsd_validator import XSDValidator
+from src.prevalidator_core import PrevalidationEngine
 
 
-OUTPUT_JSON = Path("reports/category1MXtransform.json")
-OUTPUT_HTML = Path("reports/category1MXtransform.html")
-OUTPUT_XML = Path("reports/category1MXtransform.xml")
+DEFAULT_PREFIX = "category1MXtransform"
+REPORTS_DIR = Path("reports")
 
 
 def _now_iso() -> str:
@@ -77,13 +77,27 @@ def _detect_variant(mt_type_key: str, parsed_fields: dict, sample_meta: dict[str
     return None
 
 
-def generate() -> dict[str, Any]:
+def _build_prevalidation_record(result: Any | None, enabled: bool) -> dict[str, Any]:
+    if not enabled or result is None:
+        return {
+            "enabled": False,
+            "valid": None,
+            "errors": [],
+            "warnings": [],
+        }
+    data = result.to_dict()
+    data["enabled"] = True
+    return data
+
+
+def generate(prevalidate: bool = True) -> dict[str, Any]:
     ts = _now_iso()
 
     parser = MTParser()
     store = MappingStore()
     builder = MXBuilder()
     transformer = Transformer()
+    prevalidator = PrevalidationEngine()
 
     samples_out: list[dict[str, Any]] = []
 
@@ -95,6 +109,16 @@ def generate() -> dict[str, Any]:
         parsed = parser.parse(mt_key, mt_raw)
         parsed_fields = parsed.get("fields", {})
         variant = _detect_variant(mt_key, parsed_fields, payload)
+
+        if prevalidate:
+            force_type = payload.get("force_type") or requested_type
+            pre_validation = prevalidator.validate(mt_raw, force_type=force_type)
+        else:
+            pre_validation = None
+        pre_validation_dict = _build_prevalidation_record(pre_validation, prevalidate)
+        prevalidation_valid = (
+            pre_validation_dict["valid"] if pre_validation_dict["enabled"] else True
+        )
 
         mapping_rel, mx_type, xsd_dir = store.resolve(mt_key, variant=variant)
         if not mapping_rel or not mx_type or not xsd_dir:
@@ -113,6 +137,7 @@ def generate() -> dict[str, Any]:
                     "xsd_ok": None,
                     "xsd_errors": [],
                     "mapping": None,
+                    "prevalidation": pre_validation_dict,
                 }
             )
             continue
@@ -136,6 +161,29 @@ def generate() -> dict[str, Any]:
                     "xsd_ok": None,
                     "xsd_errors": [],
                     "mapping": mapping_rel,
+                    "prevalidation": pre_validation_dict,
+                }
+            )
+            continue
+
+        if not prevalidation_valid:
+            error_notes = "; ".join(e["message"] for e in pre_validation_dict.get("errors", [])) or "Prevalidation failed"
+            samples_out.append(
+                {
+                    "label": label,
+                    "mt_type": requested_type,
+                    "mx_type": None,
+                    "variant": variant,
+                    "status": "error",
+                    "code": "PREVALIDATION_FAILED",
+                    "mode": "pass_through",
+                    "payload_preserved": True,
+                    "notes": error_notes,
+                    "xml": None,
+                    "xsd_ok": None,
+                    "xsd_errors": [],
+                    "mapping": mapping_rel,
+                    "prevalidation": pre_validation_dict,
                 }
             )
             continue
@@ -157,29 +205,37 @@ def generate() -> dict[str, Any]:
                     "code": "CONVERTED" if ok else "XSD_INVALID",
                     "mode": "translate",
                     "payload_preserved": False,
-                    "notes": None if ok else "; ".join(errors),
+                "notes": None if ok else "; ".join(errors),
                 "xml": xml_payload,
                 "xsd_ok": ok,
                 "xsd_errors": errors,
                 "mapping": mapping_rel,
                 "mapped_count": len(audit_details["mapped"]),
+                "prevalidation": pre_validation_dict,
             }
         )
 
     return {"generated_at": ts, "samples": samples_out}
 
 
-def write_json(report: dict[str, Any]) -> None:
-    OUTPUT_JSON.write_text(json.dumps(report, indent=2), encoding="utf-8")
+def write_json(report: dict[str, Any], path: Path) -> None:
+    path.write_text(json.dumps(report, indent=2), encoding="utf-8")
 
 
-def write_xml(report: dict[str, Any]) -> None:
+def write_xml(report: dict[str, Any], path: Path) -> None:
     lines: list[str] = ['<?xml version="1.0" encoding="UTF-8"?>']
     lines.append(f'<mxTransforms generatedAt="{report["generated_at"]}">')
     for sample in report["samples"]:
+        prevalidation_info = sample.get("prevalidation", {})
+        pre_attr = (
+            "not_enabled"
+            if not prevalidation_info.get("enabled")
+            else ("ok" if prevalidation_info.get("valid") else "fail")
+        )
         attrs = {
             "label": sample["label"],
             "mtType": sample["mt_type"],
+            "preValidation": pre_attr,
             "mxType": sample["mx_type"] if sample["mx_type"] is not None else "None",
             "variant": sample["variant"] or "",
             "status": sample["status"],
@@ -196,10 +252,10 @@ def write_xml(report: dict[str, Any]) -> None:
             lines.append("    <payload><![CDATA[" + xml_body + "]]></payload>")
         lines.append("  </sample>")
     lines.append("</mxTransforms>")
-    OUTPUT_XML.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
-def write_html(report: dict[str, Any]) -> None:
+def write_html(report: dict[str, Any], path: Path) -> None:
     head = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -221,6 +277,7 @@ def write_html(report: dict[str, Any]) -> None:
       <tr>
         <th>Label</th>
         <th>MT Type</th>
+        <th>MT Prevalidate</th>
         <th>MX Type</th>
         <th>Variant</th>
         <th>Mapping</th>
@@ -240,10 +297,16 @@ def write_html(report: dict[str, Any]) -> None:
         details = sample["notes"] or "—"
         mx_type = sample["mx_type"] if sample["mx_type"] is not None else "None"
         payload = sample["xml"] or ""
+        pre_info = sample.get("prevalidation", {})
+        if not pre_info.get("enabled"):
+            pre_status_text = "NOT ENABLED"
+        else:
+            pre_status_text = "OK" if pre_info.get("valid") else "FAIL"
         rows.append(
             "      <tr>"
             f"<td>{html.escape(sample['label'])}</td>"
             f"<td>{html.escape(sample['mt_type'])}</td>"
+            f"<td>{html.escape(pre_status_text)}</td>"
             f"<td>{html.escape(mx_type)}</td>"
             f"<td>{html.escape(variant)}</td>"
             f"<td>{html.escape(mapping)}</td>"
@@ -258,14 +321,36 @@ def write_html(report: dict[str, Any]) -> None:
 </body>
 </html>
 """
-    OUTPUT_HTML.write_text(head + "\n".join(rows) + "\n" + tail, encoding="utf-8")
+    path.write_text(head + "\n".join(rows) + "\n" + tail, encoding="utf-8")
 
 
 def main() -> None:
-    report = generate()
-    write_json(report)
-    write_xml(report)
-    write_html(report)
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Generate Category 1 MT→MX transformation reports")
+    parser.add_argument(
+        "--skip-prevalidation",
+        action="store_true",
+        help="Skip MT prevalidation and mark status as NOT ENABLED",
+    )
+    parser.add_argument(
+        "--output-prefix",
+        default=DEFAULT_PREFIX,
+        help="Base filename for generated reports (default: %(default)s)",
+    )
+    args = parser.parse_args()
+
+    report = generate(prevalidate=not args.skip_prevalidation)
+
+    prefix = args.output_prefix
+    REPORTS_DIR.mkdir(exist_ok=True)
+    json_path = REPORTS_DIR / f"{prefix}.json"
+    xml_path = REPORTS_DIR / f"{prefix}.xml"
+    html_path = REPORTS_DIR / f"{prefix}.html"
+
+    write_json(report, json_path)
+    write_xml(report, xml_path)
+    write_html(report, html_path)
 
 
 if __name__ == "__main__":

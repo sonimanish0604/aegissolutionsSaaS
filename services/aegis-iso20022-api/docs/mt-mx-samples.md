@@ -164,3 +164,18 @@ JSON
 ```
 
 > Adjust host/port if the API is exposed elsewhere.
+
+
+### Generating reports
+
+```bash
+python scripts/generate_category1_mx_report.py
+```
+
+To generate a comparison report that bypasses MT prevalidation (the column will show `NOT ENABLED`), run:
+
+```bash
+python scripts/generate_category1_mx_report.py \
+  --skip-prevalidation \
+  --output-prefix category1MXtransform_noPreval
+```

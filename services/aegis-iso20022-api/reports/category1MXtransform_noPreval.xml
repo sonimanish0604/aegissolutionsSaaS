@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mxTransforms generatedAt="2025-10-30T03:20:13.135679Z">
-  <sample label="MT101" mtType="MT101" preValidation="ok" mxType="pain.001.001.12" variant="" status="ok" code="CONVERTED">
+<mxTransforms generatedAt="2025-10-30T03:20:32.969833Z">
+  <sample label="MT101" mtType="MT101" preValidation="not_enabled" mxType="pain.001.001.12" variant="" status="ok" code="CONVERTED">
     <mapping>mappings/mt101-to-pain00100112.json</mapping>
     <payload><![CDATA[<?xml version='1.0' encoding='UTF-8'?>
 <Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.001.12">
   <CstmrCdtTrfInitn>
     <GrpHdr>
       <MsgId>REF20251022A</MsgId>
-      <CreDtTm>2025-10-30T03:20:13Z</CreDtTm>
+      <CreDtTm>2025-10-30T03:20:32Z</CreDtTm>
       <NbOfTxs>1</NbOfTxs>
       <CtrlSum>12345.67</CtrlSum>
       <InitgPty>
@@ -76,14 +76,14 @@
 </Document>
 ]]></payload>
   </sample>
-  <sample label="MT102" mtType="MT102" preValidation="ok" mxType="pacs.008.001.13" variant="" status="ok" code="CONVERTED">
+  <sample label="MT102" mtType="MT102" preValidation="not_enabled" mxType="pacs.008.001.13" variant="" status="ok" code="CONVERTED">
     <mapping>mappings/mt102-to-pacs00800113.json</mapping>
     <payload><![CDATA[<?xml version='1.0' encoding='UTF-8'?>
 <Document xmlns="urn:iso:std:iso:20022:tech:xsd:pacs.008.001.13">
   <FIToFICstmrCdtTrf>
     <GrpHdr>
-      <MsgId>2025-10-30T03:20:13Z</MsgId>
-      <CreDtTm>2025-10-30T03:20:13Z</CreDtTm>
+      <MsgId>2025-10-30T03:20:32Z</MsgId>
+      <CreDtTm>2025-10-30T03:20:32Z</CreDtTm>
       <NbOfTxs>1</NbOfTxs>
       <SttlmInf>
         <SttlmMtd>CLRG</SttlmMtd>
@@ -148,14 +148,14 @@
 </Document>
 ]]></payload>
   </sample>
-  <sample label="MT102-STP" mtType="MT102-STP" preValidation="ok" mxType="pacs.008.001.13" variant="stp" status="ok" code="CONVERTED">
+  <sample label="MT102-STP" mtType="MT102-STP" preValidation="not_enabled" mxType="pacs.008.001.13" variant="stp" status="ok" code="CONVERTED">
     <mapping>mappings/mt102stp-to-pacs00800113.json</mapping>
     <payload><![CDATA[<?xml version='1.0' encoding='UTF-8'?>
 <Document xmlns="urn:iso:std:iso:20022:tech:xsd:pacs.008.001.13">
   <FIToFICstmrCdtTrf>
     <GrpHdr>
-      <MsgId>2025-10-30T03:20:13Z</MsgId>
-      <CreDtTm>2025-10-30T03:20:13Z</CreDtTm>
+      <MsgId>2025-10-30T03:20:32Z</MsgId>
+      <CreDtTm>2025-10-30T03:20:32Z</CreDtTm>
       <NbOfTxs>1</NbOfTxs>
       <SttlmInf>
         <SttlmMtd>CLRG</SttlmMtd>
@@ -215,14 +215,14 @@
 </Document>
 ]]></payload>
   </sample>
-  <sample label="MT103" mtType="MT103" preValidation="ok" mxType="pacs.008.001.13" variant="" status="ok" code="CONVERTED">
+  <sample label="MT103" mtType="MT103" preValidation="not_enabled" mxType="pacs.008.001.13" variant="" status="ok" code="CONVERTED">
     <mapping>mappings/mt103-to-pacs00800113.json</mapping>
     <payload><![CDATA[<?xml version='1.0' encoding='UTF-8'?>
 <Document xmlns="urn:iso:std:iso:20022:tech:xsd:pacs.008.001.13">
   <FIToFICstmrCdtTrf>
     <GrpHdr>
-      <MsgId>2025-10-30T03:20:13Z</MsgId>
-      <CreDtTm>2025-10-30T03:20:13Z</CreDtTm>
+      <MsgId>2025-10-30T03:20:32Z</MsgId>
+      <CreDtTm>2025-10-30T03:20:32Z</CreDtTm>
       <NbOfTxs>1</NbOfTxs>
       <SttlmInf>
         <SttlmMtd>CLRG</SttlmMtd>
@@ -289,14 +289,14 @@
 </Document>
 ]]></payload>
   </sample>
-  <sample label="MT103-REMIT" mtType="MT103-REMIT" preValidation="ok" mxType="pacs.008.001.13" variant="" status="ok" code="CONVERTED">
+  <sample label="MT103-REMIT" mtType="MT103-REMIT" preValidation="not_enabled" mxType="pacs.008.001.13" variant="" status="ok" code="CONVERTED">
     <mapping>mappings/mt103remit-to-pacs00800113.json</mapping>
     <payload><![CDATA[<?xml version='1.0' encoding='UTF-8'?>
 <Document xmlns="urn:iso:std:iso:20022:tech:xsd:pacs.008.001.13">
   <FIToFICstmrCdtTrf>
     <GrpHdr>
-      <MsgId>2025-10-30T03:20:13Z</MsgId>
-      <CreDtTm>2025-10-30T03:20:13Z</CreDtTm>
+      <MsgId>2025-10-30T03:20:32Z</MsgId>
+      <CreDtTm>2025-10-30T03:20:32Z</CreDtTm>
       <NbOfTxs>1</NbOfTxs>
       <SttlmInf>
         <SttlmMtd>CLRG</SttlmMtd>
@@ -363,14 +363,14 @@
 </Document>
 ]]></payload>
   </sample>
-  <sample label="MT103-STP" mtType="MT103-STP" preValidation="ok" mxType="pacs.008.001.13" variant="" status="ok" code="CONVERTED">
+  <sample label="MT103-STP" mtType="MT103-STP" preValidation="not_enabled" mxType="pacs.008.001.13" variant="" status="ok" code="CONVERTED">
     <mapping>mappings/mt103stp-to-pacs00800113.json</mapping>
     <payload><![CDATA[<?xml version='1.0' encoding='UTF-8'?>
 <Document xmlns="urn:iso:std:iso:20022:tech:xsd:pacs.008.001.13">
   <FIToFICstmrCdtTrf>
     <GrpHdr>
-      <MsgId>2025-10-30T03:20:13Z</MsgId>
-      <CreDtTm>2025-10-30T03:20:13Z</CreDtTm>
+      <MsgId>2025-10-30T03:20:33Z</MsgId>
+      <CreDtTm>2025-10-30T03:20:33Z</CreDtTm>
       <NbOfTxs>1</NbOfTxs>
       <SttlmInf>
         <SttlmMtd>CLRG</SttlmMtd>
@@ -440,14 +440,14 @@
 </Document>
 ]]></payload>
   </sample>
-  <sample label="MT104" mtType="MT104" preValidation="ok" mxType="pain.008.001.11" variant="" status="ok" code="CONVERTED">
+  <sample label="MT104" mtType="MT104" preValidation="not_enabled" mxType="pain.008.001.11" variant="" status="ok" code="CONVERTED">
     <mapping>mappings/mt104-to-pain00800111.json</mapping>
     <payload><![CDATA[<?xml version='1.0' encoding='UTF-8'?>
 <Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.008.001.11">
   <CstmrDrctDbtInitn>
     <GrpHdr>
       <MsgId>DDREF20250101</MsgId>
-      <CreDtTm>2025-10-30T03:20:13Z</CreDtTm>
+      <CreDtTm>2025-10-30T03:20:33Z</CreDtTm>
       <NbOfTxs>1</NbOfTxs>
       <CtrlSum>150.00</CtrlSum>
       <InitgPty>
@@ -531,17 +531,17 @@
 </Document>
 ]]></payload>
   </sample>
-  <sample label="MT105" mtType="MT105" preValidation="ok" mxType="None" variant="" status="ok" code="NO_CONVERSION_APPLICABLE">
+  <sample label="MT105" mtType="MT105" preValidation="not_enabled" mxType="None" variant="" status="ok" code="NO_CONVERSION_APPLICABLE">
     <notes>MT105 carried unchanged. No ISO 20022 conversion performed.</notes>
   </sample>
-  <sample label="MT107" mtType="MT107" preValidation="ok" mxType="pacs.003.001.11" variant="" status="ok" code="CONVERTED">
+  <sample label="MT107" mtType="MT107" preValidation="not_enabled" mxType="pacs.003.001.11" variant="" status="ok" code="CONVERTED">
     <mapping>mappings/mt107-to-pacs00300111.json</mapping>
     <payload><![CDATA[<?xml version='1.0' encoding='UTF-8'?>
 <Document xmlns="urn:iso:std:iso:20022:tech:xsd:pacs.003.001.11">
   <FIToFICstmrDrctDbt>
     <GrpHdr>
-      <MsgId>2025-10-30T03:20:13Z</MsgId>
-      <CreDtTm>2025-10-30T03:20:13Z</CreDtTm>
+      <MsgId>2025-10-30T03:20:33Z</MsgId>
+      <CreDtTm>2025-10-30T03:20:33Z</CreDtTm>
       <NbOfTxs>1</NbOfTxs>
       <SttlmInf>
         <SttlmMtd>CLRG</SttlmMtd>
@@ -626,14 +626,14 @@
 </Document>
 ]]></payload>
   </sample>
-  <sample label="MT110" mtType="MT110" preValidation="ok" mxType="camt.107.001.02" variant="" status="ok" code="CONVERTED">
+  <sample label="MT110" mtType="MT110" preValidation="not_enabled" mxType="camt.107.001.02" variant="" status="ok" code="CONVERTED">
     <mapping>mappings/mt110-to-camt10700102.json</mapping>
     <payload><![CDATA[<?xml version='1.0' encoding='UTF-8'?>
 <Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.107.001.02">
   <ChqPresntmntNtfctn>
     <GrpHdr>
       <MsgId>CHKCOLL202501</MsgId>
-      <CreDtTm>2025-10-30T03:20:13Z</CreDtTm>
+      <CreDtTm>2025-10-30T03:20:33Z</CreDtTm>
       <NbOfChqs>1</NbOfChqs>
     </GrpHdr>
     <Chq>
@@ -670,14 +670,14 @@
 </Document>
 ]]></payload>
   </sample>
-  <sample label="MT111" mtType="MT111" preValidation="ok" mxType="camt.108.001.02" variant="" status="ok" code="CONVERTED">
+  <sample label="MT111" mtType="MT111" preValidation="not_enabled" mxType="camt.108.001.02" variant="" status="ok" code="CONVERTED">
     <mapping>mappings/mt111-to-camt10800102.json</mapping>
     <payload><![CDATA[<?xml version='1.0' encoding='UTF-8'?>
 <Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.108.001.02">
   <ChqCxlOrStopReq>
     <GrpHdr>
       <MsgId>STOPCHK202501</MsgId>
-      <CreDtTm>2025-10-30T03:20:13Z</CreDtTm>
+      <CreDtTm>2025-10-30T03:20:33Z</CreDtTm>
       <NbOfChqs>1</NbOfChqs>
     </GrpHdr>
     <Chq>
@@ -705,14 +705,14 @@
 </Document>
 ]]></payload>
   </sample>
-  <sample label="MT112" mtType="MT112" preValidation="ok" mxType="camt.109.001.02" variant="" status="ok" code="CONVERTED">
+  <sample label="MT112" mtType="MT112" preValidation="not_enabled" mxType="camt.109.001.02" variant="" status="ok" code="CONVERTED">
     <mapping>mappings/mt112-to-camt10900102.json</mapping>
     <payload><![CDATA[<?xml version='1.0' encoding='UTF-8'?>
 <Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.109.001.02">
   <ChqCxlOrStopRpt>
     <GrpHdr>
       <MsgId>ANSWERCHK202501</MsgId>
-      <CreDtTm>2025-10-30T03:20:13Z</CreDtTm>
+      <CreDtTm>2025-10-30T03:20:33Z</CreDtTm>
       <NbOfChqs>1</NbOfChqs>
     </GrpHdr>
     <Chq>
@@ -740,7 +740,7 @@
 </Document>
 ]]></payload>
   </sample>
-  <sample label="MT192" mtType="MT192" preValidation="ok" mxType="camt.056.001.11" variant="" status="ok" code="CONVERTED">
+  <sample label="MT192" mtType="MT192" preValidation="not_enabled" mxType="camt.056.001.11" variant="" status="ok" code="CONVERTED">
     <mapping>mappings/mt192-to-camt05600111.json</mapping>
     <payload><![CDATA[<?xml version='1.0' encoding='UTF-8'?>
 <Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.056.001.11">
@@ -765,7 +765,7 @@
           </FinInstnId>
         </Agt>
       </Assgne>
-      <CreDtTm>2025-10-30T03:20:13Z</CreDtTm>
+      <CreDtTm>2025-10-30T03:20:33Z</CreDtTm>
     </Assgnmt>
     <Undrlyg>
       <OrgnlGrpInfAndCxl>
@@ -789,7 +789,7 @@
 </Document>
 ]]></payload>
   </sample>
-  <sample label="MT195-CONFIRM" mtType="MT195" preValidation="ok" mxType="camt.028.001.12" variant="" status="ok" code="CONVERTED">
+  <sample label="MT195-CONFIRM" mtType="MT195" preValidation="not_enabled" mxType="camt.028.001.12" variant="" status="ok" code="CONVERTED">
     <mapping>mappings/mt195-to-camt02800112.json</mapping>
     <payload><![CDATA[<?xml version='1.0' encoding='UTF-8'?>
 <Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.028.001.12">
@@ -814,7 +814,7 @@
           </FinInstnId>
         </Agt>
       </Assgne>
-      <CreDtTm>2025-10-30T03:20:13Z</CreDtTm>
+      <CreDtTm>2025-10-30T03:20:33Z</CreDtTm>
     </Assgnmt>
     <Undrlyg>
       <IntrBk>
@@ -864,7 +864,7 @@
 </Document>
 ]]></payload>
   </sample>
-  <sample label="MT195-UNABLE" mtType="MT195" preValidation="ok" mxType="camt.026.001.10" variant="unable_to_apply" status="ok" code="CONVERTED">
+  <sample label="MT195-UNABLE" mtType="MT195" preValidation="not_enabled" mxType="camt.026.001.10" variant="unable_to_apply" status="ok" code="CONVERTED">
     <mapping>mappings/mt195-to-camt02600110.json</mapping>
     <payload><![CDATA[<?xml version='1.0' encoding='UTF-8'?>
 <Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.026.001.10">
@@ -889,7 +889,7 @@
           </FinInstnId>
         </Agt>
       </Assgne>
-      <CreDtTm>2025-10-30T03:20:13Z</CreDtTm>
+      <CreDtTm>2025-10-30T03:20:33Z</CreDtTm>
     </Assgnmt>
     <Undrlyg>
       <IntrBk>
@@ -908,7 +908,7 @@
 </Document>
 ]]></payload>
   </sample>
-  <sample label="MT195-CLAIM" mtType="MT195" preValidation="ok" mxType="camt.027.001.10" variant="claim_non_receipt" status="ok" code="CONVERTED">
+  <sample label="MT195-CLAIM" mtType="MT195" preValidation="not_enabled" mxType="camt.027.001.10" variant="claim_non_receipt" status="ok" code="CONVERTED">
     <mapping>mappings/mt195-to-camt02700110.json</mapping>
     <payload><![CDATA[<?xml version='1.0' encoding='UTF-8'?>
 <Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.027.001.10">
@@ -933,7 +933,7 @@
           </FinInstnId>
         </Agt>
       </Assgne>
-      <CreDtTm>2025-10-30T03:20:13Z</CreDtTm>
+      <CreDtTm>2025-10-30T03:20:33Z</CreDtTm>
     </Assgnmt>
     <Undrlyg>
       <IntrBk>
@@ -955,7 +955,7 @@
 </Document>
 ]]></payload>
   </sample>
-  <sample label="MT195-DUPLICATE" mtType="MT195" preValidation="ok" mxType="camt.033.001.07" variant="request_duplicate" status="ok" code="CONVERTED">
+  <sample label="MT195-DUPLICATE" mtType="MT195" preValidation="not_enabled" mxType="camt.033.001.07" variant="request_duplicate" status="ok" code="CONVERTED">
     <mapping>mappings/mt195-to-camt03300107.json</mapping>
     <payload><![CDATA[<?xml version='1.0' encoding='UTF-8'?>
 <Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.033.001.07">
@@ -980,13 +980,13 @@
           </FinInstnId>
         </Agt>
       </Assgne>
-      <CreDtTm>2025-10-30T03:20:13Z</CreDtTm>
+      <CreDtTm>2025-10-30T03:20:33Z</CreDtTm>
     </Assgnmt>
   </ReqForDplct>
 </Document>
 ]]></payload>
   </sample>
-  <sample label="MT195-INFO" mtType="MT195" preValidation="ok" mxType="camt.028.001.12" variant="" status="ok" code="CONVERTED">
+  <sample label="MT195-INFO" mtType="MT195" preValidation="not_enabled" mxType="camt.028.001.12" variant="" status="ok" code="CONVERTED">
     <mapping>mappings/mt195-to-camt02800112.json</mapping>
     <payload><![CDATA[<?xml version='1.0' encoding='UTF-8'?>
 <Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.028.001.12">
@@ -1011,7 +1011,7 @@
           </FinInstnId>
         </Agt>
       </Assgne>
-      <CreDtTm>2025-10-30T03:20:13Z</CreDtTm>
+      <CreDtTm>2025-10-30T03:20:33Z</CreDtTm>
     </Assgnmt>
     <Undrlyg>
       <IntrBk>
@@ -1061,7 +1061,7 @@
 </Document>
 ]]></payload>
   </sample>
-  <sample label="MT196-CANCEL" mtType="MT196" preValidation="ok" mxType="camt.029.001.13" variant="cancellation" status="ok" code="CONVERTED">
+  <sample label="MT196-CANCEL" mtType="MT196" preValidation="not_enabled" mxType="camt.029.001.13" variant="cancellation" status="ok" code="CONVERTED">
     <mapping>mappings/mt196-to-camt02900113.json</mapping>
     <payload><![CDATA[<?xml version='1.0' encoding='UTF-8'?>
 <Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.029.001.13">
@@ -1086,7 +1086,7 @@
           </FinInstnId>
         </Agt>
       </Assgne>
-      <CreDtTm>2025-10-30T03:20:13Z</CreDtTm>
+      <CreDtTm>2025-10-30T03:20:33Z</CreDtTm>
     </Assgnmt>
     <Sts>
       <Conf>CNCL</Conf>
@@ -1101,7 +1101,7 @@
 </Document>
 ]]></payload>
   </sample>
-  <sample label="MT196-QUERY" mtType="MT196" preValidation="ok" mxType="camt.111.001.02" variant="information" status="ok" code="CONVERTED">
+  <sample label="MT196-QUERY" mtType="MT196" preValidation="not_enabled" mxType="camt.111.001.02" variant="information" status="ok" code="CONVERTED">
     <mapping>mappings/mt196-to-camt11100102.json</mapping>
     <payload><![CDATA[<?xml version='1.0' encoding='UTF-8'?>
 <Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.111.001.02">
