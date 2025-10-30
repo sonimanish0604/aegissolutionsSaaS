@@ -101,12 +101,9 @@ class MappingStore:
                 f"(from pairs.yaml out_json='{out_json_rel}', service_root='{self.service_root}')"
             )
         if xsd_dir_rel and not xsd_dir_path.exists():
-            raise FileNotFoundError(
-                f"XSD directory not found: {xsd_dir_path}\n"
-                f"(from pairs.yaml xsd_dir='{xsd_dir_rel}', service_root='{self.service_root}')"
-            )
+            xsd_dir_path = None
 
         mapping = _load_json_with_diagnostics(mapping_path)
         if not isinstance(mapping, dict):
             raise ValueError(f"Mapping must be a JSON object at top-level: {mapping_path}")
-        return mapping, mx_type, str(xsd_dir_path)
+        return mapping, mx_type, str(xsd_dir_path) if xsd_dir_path else None
