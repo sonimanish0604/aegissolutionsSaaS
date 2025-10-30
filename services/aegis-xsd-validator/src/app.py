@@ -5,7 +5,7 @@ from typing import Optional
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 
 import xmlschema
-
+import logging
 app = FastAPI(title="Aegis XSD Validation Service")
 
 
@@ -23,7 +23,8 @@ def _validate_xmlschema(xsd_bytes: bytes, xml_bytes: bytes) -> dict:
         schema.validate(xml_bytes)
         return {"engine": "xmlschema", "ok": True, "errors": []}
     except xmlschema.XMLSchemaValidationError as exc:  # type: ignore[attr-defined]
-        return {"engine": "xmlschema", "ok": False, "errors": [str(exc)]}
+        logging.warning("XML Schema validation failed: %s", exc)
+        return {"engine": "xmlschema", "ok": False, "errors": ["XML schema validation failed"]}
 
 
 def _validate_saxon_sim(xml_bytes: bytes) -> dict:
