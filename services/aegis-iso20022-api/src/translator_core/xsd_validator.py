@@ -88,7 +88,7 @@ class LxmlBackend(SchemaBackend):
     def load(self, schema_path: Optional[Path], mx_type: str) -> None:
         if not schema_path:
             self.schema = None
-            self.schema_error = f"XSD file for {mx_type} not found"
+            self.schema_error = f"XSD validation skipped: file for {mx_type} not found"
             return
 
         try:
@@ -124,7 +124,7 @@ class XmlSchema11Backend(SchemaBackend):
     def load(self, schema_path: Optional[Path], mx_type: str) -> None:
         if schema_path is None:
             self.schema = None
-            self.schema_error = f"XSD file for {mx_type} not found"
+            self.schema_error = f"XSD validation skipped: file for {mx_type} not found"
             return
         try:
             self.schema = xmlschema.XMLSchema11(str(schema_path))
