@@ -1,4 +1,6 @@
 name: monorepo-ci
+permissions:
+  contents: read
 on:
   pull_request:
     branches: [develop, staging, main]
