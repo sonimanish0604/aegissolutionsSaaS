@@ -159,6 +159,18 @@ def generate_report(
     output.write_text(json.dumps(report, indent=2), encoding="utf-8")
     print(f"SOC2 compliance report written to {output}")
     if not summary["passed"]:
+        print("Failed checks:")
+        for check in report["checks"]:
+            if check["passed"]:
+                continue
+            print(f"- {check['name']} (exit code {check['return_code']})")
+            if check["stdout"]:
+                print("  stdout:")
+                print("\n".join(f"    {line}" for line in check["stdout"].splitlines()))
+            if check["stderr"]:
+                print("  stderr:")
+                print("\n".join(f"    {line}" for line in check["stderr"].splitlines()))
+        print("Inspect artifacts/soc2_report.json for full details.")
         raise SystemExit("One or more SOC2 compliance checks failed")
 
 
