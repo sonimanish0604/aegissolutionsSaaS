@@ -12,7 +12,8 @@ class AuditRecord:
     error_count: int
     validation_ok: bool
     latency_ms: float
-    details: dict
+    details: dict | None = None
+    xml_validator: str | None = None
 
 def new_correlation_id(raw: str) -> str:
     return hashlib.sha256(raw.encode()).hexdigest()[:16]
