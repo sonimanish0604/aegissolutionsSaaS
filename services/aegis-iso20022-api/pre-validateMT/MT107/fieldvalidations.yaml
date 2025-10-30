@@ -1,0 +1,850 @@
+- tag: '20'
+  name: Sender's Reference
+  sequence: A
+  presence: mandatory
+  format: 16x
+  description: Reference assigned by the sender to uniquely identify the message.
+  validations:
+  - id: 20-NR-1
+    type: network_rule
+    rule: no_leading_or_trailing_slash_or_double_slash
+    error_code: T26
+    message: Field must not start or end with '/' and must not contain '//' anywhere in its contents.
+  usage_notes:
+  - id: 20-U-1
+    description: Reference must be unique for each message and is reused for queries, cancellations, or related messages.
+- tag: 23E
+  name: Instruction Code
+  sequence: A
+  presence: optional
+  presence_condition: See rules C1, C5, C12, and C13.
+  format: 4!c[/30x]
+  description: Identifies the type of direct debit instructions contained in the message.
+  values_ref: lookups.mt104_instruction_codes
+  additional_info_allowed_for:
+  - OTHR
+  validations:
+  - id: 23E-A-NR-1
+    type: network_rule
+    rule: instruction_code_must_be_recognised_mt104
+    error_code: T47
+    message: Instruction code must be one of the MT104-recognised values.
+  - id: 23E-A-NR-2
+    type: network_rule
+    rule: instruction_code_additional_info_ot_only
+    error_code: D81
+    message: Additional narrative is only allowed when the instruction code is OTHR.
+- tag: 21E
+  name: Registration Reference
+  sequence: A
+  presence: conditional
+  presence_condition: See rule C3 (also referenced in rule C4).
+  format: 35x
+  description: Registration reference authorising the creditor to participate in the direct debit scheme.
+- tag: '30'
+  name: Requested Execution Date
+  sequence: A
+  presence: mandatory
+  format: 6!n
+  description: Requested execution date for all transactions in the message.
+  validations:
+  - id: 30-NR-1
+    type: network_rule
+    rule: must_be_valid_date_yymmdd
+    error_code: T50
+    message: Date must be a valid YYMMDD calendar date.
+- tag: 51A
+  name: Sending Institution
+  sequence: A
+  presence: optional
+  format: '[/1!a][/34x] 4!a2!a2!c[3!c]'
+  description: Identifies the sender of the message (FileAct only).
+  validations:
+  - id: 51A-NR-1
+    type: network_rule
+    rule: identifier_code_must_be_valid_bic
+    error_code: T27
+    message: Identifier Code must be a valid BIC in the required format (4!a2!a2!c[3!c]).
+  - id: 51A-NR-2
+    type: network_rule
+    rule: identifier_code_must_be_fin_destination
+    error_code: T28
+    message: Identifier Code must correspond to a valid FIN destination.
+  - id: 51A-NR-3
+    type: network_rule
+    rule: identifier_code_branch_identifier_validity
+    error_code: T29
+    message: Identifier Code must contain a valid branch identifier, when present.
+  - id: 51A-NR-4
+    type: network_rule
+    rule: identifier_code_non_connected_validity
+    error_code: T45
+    message: Identifier Code must not reference an invalid non-connected BIC.
+  - id: 51A-NR-5
+    type: network_rule
+    rule: identifier_code_must_be_financial_institution
+    error_code: C05
+    message: Identifier Code must identify a registered financial institution BIC.
+  - id: 51A-NR-6
+    type: network_rule
+    rule: field_51a_allowed_only_in_fileact
+    error_code: D63
+    message: Field 51A may only be present in FileAct messages.
+  usage_notes:
+  - id: 51A-U-1
+    description: At least the first eight characters of the BIC must match the FileAct originator.
+- tag: 50a
+  name: Instructing Party
+  sequence: A
+  presence: conditional
+  presence_condition: See rules C2 and C4.
+  description: Creditor whose account is to be credited with all transactions in sequence B.
+  options_allowed:
+  - A
+  - K
+  option_A:
+    label: Account / Identifier Code
+    format: '[/34x] 4!a2!a2!c[3!c]'
+    validations:
+    - id: 50aA-A-NR-1
+      type: network_rule
+      rule: identifier_code_must_be_valid_bic
+      error_code: T27
+      message: Identifier Code must be a valid BIC in the required format (4!a2!a2!c[3!c]).
+    - id: 50aA-A-NR-2
+      type: network_rule
+      rule: identifier_code_must_be_fin_destination
+      error_code: T28
+      message: Identifier Code must correspond to a valid FIN destination.
+    - id: 50aA-A-NR-3
+      type: network_rule
+      rule: identifier_code_branch_identifier_validity
+      error_code: T29
+      message: Identifier Code must contain a valid branch identifier, when present.
+    - id: 50aA-A-NR-4
+      type: network_rule
+      rule: identifier_code_non_connected_validity
+      error_code: T45
+      message: Identifier Code must not reference an invalid non-connected BIC.
+  option_K:
+    label: Account / Name and Address
+    format: '[/34x] 4*35x'
+  usage_notes:
+  - id: 50a-Cred-U-1
+    description: Provide at least the creditor name or BIC; the account line is mandatory for Request for Direct Debit scenarios.
+- tag: 50a
+  name: Creditor
+  sequence: A
+  presence: conditional
+  presence_condition: See rules C2 and C4.
+  description: Creditor whose account is to be credited with all transactions in sequence B.
+  options_allowed:
+  - A
+  - K
+  option_A:
+    label: Account / Identifier Code
+    format: '[/34x] 4!a2!a2!c[3!c]'
+    validations:
+    - id: 50aA-A-NR-1
+      type: network_rule
+      rule: identifier_code_must_be_valid_bic
+      error_code: T27
+      message: Identifier Code must be a valid BIC in the required format (4!a2!a2!c[3!c]).
+    - id: 50aA-A-NR-2
+      type: network_rule
+      rule: identifier_code_must_be_fin_destination
+      error_code: T28
+      message: Identifier Code must correspond to a valid FIN destination.
+    - id: 50aA-A-NR-3
+      type: network_rule
+      rule: identifier_code_branch_identifier_validity
+      error_code: T29
+      message: Identifier Code must contain a valid branch identifier, when present.
+    - id: 50aA-A-NR-4
+      type: network_rule
+      rule: identifier_code_non_connected_validity
+      error_code: T45
+      message: Identifier Code must not reference an invalid non-connected BIC.
+  option_K:
+    label: Account / Name and Address
+    format: '[/34x] 4*35x'
+  usage_notes:
+  - id: 50a-Cred-U-1
+    description: Provide at least the creditor name or BIC; the account line is mandatory for Request for Direct Debit scenarios.
+- tag: 52a
+  name: Creditor's Bank
+  sequence: A
+  presence: conditional
+  presence_condition: See rule C3.
+  description: Specifies the creditor's bank that orders the transactions.
+  options_allowed:
+  - A
+  - C
+  - D
+  option_A:
+    label: Party Identifier / Identifier Code
+    format: '[/1!a][/34x] 4!a2!a2!c[3!c]'
+    national_clearing_codes_ref: lookups.national_clearing_codes
+    validations:
+    - id: 52aA-A-NR-1
+      type: network_rule
+      rule: identifier_code_must_be_valid_bic
+      error_code: T27
+      message: Identifier Code must be a valid BIC in the required format (4!a2!a2!c[3!c]).
+    - id: 52aA-A-NR-2
+      type: network_rule
+      rule: identifier_code_must_be_fin_destination
+      error_code: T28
+      message: Identifier Code must correspond to a valid FIN destination.
+    - id: 52aA-A-NR-3
+      type: network_rule
+      rule: identifier_code_branch_identifier_validity
+      error_code: T29
+      message: Identifier Code must contain a valid branch identifier, when present.
+    - id: 52aA-A-NR-4
+      type: network_rule
+      rule: identifier_code_non_connected_validity
+      error_code: T45
+      message: Identifier Code must not reference an invalid non-connected BIC.
+    - id: 52aA-A-NR-5
+      type: network_rule
+      rule: identifier_code_must_be_financial_institution
+      error_code: C05
+      message: Identifier Code must identify a registered financial institution BIC.
+  option_C:
+    label: Party Identifier
+    format: /34x
+    national_clearing_codes_ref: lookups.national_clearing_codes
+  option_D:
+    label: Party Identifier / Name and Address
+    format: '[/1!a][/34x] 4*35x'
+    national_clearing_codes_ref: lookups.national_clearing_codes
+- tag: 26T
+  name: Transaction Type Code
+  sequence: A
+  presence: optional
+  format: 3!c
+  description: Describes the nature or purpose of the grouped transactions.
+- tag: 77B
+  name: Regulatory Reporting
+  sequence: A
+  presence: optional
+  format: 3*35x
+  description: Statutory or regulatory information required by the receiver or sender authorities.
+  codes_allowed_ref: lookups.regulatory_reporting_codes
+- tag: 71A
+  name: Details of Charges
+  sequence: A
+  presence: conditional
+  presence_condition: See rule C3.
+  format: 3!a
+  description: Indicates how charges are borne under the direct debit or request for direct debit scenario.
+  codes_allowed_ref: lookups.charge_codes
+  validations:
+  - id: 71A-A-NR-1
+    type: network_rule
+    rule: charge_code_must_be_recognised
+    error_code: T08
+    message: Charges code must be one of BEN, OUR, or SHA.
+- tag: '72'
+  name: Sender to Receiver Information
+  sequence: A
+  presence: conditional
+  presence_condition: See rule C5.
+  format: 6*35x
+  description: Provides reject/return reasons to the receiver of the original message.
+  validations:
+  - id: 72-A-NR-1
+    type: network_rule
+    rule: sender_to_receiver_reject_return_guideline
+    error_code: T80
+    message: Payments Reject/Return Guidelines must be followed when using /REJT/ or /RETN/.
+  - id: 72-A-NR-2
+    type: network_rule
+    rule: sender_to_receiver_code_must_be_first_line
+    error_code: D82
+    message: When present, /REJT/ or /RETN/ must be the first code on line 1.
+- tag: '21'
+  name: Transaction Reference
+  sequence: B
+  presence: mandatory
+  format: 16x
+  description: Unique reference for the individual direct debit transaction.
+  validations:
+  - id: 21-NR-1
+    type: network_rule
+    rule: no_leading_or_trailing_slash_or_double_slash
+    error_code: T26
+    message: Field must not start or end with '/' and must not contain '//' anywhere in its contents.
+  usage_notes:
+  - id: 21-U-1
+    description: Must be unique within the message; used with field 20 to identify the transaction.
+- tag: 23E
+  name: Instruction Code
+  sequence: B
+  presence: conditional
+  presence_condition: See rule C1.
+  format: 4!c[/30x]
+  description: Identifies or refines the type of direct debit instruction for this occurrence of sequence B.
+  values_ref: lookups.mt104_instruction_codes_sequence_b
+  additional_info_allowed_for:
+  - OTHR
+  validations:
+  - id: 23E-B-NR-1
+    type: network_rule
+    rule: instruction_code_must_be_recognised_mt104_b
+    error_code: T47
+    message: Instruction code must be AUTH, NAUT, or OTHR.
+  - id: 23E-B-NR-2
+    type: network_rule
+    rule: instruction_code_additional_info_ot_only
+    error_code: D81
+    message: Additional narrative is only allowed when the instruction code is OTHR.
+- tag: 21C
+  name: Mandate Reference
+  sequence: B
+  presence: optional
+  format: 35x
+  description: Reference of the direct debit mandate agreed between creditor and debtor.
+- tag: 21D
+  name: Direct Debit Reference
+  sequence: B
+  presence: optional
+  format: 35x
+  description: Further identifies the direct debit transaction.
+- tag: 21E
+  name: Registration Reference
+  sequence: B
+  presence: conditional
+  presence_condition: See rules C3 and C12 (also referenced in rule C4).
+  format: 35x
+  description: Registration reference authorising the creditor to participate in the scheme for this transaction.
+- tag: 32B
+  name: Currency and Transaction Amount
+  sequence: B
+  presence: mandatory
+  presence_condition: See rules C7, C8, C9, C10, and C11.
+  format: 3!a15d
+  description: Currency and amount to be debited from the debtor account (subject to charges).
+  validations:
+  - id: 32B-B-NR-1
+    type: network_rule
+    rule: currency_must_be_valid_iso4217
+    error_code: T52
+    message: Currency must be a valid ISO 4217 currency code.
+  - id: 32B-B-NR-2
+    type: network_rule
+    rule: amount_integer_part_at_least_one_digit
+    error_code: C03
+    message: Amount must include at least one digit before the decimal comma.
+  - id: 32B-B-NR-3
+    type: network_rule
+    rule: amount_decimal_places_within_currency_precision
+    error_code: T40
+    message: Number of digits after the decimal comma must not exceed the precision allowed for the currency.
+  - id: 32B-B-NR-4
+    type: network_rule
+    rule: amount_decimal_comma_mandatory
+    error_code: T43
+    message: Amount must include a decimal comma.
+- tag: 50a
+  name: Creditor
+  sequence: B
+  presence: conditional
+  presence_condition: See rules C6 and C8.
+  description: Creditor whose account will be credited for this transaction.
+  options_allowed:
+  - A
+  - K
+  option_A:
+    label: Account / Identifier Code
+    format: '[/34x] 4!a2!a2!c[3!c]'
+    validations:
+    - id: 50aA-B-NR-1
+      type: network_rule
+      rule: identifier_code_must_be_valid_bic
+      error_code: T27
+      message: Identifier Code must be a valid BIC in the required format (4!a2!a2!c[3!c]).
+    - id: 50aA-B-NR-2
+      type: network_rule
+      rule: identifier_code_must_be_fin_destination
+      error_code: T28
+      message: Identifier Code must correspond to a valid FIN destination.
+    - id: 50aA-B-NR-3
+      type: network_rule
+      rule: identifier_code_branch_identifier_validity
+      error_code: T29
+      message: Identifier Code must contain a valid branch identifier, when present.
+    - id: 50aA-B-NR-4
+      type: network_rule
+      rule: identifier_code_non_connected_validity
+      error_code: T45
+      message: Identifier Code must not reference an invalid non-connected BIC.
+  option_K:
+    label: Account / Name and Address
+    format: '[/34x] 4*35x'
+- tag: 50a
+  name: Creditor
+  sequence: B
+  presence: conditional
+  presence_condition: See rules C6 and C8.
+  description: Creditor whose account will be credited for this transaction.
+  options_allowed:
+  - A
+  - K
+  option_A:
+    label: Account / Identifier Code
+    format: '[/34x] 4!a2!a2!c[3!c]'
+    validations:
+    - id: 50aA-B-NR-1
+      type: network_rule
+      rule: identifier_code_must_be_valid_bic
+      error_code: T27
+      message: Identifier Code must be a valid BIC in the required format (4!a2!a2!c[3!c]).
+    - id: 50aA-B-NR-2
+      type: network_rule
+      rule: identifier_code_must_be_fin_destination
+      error_code: T28
+      message: Identifier Code must correspond to a valid FIN destination.
+    - id: 50aA-B-NR-3
+      type: network_rule
+      rule: identifier_code_branch_identifier_validity
+      error_code: T29
+      message: Identifier Code must contain a valid branch identifier, when present.
+    - id: 50aA-B-NR-4
+      type: network_rule
+      rule: identifier_code_non_connected_validity
+      error_code: T45
+      message: Identifier Code must not reference an invalid non-connected BIC.
+  option_K:
+    label: Account / Name and Address
+    format: '[/34x] 4*35x'
+- tag: 52a
+  name: Creditor's Bank
+  sequence: B
+  presence: conditional
+  presence_condition: See rules C2 and C6.
+  description: Creditor's bank for this transaction.
+  options_allowed:
+  - A
+  - C
+  - D
+  option_A:
+    label: Party Identifier / Identifier Code
+    format: '[/1!a][/34x] 4!a2!a2!c[3!c]'
+    national_clearing_codes_ref: lookups.national_clearing_codes
+    validations:
+    - id: 52aA-B-NR-1
+      type: network_rule
+      rule: identifier_code_must_be_valid_bic
+      error_code: T27
+      message: Identifier Code must be a valid BIC in the required format (4!a2!a2!c[3!c]).
+    - id: 52aA-B-NR-2
+      type: network_rule
+      rule: identifier_code_must_be_fin_destination
+      error_code: T28
+      message: Identifier Code must correspond to a valid FIN destination.
+    - id: 52aA-B-NR-3
+      type: network_rule
+      rule: identifier_code_branch_identifier_validity
+      error_code: T29
+      message: Identifier Code must contain a valid branch identifier, when present.
+    - id: 52aA-B-NR-4
+      type: network_rule
+      rule: identifier_code_non_connected_validity
+      error_code: T45
+      message: Identifier Code must not reference an invalid non-connected BIC.
+    - id: 52aA-B-NR-5
+      type: network_rule
+      rule: identifier_code_must_be_financial_institution
+      error_code: C05
+      message: Identifier Code must identify a registered financial institution BIC.
+  option_C:
+    label: Party Identifier
+    format: /34x
+    national_clearing_codes_ref: lookups.national_clearing_codes
+  option_D:
+    label: Party Identifier / Name and Address
+    format: '[/1!a][/34x] 4*35x'
+    national_clearing_codes_ref: lookups.national_clearing_codes
+- tag: 57a
+  name: Debtor's Bank
+  sequence: B
+  presence: optional
+  description: Financial institution servicing the debtor's account for this transaction.
+  options_allowed:
+  - A
+  - C
+  - D
+  option_A:
+    label: Party Identifier / Identifier Code
+    format: '[/1!a][/34x] 4!a2!a2!c[3!c]'
+    national_clearing_codes_ref: lookups.national_clearing_codes
+    validations:
+    - id: 57aA-B-NR-1
+      type: network_rule
+      rule: identifier_code_must_be_valid_bic
+      error_code: T27
+      message: Identifier Code must be a valid BIC in the required format (4!a2!a2!c[3!c]).
+    - id: 57aA-B-NR-2
+      type: network_rule
+      rule: identifier_code_must_be_fin_destination
+      error_code: T28
+      message: Identifier Code must correspond to a valid FIN destination.
+    - id: 57aA-B-NR-3
+      type: network_rule
+      rule: identifier_code_branch_identifier_validity
+      error_code: T29
+      message: Identifier Code must contain a valid branch identifier, when present.
+    - id: 57aA-B-NR-4
+      type: network_rule
+      rule: identifier_code_non_connected_validity
+      error_code: T45
+      message: Identifier Code must not reference an invalid non-connected BIC.
+    - id: 57aA-B-NR-5
+      type: network_rule
+      rule: identifier_code_must_be_financial_institution
+      error_code: C05
+      message: Identifier Code must identify a registered financial institution BIC.
+  option_C:
+    label: Party Identifier
+    format: /34x
+    national_clearing_codes_ref: lookups.national_clearing_codes
+  option_D:
+    label: Party Identifier / Name and Address
+    format: '[/1!a][/34x] 4*35x'
+    national_clearing_codes_ref: lookups.national_clearing_codes
+  usage_notes:
+  - id: 57a-U-1
+    description: If codes //FW, //AU, //CP, //IN, or //RT appear in fields 56a/57a, specify them only once and in the first
+      of those fields.
+- tag: 59a
+  name: Debtor
+  sequence: B
+  presence: mandatory
+  options_allowed:
+  - ''
+  - A
+  option_:
+    label: Account / Name and Address
+    format: '[/34x] 4*35x'
+  option_A:
+    label: Account / Identifier Code
+    format: '[/34x] 4!a2!a2!c[3!c]'
+    validations:
+    - id: 59aA-B-NR-1
+      type: network_rule
+      rule: identifier_code_must_be_valid_bic
+      error_code: T27
+      message: Identifier Code must be a valid BIC in the required format (4!a2!a2!c[3!c]).
+    - id: 59aA-B-NR-2
+      type: network_rule
+      rule: identifier_code_must_be_fin_destination
+      error_code: T28
+      message: Identifier Code must correspond to a valid FIN destination.
+    - id: 59aA-B-NR-3
+      type: network_rule
+      rule: identifier_code_branch_identifier_validity
+      error_code: T29
+      message: Identifier Code must contain a valid branch identifier, when present.
+    - id: 59aA-B-NR-4
+      type: network_rule
+      rule: identifier_code_non_connected_validity
+      error_code: T45
+      message: Identifier Code must not reference an invalid non-connected BIC.
+  validations:
+  - id: 59a-B-NR-1
+    type: network_rule
+    rule: debtor_account_must_be_present
+    error_code: E10
+    message: Debtor account line must be present in this message.
+- tag: '70'
+  name: Remittance Information
+  sequence: B
+  presence: optional
+  format: 4*35x
+  description: Details of the direct debit to be passed to the debtor.
+  codes_allowed_ref: lookups.remittance_codes
+- tag: 26T
+  name: Transaction Type Code
+  sequence: B
+  presence: optional
+  format: 3!c
+  description: Identifies the nature or purpose of this direct debit transaction.
+- tag: 77B
+  name: Regulatory Reporting
+  sequence: B
+  presence: optional
+  format: 3*35x
+  description: Statutory or regulatory information for this specific transaction.
+  codes_allowed_ref: lookups.regulatory_reporting_codes
+- tag: 33B
+  name: Currency/Original Ordered Amount
+  sequence: B
+  presence: conditional
+  presence_condition: See rules C7 and C8.
+  format: 3!a15d
+  description: Original currency and amount instructed by the creditor when differing from field 32B.
+  validations:
+  - id: 33B-B-NR-1
+    type: network_rule
+    rule: currency_must_be_valid_iso4217
+    error_code: T52
+    message: Currency must be a valid ISO 4217 currency code.
+  - id: 33B-B-NR-2
+    type: network_rule
+    rule: amount_integer_part_at_least_one_digit
+    error_code: C03
+    message: Amount must include at least one digit before the decimal comma.
+  - id: 33B-B-NR-3
+    type: network_rule
+    rule: amount_decimal_places_within_currency_precision
+    error_code: T40
+    message: Number of digits after the decimal comma must not exceed the precision allowed for the currency.
+  - id: 33B-B-NR-4
+    type: network_rule
+    rule: amount_decimal_comma_mandatory
+    error_code: T43
+    message: Amount must include a decimal comma.
+- tag: 71A
+  name: Details of Charges
+  sequence: B
+  presence: conditional
+  presence_condition: See rule C2.
+  format: 3!a
+  description: Indicates how charges are borne for this direct debit transaction.
+  codes_allowed_ref: lookups.charge_codes
+  validations:
+  - id: 71A-B-NR-1
+    type: network_rule
+    rule: charge_code_must_be_recognised
+    error_code: T08
+    message: Charges code must be one of BEN, OUR, or SHA.
+- tag: 71F
+  name: Sender's Charges
+  sequence: B
+  presence: conditional
+  presence_condition: See rules C6 and C12 (also referenced in rule C11).
+  format: 3!a15d
+  description: Currency and amount of charges due to the sender for the individual transaction.
+  validations:
+  - id: 71F-B-NR-1
+    type: network_rule
+    rule: currency_must_be_valid_iso4217
+    error_code: T52
+    message: Currency must be a valid ISO 4217 currency code.
+  - id: 71F-B-NR-2
+    type: network_rule
+    rule: amount_integer_part_at_least_one_digit
+    error_code: C03
+    message: Amount must include at least one digit before the decimal comma.
+  - id: 71F-B-NR-3
+    type: network_rule
+    rule: amount_decimal_places_within_currency_precision
+    error_code: T40
+    message: Number of digits after the decimal comma must not exceed the precision allowed for the currency.
+  - id: 71F-B-NR-4
+    type: network_rule
+    rule: amount_decimal_comma_mandatory
+    error_code: T43
+    message: Amount must include a decimal comma.
+- tag: 71G
+  name: Receiver's Charges
+  sequence: B
+  presence: conditional
+  presence_condition: See rules C6 and C12 (also referenced in rule C11).
+  format: 3!a15d
+  description: Currency and amount of charges due to the receiver for the individual transaction.
+  validations:
+  - id: 71G-B-NR-1
+    type: network_rule
+    rule: currency_must_be_valid_iso4217
+    error_code: T52
+    message: Currency must be a valid ISO 4217 currency code.
+  - id: 71G-B-NR-2
+    type: network_rule
+    rule: amount_integer_part_at_least_one_digit
+    error_code: C03
+    message: Amount must include at least one digit before the decimal comma.
+  - id: 71G-B-NR-3
+    type: network_rule
+    rule: amount_decimal_places_within_currency_precision
+    error_code: T40
+    message: Number of digits after the decimal comma must not exceed the precision allowed for the currency.
+  - id: 71G-B-NR-4
+    type: network_rule
+    rule: amount_decimal_comma_mandatory
+    error_code: T43
+    message: Amount must include a decimal comma.
+- tag: '36'
+  name: Exchange Rate
+  sequence: B
+  presence: conditional
+  presence_condition: See rule C6.
+  format: 12d
+  description: Exchange rate applied when converting field 33B to field 32B for this transaction.
+  validations:
+  - id: 36-B-NR-1
+    type: network_rule
+    rule: amount_decimal_places_within_currency_precision
+    error_code: T40
+    message: Exchange rate fractional precision must not exceed the allowed number of digits.
+  - id: 36-B-NR-2
+    type: network_rule
+    rule: amount_decimal_comma_mandatory
+    error_code: T43
+    message: Exchange rate must include a decimal comma.
+- tag: 32B
+  name: Currency and Settlement Amount
+  sequence: C
+  presence: mandatory
+  presence_condition: Referenced in rules C9 and C11.
+  format: 3!a15d
+  description: Currency and total settlement amount for all transactions.
+  validations:
+  - id: 32B-C-NR-1
+    type: network_rule
+    rule: currency_must_be_valid_iso4217
+    error_code: T52
+    message: Currency must be a valid ISO 4217 currency code.
+  - id: 32B-C-NR-2
+    type: network_rule
+    rule: amount_integer_part_at_least_one_digit
+    error_code: C03
+    message: Amount must include at least one digit before the decimal comma.
+  - id: 32B-C-NR-3
+    type: network_rule
+    rule: amount_decimal_places_within_currency_precision
+    error_code: T40
+    message: Number of digits after the decimal comma must not exceed the precision allowed for the currency.
+  - id: 32B-C-NR-4
+    type: network_rule
+    rule: amount_decimal_comma_mandatory
+    error_code: T43
+    message: Amount must include a decimal comma.
+- tag: '19'
+  name: Sum of Amounts
+  sequence: C
+  presence: conditional
+  presence_condition: See rule C9 (and rule C10).
+  format: 17d
+  description: Sum of the transaction amounts (fields 32B) across sequence B occurrences.
+  validations:
+  - id: 19-C-NR-1
+    type: network_rule
+    rule: amount_integer_part_at_least_one_digit
+    error_code: C03
+    message: Amount must include at least one digit before the decimal comma.
+  - id: 19-C-NR-2
+    type: network_rule
+    rule: amount_decimal_places_within_currency_precision
+    error_code: T40
+    message: Number of digits after the decimal comma must not exceed the precision allowed for the currency.
+  - id: 19-C-NR-3
+    type: network_rule
+    rule: amount_decimal_comma_mandatory
+    error_code: T43
+    message: Amount must include a decimal comma.
+- tag: 71F
+  name: Sum of Sender's Charges
+  sequence: C
+  presence: conditional
+  presence_condition: See rule C6 (and rules C11 and C12).
+  format: 3!a15d
+  description: Total charges due to the sender.
+  validations:
+  - id: 71F-C-NR-1
+    type: network_rule
+    rule: currency_must_be_valid_iso4217
+    error_code: T52
+    message: Currency must be a valid ISO 4217 currency code.
+  - id: 71F-C-NR-2
+    type: network_rule
+    rule: amount_integer_part_at_least_one_digit
+    error_code: C03
+    message: Amount must include at least one digit before the decimal comma.
+  - id: 71F-C-NR-3
+    type: network_rule
+    rule: amount_decimal_places_within_currency_precision
+    error_code: T40
+    message: Number of digits after the decimal comma must not exceed the precision allowed for the currency.
+  - id: 71F-C-NR-4
+    type: network_rule
+    rule: amount_decimal_comma_mandatory
+    error_code: T43
+    message: Amount must include a decimal comma.
+- tag: 71G
+  name: Sum of Receiver's Charges
+  sequence: C
+  presence: conditional
+  presence_condition: See rule C6 (and rule C11).
+  format: 3!a15d
+  description: Total charges due to the receiver.
+  validations:
+  - id: 71G-C-NR-1
+    type: network_rule
+    rule: currency_must_be_valid_iso4217
+    error_code: T52
+    message: Currency must be a valid ISO 4217 currency code.
+  - id: 71G-C-NR-2
+    type: network_rule
+    rule: amount_integer_part_at_least_one_digit
+    error_code: C03
+    message: Amount must include at least one digit before the decimal comma.
+  - id: 71G-C-NR-3
+    type: network_rule
+    rule: amount_decimal_places_within_currency_precision
+    error_code: T40
+    message: Number of digits after the decimal comma must not exceed the precision allowed for the currency.
+  - id: 71G-C-NR-4
+    type: network_rule
+    rule: amount_decimal_comma_mandatory
+    error_code: T43
+    message: Amount must include a decimal comma.
+  - id: 71G-C-NR-5
+    type: network_rule
+    rule: amount_must_not_be_zero
+    error_code: D57
+    message: Amount must be greater than zero.
+- tag: 53a
+  name: Sender's Correspondent
+  sequence: C
+  presence: optional
+  presence_condition: Conditional sequence C (see rule C12).
+  description: Account or branch of the sender through which reimbursement will occur.
+  options_allowed:
+  - A
+  - B
+  option_A:
+    label: Party Identifier / Identifier Code
+    format: '[/1!a][/34x] 4!a2!a2!c[3!c]'
+    national_clearing_codes_ref: lookups.national_clearing_codes
+    validations:
+    - id: 53aA-C-NR-1
+      type: network_rule
+      rule: identifier_code_must_be_valid_bic
+      error_code: T27
+      message: Identifier Code must be a valid BIC in the required format (4!a2!a2!c[3!c]).
+    - id: 53aA-C-NR-2
+      type: network_rule
+      rule: identifier_code_must_be_fin_destination
+      error_code: T28
+      message: Identifier Code must correspond to a valid FIN destination.
+    - id: 53aA-C-NR-3
+      type: network_rule
+      rule: identifier_code_branch_identifier_validity
+      error_code: T29
+      message: Identifier Code must contain a valid branch identifier, when present.
+    - id: 53aA-C-NR-4
+      type: network_rule
+      rule: identifier_code_non_connected_validity
+      error_code: T45
+      message: Identifier Code must not reference an invalid non-connected BIC.
+    - id: 53aA-C-NR-5
+      type: network_rule
+      rule: identifier_code_must_be_financial_institution
+      error_code: C05
+      message: Identifier Code must identify a registered financial institution BIC.
+  option_B:
+    label: Party Identifier / Location
+    format: '[/1!a][/34x] 35x'

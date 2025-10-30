@@ -27,39 +27,45 @@ pairs:
 - mt_code: MT103REMIT
   mt_pdf: iso-bootstrap/out/downloads/mt/PUT_CONSOLIDATED_PDF_HERE.pdf
   target_family: pacs
-  target_version: pacs.008.001.10
-  xsd_dir: iso-bootstrap/out/downloads/pacs/pacs.008.001.10_xsd
-  out_json: mappings/mt103remit-to-pacs00800110.json
+  target_version: pacs.008.001.13
+  xsd_dir: iso-bootstrap/out/downloads/pacs
+  out_json: mappings/mt103remit-to-pacs00800113.json
 - mt_code: MT103STP
   mt_pdf: iso-bootstrap/out/downloads/mt/PUT_CONSOLIDATED_PDF_HERE.pdf
   target_family: pacs
-  target_version: pacs.008.001.10
-  xsd_dir: iso-bootstrap/out/downloads/pacs/pacs.008.001.10_xsd
-  out_json: mappings/mt103stp-to-pacs00800110.json
+  target_version: pacs.008.001.13
+  xsd_dir: iso-bootstrap/out/downloads/pacs
+  out_json: mappings/mt103stp-to-pacs00800113.json
 - mt_code: MT104
   mt_pdf: iso-bootstrap/out/downloads/mt/us1m_20250718.pdf
+  target_family: pain
+  target_version: pain.008.001.11
+  xsd_dir: iso-bootstrap/out/downloads/pain
+  out_json: mappings/mt104-to-pain00800111.json
+- mt_code: MT107
+  mt_pdf: iso-bootstrap/out/downloads/mt/us1m_20250718.pdf
   target_family: pacs
-  target_version: pacs.003.001.09
-  xsd_dir: iso-bootstrap/out/downloads/pacs/pacs.003.001.09_xsd
-  out_json: mappings/mt104-to-pacs00300109.json
+  target_version: pacs.003.001.11
+  xsd_dir: iso-bootstrap/out/downloads/pacs
+  out_json: mappings/mt107-to-pacs00300111.json
 - mt_code: MT110
   mt_pdf: iso-bootstrap/out/downloads/mt/us1m_20250718.pdf
   target_family: camt
-  target_version: camt.087.001.06
-  xsd_dir: iso-bootstrap/out/downloads/camt/camt.087.001.06_xsd
-  out_json: mappings/mt110-to-camt08700106.json
+  target_version: camt.107.001.02
+  xsd_dir: iso-bootstrap/out/downloads/camt
+  out_json: mappings/mt110-to-camt10700102.json
 - mt_code: MT111
   mt_pdf: iso-bootstrap/out/downloads/mt/us1m_20250718.pdf
   target_family: camt
-  target_version: camt.056.001.08
-  xsd_dir: iso-bootstrap/out/downloads/camt/camt.056.001.08_xsd
-  out_json: mappings/mt111-to-camt05600108.json
+  target_version: camt.108.001.02
+  xsd_dir: iso-bootstrap/out/downloads/camt
+  out_json: mappings/mt111-to-camt10800102.json
 - mt_code: MT112
   mt_pdf: iso-bootstrap/out/downloads/mt/us1m_20250718.pdf
   target_family: camt
-  target_version: camt.029.001.09
-  xsd_dir: iso-bootstrap/out/downloads/camt/camt.029.001.09_xsd
-  out_json: mappings/mt112-to-camt02900109.json
+  target_version: camt.109.001.02
+  xsd_dir: iso-bootstrap/out/downloads/camt
+  out_json: mappings/mt112-to-camt10900102.json
 - mt_code: MT190
   mt_pdf: iso-bootstrap/out/downloads/mt/us1m_20250718.pdf
   target_family: camt
@@ -105,6 +111,20 @@ pairs:
   target_version: camt.054.001.08
   xsd_dir: iso-bootstrap/out/downloads/camt/camt.054.001.08_xsd
   out_json: mappings/mt191-to-camt05400108.json
+- mt_code: MT196
+  mt_pdf: iso-bootstrap/out/downloads/mt/us1m_20250718.pdf
+  target_family: camt
+  target_version: camt.029.001.13
+  xsd_dir: iso-bootstrap/out/downloads/camt
+  out_json: mappings/mt196-to-camt02900113.json
+  variant: cancellation
+- mt_code: MT196
+  mt_pdf: iso-bootstrap/out/downloads/mt/us1m_20250718.pdf
+  target_family: camt
+  target_version: camt.111.001.02
+  xsd_dir: iso-bootstrap/out/downloads/camt
+  out_json: mappings/mt196-to-camt11100102.json
+  variant: information
 - mt_code: MT200
   mt_pdf: iso-bootstrap/out/downloads/mt/us1m_20250718.pdf
   target_family: pacs

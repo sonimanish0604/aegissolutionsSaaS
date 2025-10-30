@@ -1,0 +1,51 @@
+MTn96_Usage_Rules:
+  rules:
+    - id: U1
+      description: >
+        The content of field 20 Transaction Reference Number of the related MT n95 Queries or MT n92 Request for Cancellation must always be quoted.
+      applies_to: MTn96
+      enforcement:
+        field_20: must_quote_related_MTn95_or_MTn92_reference
+
+    - id: U2
+      description: >
+        The use of MT n96 in association with the MT 105 EDIFACT Envelope must follow the EDIFACT Message Implementation Guide (MIG).
+      applies_to: MTn96
+      enforcement:
+        associated_message: MT105
+        guideline_reference: EDIFACT_MIG
+        compliance_required: true
+
+    - id: U3
+      description: >
+        The message to which the MT n96 Answers is related may be quoted in part or in full.
+      applies_to: MTn96
+      enforcement:
+        related_message_quote: optional
+        quote_scope: [partial, full]
+
+    - id: U4
+      description: >
+        The MT 296 must be used in the cheque truncation environment in answering an MT 295 previously received.
+      applies_to: MT296
+      enforcement:
+        response_to_MT295_in_cheque_truncation: mandatory
+
+    - id: U5
+      description: >
+        An MT 596 must not be used to respond to a cancellation request of any ISO 15022 compliant message.
+        An ISO 15022 compliant status message should be used instead — MT 509, 548, or 567 — with field 23G subfield Function containing the code CAST (Cancellation Request Status).
+      applies_to: MT596
+      enforcement:
+        response_to_ISO15022_cancellation: not_allowed
+        preferred_response_formats: [MT509, MT548, MT567]
+        field_23G_function_code: CAST
+
+    - id: U6
+      description: >
+        When the original message contained a Unique End-to-end Transaction Reference (UETR),
+        this UETR may be copied in field 121 in the user header block of the MT 196, MT 296, or MT 996 answer message.
+      applies_to: [MT196, MT296, MT996]
+      enforcement:
+        original_message_contains_UETR: true
+        field_121: optional_copy_of_UETR

@@ -1,0 +1,18 @@
+MT110_Network_Validation_Rules:
+  rules:
+    - id: C1
+      description: >
+        The repetitive sequence must not occur more than ten times in the message.
+      error_code: T10
+      constraint:
+        sequence_repetition_limit:
+          max_occurrences: 10
+
+    - id: C2
+      description: >
+        The currency code in field 32a must be the same across all occurrences in the message.
+      error_code: C02
+      consistency:
+        field: 32a_currency
+        across_occurrences: all
+        must_match: true

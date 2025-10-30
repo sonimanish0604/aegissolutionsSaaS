@@ -1,0 +1,114 @@
+- tag: '20'
+  name: Sender's Reference
+  sequence: A
+  presence: mandatory
+  format: 16x
+  description: Reference assigned by the sender to identify the query.
+  validations:
+  - id: 20-NR-1
+    type: network_rule
+    rule: no_leading_or_trailing_slash_or_double_slash
+    error_code: T26
+    message: Field must not start or end with '/' and must not contain consecutive slashes.
+- tag: '21'
+  name: Related Reference
+  sequence: A
+  presence: mandatory
+  format: 16x
+  description: Reference of the original MT message referred to by the query.
+  validations:
+  - id: 21-NR-1
+    type: network_rule
+    rule: no_leading_or_trailing_slash_or_double_slash
+    error_code: T26
+    message: Field must not start or end with '/' and must not contain consecutive slashes.
+- tag: '11S'
+  name: Original Message Type and Date
+  sequence: A
+  presence: mandatory
+  format: 3!n6!n
+  description: Indicates the original MT number and the YYMMDD date of the prior message.
+- tag: 32a
+  name: Amount
+  sequence: A
+  presence: mandatory
+  options_allowed:
+  - A
+  - B
+  option_A:
+    label: Value Date / Currency / Amount
+    format: 6!n3!a15d
+    validations:
+    - id: 32aA-NR-1
+      type: network_rule
+      rule: must_be_valid_date_yymmdd
+      error_code: T50
+      message: Date must be a valid YYMMDD calendar date.
+    - id: 32aA-NR-2
+      type: network_rule
+      rule: currency_must_be_valid_iso4217
+      error_code: T52
+      message: Currency must be a valid ISO 4217 code.
+    - id: 32aA-NR-3
+      type: network_rule
+      rule: amount_integer_part_at_least_one_digit
+      error_code: C03
+      message: Amount must include at least one digit before the decimal comma.
+    - id: 32aA-NR-4
+      type: network_rule
+      rule: amount_decimal_places_within_currency_precision
+      error_code: T40
+      message: Digits after the comma must not exceed the currency precision.
+    - id: 32aA-NR-5
+      type: network_rule
+      rule: amount_decimal_comma_mandatory
+      error_code: T43
+      message: Amount must include a decimal comma.
+  option_B:
+    label: Currency / Amount
+    format: 3!a15d
+    validations:
+    - id: 32aB-NR-1
+      type: network_rule
+      rule: currency_must_be_valid_iso4217
+      error_code: T52
+      message: Currency must be a valid ISO 4217 code.
+    - id: 32aB-NR-2
+      type: network_rule
+      rule: amount_integer_part_at_least_one_digit
+      error_code: C03
+      message: Amount must include at least one digit before the decimal comma.
+    - id: 32aB-NR-3
+      type: network_rule
+      rule: amount_decimal_places_within_currency_precision
+      error_code: T40
+      message: Digits after the comma must not exceed the currency precision.
+    - id: 32aB-NR-4
+      type: network_rule
+      rule: amount_decimal_comma_mandatory
+      error_code: T43
+      message: Amount must include a decimal comma.
+- tag: 50a
+  name: Ordering Customer
+  sequence: A
+  presence: optional
+  options_allowed:
+  - A
+  - F
+  - K
+- tag: '59'
+  name: Beneficiary
+  sequence: A
+  presence: optional
+  format: '[/34x] 4*35x'
+- tag: '72'
+  name: Sender to Receiver Information
+  sequence: A
+  presence: optional
+  format: 6*35x
+  validations:
+  - id: 72-NR-1
+    type: network_rule
+    rule: value_must_use_x_charset
+    error_code: T20
+    message: Content must use characters from the SWIFT X character set.

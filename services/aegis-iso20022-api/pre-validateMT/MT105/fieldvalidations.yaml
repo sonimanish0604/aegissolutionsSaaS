@@ -1,0 +1,65 @@
+- tag: '27'
+  name: Sequence of Total
+  sequence: A
+  presence: mandatory
+  format: 1!n/1!n
+  description: Indicates the message sequence number and the total number of messages in the series.
+  usage_notes:
+  - id: 27-U-1
+    description: When only one MT105 is sent the field must contain '1/1'.
+  - id: 27-U-2
+    description: Maximum of 9 messages may be used in a series.
+- tag: '20'
+  name: Transaction Reference Number
+  sequence: A
+  presence: mandatory
+  format: 16x
+  description: Sender's unique identification of the MT105 transaction.
+  validations:
+  - id: 20-NR-1
+    type: network_rule
+    rule: no_leading_or_trailing_slash_or_double_slash
+    error_code: T26
+    message: Field must not start or end with '/' and must not contain '//' anywhere in its contents.
+- tag: '21'
+  name: Related Reference
+  sequence: A
+  presence: mandatory
+  format: 16x
+  description: Reference to the associated EDIFACT message contained in field 77F.
+  validations:
+  - id: 21-NR-1
+    type: network_rule
+    rule: no_leading_or_trailing_slash_or_double_slash
+    error_code: T26
+    message: Field must not start or end with '/' and must not contain '//' anywhere in its contents.
+  usage_notes:
+  - id: 21-U-1
+    description: Use up to 16 significant characters from EDIFACT BGM segment (Data Element 1004).
+  - id: 21-U-2
+    description: For multi-message series this value must be identical across all MT105 messages.
+- tag: '12'
+  name: Sub-Message Type
+  sequence: A
+  presence: mandatory
+  format: 3!n
+  description: Identifies the embedded EDIFACT message by its numeric code.
+  validations:
+  - id: 12-NR-1
+    type: network_rule
+    rule: numeric_value_between_100_and_999
+    error_code: T18
+    message: Value must be a three-digit number between 100 and 999.
+  usage_notes:
+  - id: 12-U-1
+    description: For example, remittance advice uses code 381.
+- tag: 77F
+  name: EDIFACT Message
+  sequence: A
+  presence: mandatory
+  format: 1800y
+  description: Carries the embedded EDIFACT message (ISO 9735 syntax level A).
+  usage_notes:
+  - id: 77F-U-1
+    description: If the EDIFACT payload exceeds 1800 characters it may be split across multiple MT105 messages with identical
+      field 21 values.
