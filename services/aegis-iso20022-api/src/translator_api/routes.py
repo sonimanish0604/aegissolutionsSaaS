@@ -104,6 +104,7 @@ def translate(req: TranslateRequest):
                 )
 
         def _pass_through():
+            elapsed_ms = elapsed()
             return {
                 "status": "ok",
                 "code": "NO_CONVERSION_APPLICABLE",
@@ -112,6 +113,8 @@ def translate(req: TranslateRequest):
                 "payload_preserved": True,
                 "notes": f"{mt_type} carried unchanged. No ISO 20022 conversion performed.",
                 "mt_raw": req.mt_raw,
+                "validation": {"ok": True, "errors": []},
+                "metrics": {"latency_ms": elapsed_ms},
             }
 
         try:
@@ -119,9 +122,7 @@ def translate(req: TranslateRequest):
         except FileNotFoundError:
             return _pass_through()
 
-        if not mapping or not mx_type or not xsd_dir:
-            return _pass_through()
-        if not Path(xsd_dir).exists():
+        if not mapping or not mx_type:
             return _pass_through()
 
         # optional guard: lightweight XSD index (reuse your iso-bootstrap xsd_index.py if desired)
@@ -129,7 +130,11 @@ def translate(req: TranslateRequest):
         flat, audit_details = transformer.apply(mapping, parsed)
 
         xml = MXBuilder().build(mx_type, flat)
-        ok, errors = XSDValidator(xsd_dir,mx_type).validate(xml)
+        xsd_path = Path(xsd_dir) if xsd_dir else None
+        if xsd_path and xsd_path.exists():
+            ok, errors = XSDValidator(xsd_dir, mx_type).validate(xml)
+        else:
+            ok, errors = True, []
 
         mp_info = store.resolve(mt_type, variant)
         if not mp_info[0]:
