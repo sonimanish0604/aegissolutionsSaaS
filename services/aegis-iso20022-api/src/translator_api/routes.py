@@ -10,9 +10,12 @@ from ..translator_core.xsd_validator import XSDValidator
 from ..translator_core.audit import AuditRecord, new_correlation_id
 from ..translator_core.metrics import timer
 from ..prevalidator_api.routes import router as prevalidator_router
+from ..prevalidator_core import PrevalidationEngine
 
 app = FastAPI(title="Aegis ISO20022 Translator")
 app.include_router(prevalidator_router)
+
+prevalidation_engine = PrevalidationEngine()
 
 
 @app.get("/")
@@ -22,6 +25,7 @@ def healthcheck():
 class TranslateRequest(BaseModel):
     mt_raw: str
     force_type: str | None = None
+    prevalidate: bool = True
 
 
 def _classify_mt195_variant(parsed_fields: dict[str, list[str]] | dict) -> str | None:
@@ -87,6 +91,17 @@ def translate(req: TranslateRequest):
             variant = _classify_mt196_variant(fields)
         elif mt_type == "MT102":
             variant = _classify_mt102_variant(parsed)
+
+        if req.prevalidate:
+            pre_result = prevalidation_engine.validate(req.mt_raw, force_type=req.force_type or mt_type)
+            if not pre_result.valid:
+                raise HTTPException(
+                    status_code=422,
+                    detail={
+                        "message": "Prevalidation failed",
+                        "result": pre_result.to_dict(),
+                    },
+                )
 
         def _pass_through():
             return {
