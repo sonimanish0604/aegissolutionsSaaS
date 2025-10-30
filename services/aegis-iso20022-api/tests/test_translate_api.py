@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pytest
 from fastapi import HTTPException
+from fastapi.testclient import TestClient
 
 CURRENT = Path(__file__).resolve().parent
 ROOT = CURRENT.parent
@@ -15,7 +16,14 @@ for path in (ROOT, CURRENT):
         sys.path.insert(0, path_str)
 
 from category1_samples import SAMPLES  # noqa: E402  pylint: disable=wrong-import-position
-from src.translator_api.routes import TranslateRequest, translate  # noqa: E402  pylint: disable=wrong-import-position
+from src.translator_api.routes import app, TranslateRequest, translate  # noqa: E402  pylint: disable=wrong-import-position
+
+
+def test_healthcheck_route():
+    client = TestClient(app)
+    response = client.get("/")
+    assert response.status_code == 200
+    assert response.json() == {"status": "ok"}
 
 
 def test_translate_prevalidation_succeeds():
