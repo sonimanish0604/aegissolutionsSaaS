@@ -8,6 +8,7 @@ from pathlib import Path
 import io
 import json
 import zipfile
+import logging
 from ..translator_core.detector import Detector
 from ..translator_core.mt_parser import MTParser
 from ..translator_core.mapping_store import MappingStore
@@ -22,6 +23,7 @@ from .batch import BatchFile, BatchParseError, parse_batch_payload
 
 app = FastAPI(title="Aegis ISO20022 Translator")
 app.include_router(prevalidator_router)
+logger = logging.getLogger(__name__)
 
 prevalidation_engine = PrevalidationEngine()
 
@@ -263,13 +265,14 @@ async def translate_batch(
                     }
                 )
             except Exception as exc:  # pylint: disable=broad-except
+                logger.exception("Exception occurred while processing message index %s in batch %s", message.index, batch.source_name)
                 batch_results.append(
                     {
                         "index": message.index,
                         "status": "error",
                         "error": {
                             "status_code": 500,
-                            "detail": str(exc),
+                            "detail": "Internal server error",
                         },
                     }
                 )
