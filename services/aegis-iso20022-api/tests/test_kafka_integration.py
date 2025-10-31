@@ -2,11 +2,14 @@ from __future__ import annotations
 
 import json
 import os
-import time
 from pathlib import Path
 
 import pytest
-import requests
+
+try:  # pragma: no cover - dependency only needed in integration workflow
+    import requests  # type: ignore
+except ImportError:  # pragma: no cover
+    pytest.skip("requests not available", allow_module_level=True)
 
 pytest.importorskip("requests")
 
