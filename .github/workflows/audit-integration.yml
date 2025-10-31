@@ -1,0 +1,59 @@
+name: Integration Audit Smoke Test
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  audit-integration:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install pytest
+        run: |
+          pip install --upgrade pip
+          pip install pytest
+
+      - name: Start integration stack
+        run: docker compose -f docker-compose.audit-dev.yml up -d --build
+
+      - name: Wait for translator
+        uses: jtalk/url-health-check-action@v4
+        with:
+          url: http://localhost:8080/healthcheck
+          follow-redirect: false
+          retry: 20
+          retry-delay: 5
+
+      - name: Install project requirements
+        run: pip install -r services/aegis-iso20022-api/requirements.txt
+
+      - name: Run integration test
+        env:
+          TRANSLATOR_URL: http://localhost:8080
+          KAFKA_BOOTSTRAP: localhost:9092
+        run: pytest services/aegis-iso20022-api/tests/test_kafka_integration.py -q
+
+      - name: Docker logs
+        if: always()
+        run: |
+          docker compose -f docker-compose.audit-dev.yml logs kafka translator localstack || true
+
+      - name: Tear down stack
+        if: always()
+        run: docker compose -f docker-compose.audit-dev.yml down --remove-orphans
+
+      - name: Upload pytest output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: audit-integration-logs
+          path: .pytest_cache/v/
