@@ -17,10 +17,10 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install pytest
+      - name: Install pytest dependencies
         run: |
           pip install --upgrade pip
-          pip install pytest
+          pip install pytest requests
 
       - name: Start integration stack
         run: docker compose -f docker-compose.audit-dev.yml up -d --build
