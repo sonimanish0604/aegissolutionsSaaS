@@ -8,4 +8,5 @@ This repository contains the core services and automation that underpin the Aegi
 - [SOC 2 compliance automation](docs/SOC2_COMPLIANCE.md)
 - [Branch protection recommendations](docs/BRANCH_PROTECTION.md)
 - [Security automation checklist](docs/SECURITY_AUTOMATION.md)
+- [Audit pipeline blueprint](docs/AUDIT_PIPELINE.md)
 - [Batch translate API](services/aegis-iso20022-api/docs/batch-translate.md)
