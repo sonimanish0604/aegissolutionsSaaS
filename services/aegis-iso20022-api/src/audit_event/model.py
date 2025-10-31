@@ -3,9 +3,19 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, Dict, Optional
 
+try:
+    import ulid  # type: ignore
+except ModuleNotFoundError:  # pragma: no cover - fallback path for local tooling
+    ulid = None  # type: ignore
+    import uuid
+
 from .hashing import hash_bytes, hash_json, hash_text
 
 
+def _generate_event_id() -> str:
+    if ulid is not None:
+        return ulid.new().str  # type: ignore[attr-defined]
+    return uuid.uuid4().hex
 @dataclass
 class AuditEvent:
     """Canonical audit event payload for downstream audit pipeline."""
@@ -15,6 +25,8 @@ class AuditEvent:
     ts: str = ""
     tenant_id: str = ""
     tenant_uuid: str = ""
+    event_id: str = ""
+    attempt: int = 1
     x_request_id: str = ""
     route: str = ""
     result: str = "accepted"
@@ -38,6 +50,12 @@ class AuditEvent:
         self.hash[key] = digest
         return self
 
+    def ensure_event_id(self) -> "AuditEvent":
+        """Populate event_id if it has not been set."""
+        if not self.event_id:
+            self.event_id = _generate_event_id()
+        return self
+
     def to_dict(self) -> Dict[str, Any]:
         return {
             "v": self.v,
@@ -45,6 +63,8 @@ class AuditEvent:
             "ts": self.ts,
             "tenant_id": self.tenant_id,
             "tenant_uuid": self.tenant_uuid,
+            "event_id": self.event_id,
+            "attempt": self.attempt,
             "x_request_id": self.x_request_id,
             "route": self.route,
             "result": self.result,

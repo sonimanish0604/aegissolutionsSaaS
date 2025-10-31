@@ -6,12 +6,13 @@ from datetime import datetime, timezone
 from typing import Callable, Optional
 from uuid import uuid4
 
+import ulid
 from fastapi import Request
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response
 
 from audit_event import AuditEvent
-from audit_utils.context import set_audit_context
+from audit_utils import set_audit_context
 from audit_emitter.base import AuditEmitter
 
 
@@ -27,12 +28,22 @@ class AuditMiddleware(BaseHTTPMiddleware):
         tenant_id = request.headers.get("x-tenant-id", "")
         tenant_uuid = request.headers.get("x-tenant-uuid", "")
         x_request_id = request.headers.get("x-request-id", str(uuid4()))
+        incoming_event_id = request.headers.get("x-event-id")
+        attempt_header = request.headers.get("x-attempt")
+        try:
+            attempt = int(attempt_header) if attempt_header else 1
+        except ValueError:
+            attempt = 1
+
+        event_id = incoming_event_id or ulid.new().str
 
         set_audit_context(
             {
                 "tenant_id": tenant_id,
                 "tenant_uuid": tenant_uuid,
                 "x_request_id": x_request_id,
+                "event_id": event_id,
+                "attempt": attempt,
             }
         )
 
@@ -51,10 +62,12 @@ class AuditMiddleware(BaseHTTPMiddleware):
                 ts=datetime.now(timezone.utc).isoformat(),
                 tenant_id=tenant_id,
                 tenant_uuid=tenant_uuid,
+                event_id=event_id,
+                attempt=attempt,
                 x_request_id=x_request_id,
                 route=request.url.path,
                 result="accepted" if (status_code or 0) < 400 else "rejected",
                 timing_ms={"total": elapsed_ms},
                 metadata={"method": request.method, "status_code": status_code},
-            )
+            ).ensure_event_id()
             self._emitter.emit(event)

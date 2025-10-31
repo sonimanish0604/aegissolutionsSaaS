@@ -13,6 +13,8 @@ Application code produces a compact, PII-free JSON record. `services/aegis-iso20
   "ts": "2025-10-30T02:10:05.123Z",
   "tenant_id": "TEN123",
   "tenant_uuid": "41cd45b3-95da-4550-a793-ce9fefb39c8e",
+  "event_id": "01HEZ3YD1K5M1K2TBYY63SZ8CD",
+  "attempt": 1,
   "x_request_id": "8f2e5b2e-3b5c-47c5-82e0-7f1b9e2a2e8f",
   "route": "/translate",
   "result": "accepted | rejected | partial",

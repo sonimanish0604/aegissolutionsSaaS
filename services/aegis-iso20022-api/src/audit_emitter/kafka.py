@@ -1,3 +1,4 @@
+
 from __future__ import annotations
 
 import json
@@ -29,12 +30,21 @@ class KafkaAuditEmitter(AuditEmitter):
             client_id=client_id,
             value_serializer=lambda v: json.dumps(v).encode("utf-8"),
             key_serializer=lambda v: v.encode("utf-8") if v else None,
+            acks="all",
+            linger_ms=5,
+            retries=3,
         )
 
     def emit(self, event: AuditEvent) -> None:
-        payload = event.to_dict()
+        prepared = event.ensure_event_id()
+        payload = prepared.to_dict()
         key = payload.get("tenant_id") or payload.get("tenant_uuid")
-        self._producer.send(self._topic, value=payload, key=key)
+        headers = []
+        event_id = payload.get("event_id")
+        if event_id:
+            headers.append(("event_id", event_id.encode("utf-8")))
+        headers.append(("schema_version", payload.get("v", "1.0").encode("utf-8")))
+        self._producer.send(self._topic, value=payload, key=key, headers=headers)
 
     def flush(self) -> None:
         self._producer.flush()

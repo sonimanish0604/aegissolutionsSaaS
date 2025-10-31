@@ -38,6 +38,8 @@ def build_app(emitter: AuditEmitter) -> FastAPI:
     async def ping():  # pragma: no cover - executed via test client
         ctx = get_audit_context()
         assert ctx["tenant_id"] == "TEN123"
+        assert ctx["event_id"]
+        assert ctx["attempt"] == 1
         return {"status": "ok"}
 
     return app
@@ -65,3 +67,6 @@ def test_audit_middleware_emits_event():
     assert payload["route"] == "/ping"
     assert payload["result"] == "accepted"
     assert payload["timing_ms"]["total"] >= 0
+    assert payload["event_id"]
+    assert len(payload["event_id"]) >= 16
+    assert payload["attempt"] == 1
