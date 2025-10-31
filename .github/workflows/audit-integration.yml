@@ -31,7 +31,8 @@ jobs:
           url: http://localhost:8080/healthcheck
           follow-redirect: false
           retry: 20
-          retry-delay: 5
+          retry-delay: 5s
+          retry-all: true
 
       - name: Install project requirements
         run: pip install -r services/aegis-iso20022-api/requirements.txt
