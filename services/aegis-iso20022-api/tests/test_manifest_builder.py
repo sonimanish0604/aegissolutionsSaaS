@@ -27,6 +27,7 @@ def test_manifest_signature_uses_hmac_sha256():
     builder = ManifestBuilder(created_by="aws-kafka-connect")
     manifest = builder.build("partition", [ManifestObject("f", 100, "sha")])
     assert manifest.created_by == "aws-kafka-connect"
-    signature = builder.sign(manifest, b"secret")
+    from audit_integrity.signer import LocalHmacSigner
+    signature = builder.sign(manifest, LocalHmacSigner(b"secret"))
     decoded = base64.b64decode(signature)
     assert len(decoded) == 32

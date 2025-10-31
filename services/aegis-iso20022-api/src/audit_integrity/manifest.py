@@ -1,13 +1,13 @@
 
 from __future__ import annotations
 
-import base64
-import hmac
 import json
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from hashlib import sha256
-from typing import Iterable, List
+from typing import Iterable, List, Protocol
+
+from .signer import ManifestSigner
 
 
 @dataclass(frozen=True)
@@ -63,10 +63,9 @@ class ManifestBuilder:
             created_by=self.created_by,
         )
 
-    def sign(self, manifest: Manifest, secret: bytes) -> str:
+    def sign(self, manifest: Manifest, signer: ManifestSigner) -> str:
         payload = manifest.to_json().encode("utf-8")
-        signature = hmac.new(secret, payload, sha256).digest()
-        return base64.b64encode(signature).decode("ascii")
+        return signer.sign(payload)
 
     @staticmethod
     def _aggregate_hash(objects: Iterable[ManifestObject]) -> str:
