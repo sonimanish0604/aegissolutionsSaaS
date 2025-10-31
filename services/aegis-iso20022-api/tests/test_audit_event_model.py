@@ -10,7 +10,7 @@ if str(SRC) not in sys.path:
 
 from uuid import uuid4
 
-from audit_utils import AuditEvent, hash_text  # noqa: E402  pylint: disable=wrong-import-position
+from audit_event import AuditEvent, hash_text  # noqa: E402  pylint: disable=wrong-import-position
 
 
 def test_audit_event_defaults():

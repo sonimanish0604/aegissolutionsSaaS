@@ -14,6 +14,7 @@ class AuditEvent:
     type: str = "api_call"
     ts: str = ""
     tenant_id: str = ""
+    tenant_uuid: str = ""
     x_request_id: str = ""
     route: str = ""
     result: str = "accepted"
@@ -43,6 +44,7 @@ class AuditEvent:
             "type": self.type,
             "ts": self.ts,
             "tenant_id": self.tenant_id,
+            "tenant_uuid": self.tenant_uuid,
             "x_request_id": self.x_request_id,
             "route": self.route,
             "result": self.result,
