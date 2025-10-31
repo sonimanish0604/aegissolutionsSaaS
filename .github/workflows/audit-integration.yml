@@ -28,7 +28,7 @@ jobs:
       - name: Wait for translator
         uses: jtalk/url-health-check-action@v4
         with:
-          url: http://localhost:8080/healthcheck
+          url: http://localhost:8080/
           follow-redirect: false
           retry: 20
           retry-delay: 5s
