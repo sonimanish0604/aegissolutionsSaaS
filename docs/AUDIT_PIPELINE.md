@@ -97,7 +97,7 @@ Recommended Kafka Connect configuration (Confluent S3 sink) – adapt secrets at
 
 Follow-on serverless components:
 
-- **Manifest Builder** – hourly Lambda/container that collects the Parquet keys for a partition, writes `MANIFEST.json`, signs it (`MANIFEST.sig`) via KMS/HSM. Consumers can verify completeness by replaying the manifest.
+- **Manifest Builder** – hourly Lambda/container that collects the Parquet keys for a partition, writes `MANIFEST.json`, signs it (`MANIFEST.sig`) via KMS/HSM. Consumers can verify completeness by replaying the manifest. The repository includes a helper implementation at `services/aegis-iso20022-api/src/audit_integrity/manifest.py` used for integration tests and tooling.
 - **Athena** – external tables over the bucket allow ad-hoc SQL for investigations. Enable S3 Object Lock (Compliance mode) + lifecycle to Glacier for long-term retention.
 - **Optional sinks** – SIEM connector / OpenSearch sink can subscribe directly to Kafka for near real-time operations. S3 remains the system of record.
 
