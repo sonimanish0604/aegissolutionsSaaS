@@ -12,7 +12,7 @@ from audit_integrity import ManifestBuilder, ManifestObject  # noqa: E402  pylin
 
 
 def test_manifest_builder_creates_deterministic_hash():
-    builder = ManifestBuilder()
+    builder = ManifestBuilder(created_by="aws-kafka-connect")
     objs = [
         ManifestObject(key="a", size=10, sha256="abc"),
         ManifestObject(key="b", size=20, sha256="def"),
@@ -24,8 +24,9 @@ def test_manifest_builder_creates_deterministic_hash():
 
 
 def test_manifest_signature_uses_hmac_sha256():
-    builder = ManifestBuilder()
+    builder = ManifestBuilder(created_by="aws-kafka-connect")
     manifest = builder.build("partition", [ManifestObject("f", 100, "sha")])
+    assert manifest.created_by == "aws-kafka-connect"
     signature = builder.sign(manifest, b"secret")
     decoded = base64.b64decode(signature)
     assert len(decoded) == 32

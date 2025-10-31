@@ -1,3 +1,4 @@
+
 from __future__ import annotations
 
 import base64
@@ -26,6 +27,7 @@ class Manifest:
     partition: str
     objects: List[ManifestObject]
     aggregate_sha256: str
+    created_by: str
 
     def to_dict(self) -> dict:
         return {
@@ -34,6 +36,7 @@ class Manifest:
             "partition": self.partition,
             "objects": [obj.to_dict() for obj in self.objects],
             "aggregate_sha256": self.aggregate_sha256,
+            "created_by": self.created_by,
         }
 
     def to_json(self) -> str:
@@ -43,8 +46,9 @@ class Manifest:
 class ManifestBuilder:
     """Create signed manifest files for S3 audit partitions."""
 
-    def __init__(self, version: str = "1.0") -> None:
+    def __init__(self, version: str = "1.0", created_by: str = "audit-manifest-builder") -> None:
         self.version = version
+        self.created_by = created_by
 
     def build(self, partition: str, objects: Iterable[ManifestObject]) -> Manifest:
         items = list(objects)
@@ -56,6 +60,7 @@ class ManifestBuilder:
             partition=partition,
             objects=items,
             aggregate_sha256=aggregate,
+            created_by=self.created_by,
         )
 
     def sign(self, manifest: Manifest, secret: bytes) -> str:
