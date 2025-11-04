@@ -94,6 +94,19 @@ jobs:
           echo "role_arn=${role_arn}" >> "$GITHUB_OUTPUT"
           echo "TF_VAR_environment=${env_name}" >> "$GITHUB_ENV"
         shell: bash
+      - name: Debug OIDC subject
+        id: oidc-debug
+        shell: bash
+        env:
+          GH_AUDIENCE: sts.amazonaws.com
+        run: |
+          set -euo pipefail
+          resp="$(curl -sSL -H "Authorization: Bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" \
+            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=${GH_AUDIENCE}")"
+          token="$(echo "$resp" | jq -r '.value')"
+          payload="$(echo "$token" | cut -d '.' -f2 | tr '_-' '/+' | base64 --decode 2>/dev/null | jq)"
+          echo "OIDC payload:"
+          echo "$payload"
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
