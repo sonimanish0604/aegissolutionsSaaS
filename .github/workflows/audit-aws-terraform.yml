@@ -95,18 +95,28 @@ jobs:
           echo "TF_VAR_environment=${env_name}" >> "$GITHUB_ENV"
         shell: bash
       - name: Debug OIDC subject
-        id: oidc-debug
         shell: bash
         env:
           GH_AUDIENCE: sts.amazonaws.com
         run: |
           set -euo pipefail
-          resp="$(curl -sSL -H "Authorization: Bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" \
+          resp="$(curl -sS -H "Authorization: Bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" \
             "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=${GH_AUDIENCE}")"
+          echo "Raw ID token response:"
+          echo "$resp"
           token="$(echo "$resp" | jq -r '.value')"
-          payload="$(echo "$token" | cut -d '.' -f2 | tr '_-' '/+' | base64 --decode 2>/dev/null | jq)"
-          echo "OIDC payload:"
-          echo "$payload"
+
+          # Decode the JWT payload safely (adds padding if needed)
+          python - "$token" <<'PY'
+import base64, json, sys
+token = sys.argv[1]
+parts = token.split(".")
+if len(parts) != 3:
+    sys.exit("malformed token")
+payload = parts[1] + "=" * (-len(parts[1]) % 4)
+decoded = json.loads(base64.urlsafe_b64decode(payload.encode()))
+print(json.dumps(decoded, indent=2))
+PY
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
