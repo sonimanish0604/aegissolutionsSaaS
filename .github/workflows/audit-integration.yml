@@ -2,6 +2,15 @@ name: Integration Audit Smoke Test
 
 on:
   pull_request:
+    branches:
+      - testing
+      - staging
+      - main
+  push:
+    branches:
+      - testing
+      - staging
+      - main
   workflow_dispatch:
 
 jobs:
