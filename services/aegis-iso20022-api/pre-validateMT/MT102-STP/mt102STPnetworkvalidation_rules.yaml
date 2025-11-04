@@ -1,0 +1,213 @@
+#MT102 network Validation rules
+
+- rule_id: C1
+  description: >
+    If field 19 is present in sequence C, it must equal the sum of the amounts in all occurrences of field 32B
+  error_code: C01
+  sequence: C
+  conditions:
+    field_19:
+      present:
+        must_equal_sum_of: field_32B.amounts
+
+- rule_id: C2
+  description: >
+    The currency code in the fields 71G, 32B and 32A must be the same for all occurrences of these fields in the message
+  error_code: C02
+  message_scope:
+    currency_consistency:
+    fields: [71G, 32B, 32A]
+    requirement: must_be_identical_across_all_occurrences
+
+- rule_id: C3
+  description: >
+    Field 50a must be present either in sequence A or in each occurrence of sequence B, but it must never be present in both sequences, nor be absent from both sequences (Error code(s): D17).but never in both, nor absent from both.
+  error_code: D17
+  field_50a:
+  allowed_combinations:
+      - sequence_A: present
+        sequence_B: not_allowed
+      - sequence_A: not_present
+        sequence_B: mandatory
+
+- rule_id: C4
+  description: >
+    Field 71a must be present either in sequence A or in each occurrence of sequence B, but it must never be present in both sequences, nor be absent from both sequences (Error code(s): D17).but never in both, nor absent from both.
+  error_code: D20
+  field_71a:
+  allowed_combinations:
+      - sequence_A: present
+        sequence_B: not_allowed
+      - sequence_A: not_present
+        sequence_B: mandatory
+
+- rule_id: C5
+  description: >
+    If field 52a, 26T, or 77B is present in sequence A, that field must not be present in any occurrence of sequence B.
+    Conversely, if any of these fields is present in sequence B, it must not be present in sequence A.
+  error_code: D18
+  exclusivity:
+        fields: [52a, 26T, 77B]
+        sequence_A_index: any
+        sequence_B_index: any
+        allowed_combinations:
+          - sequence_A: present
+            sequence_B: not_allowed
+          - sequence_A: not_present
+            sequence_B: optional
+
+- rule_id: C6
+  description: >
+        Field 36 (in sequence A or B) must be present in the message if any sequence B contains field 33B
+        with a currency code different from field 32B. In all other cases, field 36 is not allowed.
+        When field 36 is required, it must appear either in sequence A (and not in any sequence B),
+        or in every applicable sequence B (and not in sequence A or other sequence B entries).
+  error_code: D22
+  conditional_presence:
+    trigger:
+    sequence_B:
+      field_33B: present
+      currency_code_differs_from: field_32B
+      requirement:
+        field_36: must_be_present_in_message
+        exclusivity:
+          options:
+            - sequence_A:
+                field_36: present
+              sequence_B:
+                field_36: not_allowed
+            - sequence_A:
+                field_36: not_present
+              sequence_B:
+                field_33B: present
+                currency_code_differs_from: field_32B
+                field_36: mandatory
+              other_sequence_B:
+                field_36: not_allowed
+      fallback_behavior:
+        sequence_B:
+          field_33B: present
+          currency_code_equals: field_32B
+          field_36: not_allowed
+        sequence_B:
+          field_33B: not_present
+          field_36: not_allowed
+
+- rule_id: C7
+  description: >
+        If the country codes of both the Sender's and the Receiver's BICs are within the list defined in bic_european_country_codes,
+        then field 33B is mandatory in each occurrence of sequence B. Otherwise, field 33B is optional.
+  error_code: D49
+  conditions:
+      sender_bic_country_code: must_be_in_lookup.bic_european_country_codes
+      receiver_bic_country_code: must_be_in_lookup.bic_european_country_codes
+  enforcement:
+      sequence_B:
+          field_33B:
+            presence: mandatory_if_both_sender_and_receiver_match
+            otherwise: optional
+
+- rule_id: C8
+  description: >
+        Conditional presence rules for fields 71F and 71G based on the value of field 71A in sequence A or B.
+        Rule C4 takes precedence over this rule.
+  notes:
+        - Rule C4 takes precedence over C9.
+  conditions:
+        sequence_A:
+          field_71A:
+            OUR:
+              sequence_B:
+                field_71F: not_allowed
+                field_71G: optional
+              error_code: E13
+            SHA:
+              sequence_B:
+                field_71F: optional
+                field_71G: not_allowed
+              error_code: D50
+            BEN:
+              sequence_B:
+                field_71F: mandatory
+                field_71G: not_allowed
+              error_code: E15
+        sequence_B:
+          field_71A:
+            OUR:
+              same_occurrence:
+                field_71F: not_allowed
+                field_71G: optional
+              error_code: E13
+            SHA:
+              same_occurrence:
+                field_71F: optional
+                field_71G: not_allowed
+              error_code: D50
+            BEN:
+              same_occurrence:
+                field_71F: mandatory
+                field_71G: not_allowed
+              error_code: E15
+
+  
+- rule_id: C9
+  description: >
+        If either field 71F (at least one occurrence) or field 71G is present in an occurrence of sequence B,
+        then field 33B is mandatory in the same occurrence of sequence B. If both are absent, field 33B is optional.
+  error_code: D51
+  sequence: B
+  conditions:
+    field_71F:
+      present:
+        field_71G:
+          present:
+            field_33B: rejected  # Invalid combination (both present)
+          not_present:
+            field_33B: mandatory
+      not_present:
+        field_71G:
+          present:
+            field_33B: mandatory
+          not_present:
+            field_33B: optional
+
+- rule_id: C10
+  description: >
+    If field 71G is present in any occurrence of sequence B, then field 71G is mandatory in sequence C.
+  error_code: D79
+  cross_sequence_condition:
+    trigger:
+      sequence_B:
+        field_71G: present
+    enforcement:
+      sequence_C:
+        field_71G: mandatory
+
+- rule_id: C11
+  description: >
+        If the country codes of both the Sender's and Receiver's BICs are within the European country list,
+        then in each occurrence of sequence B:
+        - If field 57A is not present, IBAN is mandatory in subfield Account of field 59a.
+        - If field 57A is present and its BIC country code is also within the list, IBAN is mandatory in subfield Account of field 59a.
+        In all other cases, IBAN is optional and its format is not validated.
+  error_code: D19
+  lookup_reference: bic_european_country_codes  # Defined in lookups.yaml
+  sequence: B
+  conditions:
+        sender_bic_country_code: must_be_in_lookup.bic_european_country_codes
+        receiver_bic_country_code: must_be_in_lookup.bic_european_country_codes
+  enforcement:
+        field_57A:
+          not_present:
+            field_59a_account_subfield:
+              iban_required: true
+              iban_format: ISO_13616
+          present:
+            bic_country_code_in_57A: must_be_in_lookup.bic_european_country_codes
+            field_59a_account_subfield:
+              iban_required: true
+              iban_format: ISO_13616
+        fallback:
+          field_59a_account_subfield:
+            iban_required: false
+            iban_format: not_validated

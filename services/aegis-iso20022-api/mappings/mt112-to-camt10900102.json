@@ -1,0 +1,195 @@
+{
+  "meta": {
+    "template_version": "1.0.0",
+    "use_case": "MT112_TO_CAMT109",
+    "source": {
+      "standard": "SWIFT_MT",
+      "message_type": "MT112",
+      "variant": "FIN"
+    },
+    "target": {
+      "standard": "ISO20022",
+      "message": "camt.109",
+      "schema_id": "camt.109.001.02"
+    },
+    "mx_root": "ChqCxlOrStopRpt",
+    "created_by": "aegis",
+    "created_at": "2025-10-29T00:00:00Z"
+  },
+  "namespaces": {
+    "mx": "urn:iso:std:iso:20022:tech:xsd:camt.109.001.02"
+  },
+  "defaults": {},
+  "blocks": [
+    {
+      "id": "group_header",
+      "mappings": [
+        {
+          "source": "20",
+          "target": "GrpHdr/MsgId"
+        },
+        {
+          "target": "GrpHdr/CreDtTm",
+          "transform": "now"
+        },
+        {
+          "target": "GrpHdr/NbOfChqs",
+          "value": "1"
+        }
+      ]
+    },
+    {
+      "id": "cheque",
+      "target_root": "Chq",
+      "mappings": [
+        {
+          "source": "20",
+          "target": "InstrId"
+        },
+        {
+          "source": "21",
+          "target": "ChqNb"
+        },
+        {
+          "source": "30",
+          "target": "IsseDt",
+          "transform": {
+            "fn": "date_parse",
+            "args": {
+              "format": "%y%m%d"
+            }
+          }
+        },
+        {
+          "source": "32B",
+          "target": "Amt",
+          "transform": [
+            {
+              "fn": "regex_extract",
+              "args": {
+                "pattern": "^([A-Z]{3})(.+)$",
+                "group": 2
+              }
+            },
+            "to_decimal"
+          ]
+        },
+        {
+          "source": "32B",
+          "target": "Amt/@Ccy",
+          "transform": {
+            "fn": "regex_extract",
+            "args": {
+              "pattern": "^([A-Z]{3})(.+)$",
+              "group": 1
+            }
+          }
+        },
+        {
+          "source": "52A",
+          "target": "DrwrAgt/FinInstnId/BICFI"
+        },
+        {
+          "source": "59",
+          "target": "Pyee/Nm",
+          "transform": {
+            "fn": "regex_extract",
+            "args": {
+              "pattern": "^([^\\n]+)",
+              "group": 1
+            }
+          }
+        },
+        {
+          "source": "59",
+          "target": "Pyee/PstlAdr/AdrLine",
+          "transform": [
+            {
+              "fn": "regex_extract",
+              "args": {
+                "pattern": "^([^\\n]+)\\n(.+)$",
+                "group": 2
+              }
+            },
+            "lines"
+          ],
+          "on_fail": "Pyee/PstlAdr/AdrLine"
+        },
+        {
+          "target": "ChqCxlOrStopSts/Orgtr",
+          "value": "PAYR"
+        },
+        {
+          "source": "76",
+          "target": "ChqCxlOrStopSts/Sts/Prtry",
+          "transform": [
+            {
+              "fn": "regex_extract",
+              "args": {
+                "pattern": "(?m)^1/([^\\n]+)",
+                "group": 1
+              }
+            },
+            {
+              "fn": "truncate",
+              "args": {
+                "max": 35
+              }
+            }
+          ],
+          "on_fail": "ChqCxlOrStopSts/Sts/Prtry"
+        },
+        {
+          "source": "76",
+          "target": "ChqCxlOrStopSts/AddtlInf",
+          "transform": [
+            {
+              "fn": "regex_extract",
+              "args": {
+                "pattern": "(?s)^[^\\n]+\\n(.+)$",
+                "group": 1
+              }
+            },
+            {
+              "fn": "truncate",
+              "args": {
+                "max": 140
+              }
+            }
+          ],
+          "on_fail": "ChqCxlOrStopSts/AddtlInf"
+        }
+      ]
+    }
+  ],
+  "validations": [
+    {
+      "path": "GrpHdr/MsgId",
+      "required": true
+    },
+    {
+      "path": "Chq/ChqNb",
+      "required": true
+    },
+    {
+      "path": "Chq/Amt",
+      "required": true
+    },
+    {
+      "path": "Chq/ChqCxlOrStopSts/Sts/Prtry",
+      "required": true
+    }
+  ],
+  "transforms_catalog": [
+    "regex_extract(pattern,group)",
+    "to_decimal",
+    "date_parse(format)",
+    "lines",
+    "truncate(max)"
+  ],
+  "error_policies": {
+    "on_missing_required": "fail",
+    "on_transform_error": "warn_and_copy_raw",
+    "on_unknown_tag": "ignore"
+  }
+}

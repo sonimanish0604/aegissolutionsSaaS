@@ -1,0 +1,132 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aegis.dev/schemas/mapping-template-1.0.json",
+  "type": "object",
+  "required": ["meta", "namespaces", "blocks"],
+  "properties": {
+    "meta": {
+      "type": "object",
+      "required": ["template_version", "use_case", "source", "target"],
+      "properties": {
+        "template_version": { "type": "string" },
+        "use_case": { "type": "string" },
+        "source": {
+          "type": "object",
+          "required": ["standard", "message_type"],
+          "properties": {
+            "standard": { "type": "string" },
+            "message_type": { "type": "string" },
+            "variant": { "type": "string" }
+          }
+        },
+        "target": {
+          "type": "object",
+          "required": ["standard", "message", "schema_id"],
+          "properties": {
+            "standard": { "type": "string" },
+            "message": { "type": "string" },
+            "schema_id": { "type": "string" }
+          }
+        }
+      }
+    },
+    "namespaces": { "type": "object", "additionalProperties": { "type": "string" } },
+    "defaults": { "type": "object", "additionalProperties": { "$ref": "#/$defs/assign" } },
+    "blocks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "source_selector", "target_root", "mappings"],
+        "properties": {
+          "id": { "type": "string" },
+          "source_selector": { "type": "string" },
+          "target_root": { "type": "string" },
+          "mappings": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/mapping" }
+          }
+        }
+      }
+    },
+    "validations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "required"],
+        "properties": {
+          "path": { "type": "string" },
+          "required": { "type": "boolean" }
+        }
+      }
+    },
+    "error_policies": {
+      "type": "object",
+      "properties": {
+        "on_missing_required": { "enum": ["fail", "warn", "ignore"] },
+        "on_transform_error": { "enum": ["fail", "warn_and_copy_raw", "ignore"] },
+        "on_unknown_tag": { "enum": ["ignore", "warn", "fail"] }
+      }
+    }
+  },
+  "$defs": {
+    "assign": {
+      "type": "object",
+      "properties": {
+        "value": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "mapping": {
+      "type": "object",
+      "oneOf": [
+        { "required": ["source", "target"] },
+        { "required": ["switch"] }
+      ],
+      "properties": {
+        "source": { "type": "string" },
+        "target": { "type": "string" },
+        "attributes": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        },
+        "transform": {
+          "oneOf": [
+            { "type": "string" },
+            {
+              "type": "object",
+              "required": ["fn"],
+              "properties": {
+                "fn": { "type": "string" },
+                "args": { "type": "object" }
+              }
+            }
+          ]
+        },
+        "on_fail": { "type": "string" },
+        "when_any": {
+          "type": "array",
+          "items": { "type": "object", "properties": { "exists": { "type": "string" } }, "required": ["exists"] }
+        },
+        "switch": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["if", "mappings"],
+            "properties": {
+              "if": {
+                "type": "object",
+                "properties": { "exists": { "type": "string" } },
+                "required": ["exists"]
+              },
+              "mappings": {
+                "type": "array",
+                "items": { "$ref": "#/$defs/mapping" }
+              }
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

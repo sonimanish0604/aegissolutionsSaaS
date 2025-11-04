@@ -1,0 +1,103 @@
+{
+  "meta": {
+    "template_version": "1.0.0",
+    "use_case": "MT192_TO_CAMT056",
+    "source": { "standard": "SWIFT_MT", "message_type": "MT192", "variant": "FIN" },
+    "target": { "standard": "ISO20022", "message": "camt.056", "schema_id": "camt.056.001.11" },
+    "mx_root": "FIToFIPmtCxlReq",
+    "created_by": "aegis",
+    "created_at": "2025-10-22T00:00:00Z"
+  },
+  "namespaces": {
+    "mx": "urn:iso:std:iso:20022:tech:xsd:camt.056.001.11"
+  },
+
+  "defaults": {},
+
+  "blocks": [
+    {
+      "id": "assignment",
+      "mappings": [
+        { "source": "20", "target": "Assgnmt/Id" },
+        { "target": "Assgnmt/Assgnr/Agt/FinInstnId/Othr/Id", "value": "NOTPROVIDED" },
+        { "target": "Assgnmt/Assgne/Agt/FinInstnId/Othr/Id", "value": "NOTPROVIDED" },
+        { "target": "Assgnmt/CreDtTm", "value": null, "transform": ["now"] }
+      ]
+    },
+    {
+      "id": "underlying",
+      "target_root": "Undrlyg",
+      "mappings": [
+        { "source": "21", "target": "OrgnlGrpInfAndCxl/OrgnlMsgId" },
+        {
+          "source": "11S",
+          "target": "OrgnlGrpInfAndCxl/OrgnlMsgNmId",
+          "transform": { "fn": "regex_extract", "args": { "pattern": "^(\\S+)", "group": 1 } }
+        },
+
+        { "source": "20", "target": "TxInf/CxlId" },
+        { "source": "21", "target": "TxInf/OrgnlTxId" },
+
+        {
+          "source": "79",
+          "target": "TxInf/OrgnlUETR",
+          "transform": { "fn": "regex_extract", "args": { "pattern": "/UETR/([A-Fa-f0-9-]{36})", "group": 1 } }
+        },
+
+        {
+          "source": "32A",
+          "target": "TxInf/OrgnlIntrBkSttlmAmt",
+          "transform": [
+            { "fn": "regex_extract", "args": { "pattern": "^(\\d{6})([A-Z]{3})(.+)$", "group": 3 } },
+            { "fn": "to_decimal" }
+          ]
+        },
+        {
+          "source": "32A",
+          "target": "TxInf/OrgnlIntrBkSttlmAmt/@Ccy",
+          "transform": { "fn": "regex_extract", "args": { "pattern": "^(\\d{6})([A-Z]{3})(.+)$", "group": 2 } }
+        },
+        {
+          "source": "32A",
+          "target": "TxInf/OrgnlIntrBkSttlmDt",
+          "transform": [
+            { "fn": "regex_extract", "args": { "pattern": "^(\\d{6})([A-Z]{3})(.+)$", "group": 1 } },
+            { "fn": "date_parse", "args": { "format": "%y%m%d" } }
+          ]
+        },
+
+        {
+          "source": "79",
+          "target": "TxInf/CxlRsnInf/Rsn/Cd",
+          "transform": { "fn": "regex_extract", "args": { "pattern": "/([A-Z0-9]{4})/", "group": 1 } }
+        }
+      ]
+    }
+  ],
+
+  "validations": [
+    { "path": "Assgnmt/Id", "required": true },
+    { "path": "Assgnmt/Assgnr/Agt/FinInstnId/Othr/Id", "required": true },
+    { "path": "Assgnmt/Assgne/Agt/FinInstnId/Othr/Id", "required": true },
+    { "path": "Undrlyg/OrgnlGrpInfAndCxl/OrgnlMsgId", "required": true },
+    { "path": "Undrlyg/TxInf/CxlId", "required": true },
+    { "path": "Undrlyg/TxInf/OrgnlTxId", "required": true },
+    { "path": "Undrlyg/TxInf/OrgnlIntrBkSttlmAmt", "required": true },
+    { "path": "Undrlyg/TxInf/OrgnlIntrBkSttlmAmt/@Ccy", "required": true },
+    { "path": "Undrlyg/TxInf/OrgnlUETR", "required": true },
+    { "path": "Undrlyg/TxInf/CxlRsnInf/Rsn/Cd", "required": true }
+  ],
+
+  "transforms_catalog": [
+    "to_decimal",
+    "date_parse(format)",
+    "regex_extract(pattern,group)",
+    "now"
+  ],
+
+  "error_policies": {
+    "on_missing_required": "fail",
+    "on_transform_error": "warn_and_copy_raw",
+    "on_unknown_tag": "ignore"
+  }
+}

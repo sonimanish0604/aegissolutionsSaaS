@@ -1,0 +1,51 @@
+MTn95_Usage_Rules:
+  rules:
+    - id: U1
+      description: >
+        The MT n95 should not be used to enquire about the fate of documents sent for collection.
+        The MT 420 is intended for this purpose.
+      applies_to: MTn95
+      enforcement:
+        enquiry_type: not_allowed_if_document_collection
+        redirect_to: MT420
+
+    - id: U2
+      description: >
+        All queries that relate to the same initial message should refer to that initial message in field 21.
+      applies_to: MTn95
+      enforcement:
+        field_21: must_reference_initial_message
+
+    - id: U3
+      description: >
+        The message to which the MT n95 query is related may be quoted in part or in full.
+      applies_to: MTn95
+      enforcement:
+        related_message_quote: optional
+        quote_scope: [partial, full]
+
+    - id: U4
+      description: >
+        The MT n95 query always requires a response, preferably by an MT n96 Answers.
+      applies_to: MTn95
+      enforcement:
+        response_required: true
+        preferred_response_format: MTn96
+
+    - id: U5
+      description: >
+        The use of MT n95 in association with MT 105 EDIFACT Envelope must follow the EDIFACT Message Implementation Guide (MIG).
+      applies_to: MTn95
+      enforcement:
+        associated_message: MT105
+        guideline_reference: EDIFACT_MIG
+        compliance_required: true
+
+    - id: U6
+      description: >
+        If the original message contained a Unique End-to-end Transaction Reference (UETR),
+        it may be copied in field 121 of the user header block in MT 195, MT 295, or MT 995 query messages.
+      applies_to: [MT195, MT295, MT995]
+      enforcement:
+        original_message_contains_UETR: true
+        field_121: optional_copy_of_UETR

@@ -1,0 +1,97 @@
+{
+  "meta": {
+    "template_version": "1.0.0",
+    "use_case": "MT196_TO_CAMT111",
+    "source": {
+      "standard": "SWIFT_MT",
+      "message_type": "MT196",
+      "variant": "query_response"
+    },
+    "target": {
+      "standard": "ISO20022",
+      "message": "camt.111",
+      "schema_id": "camt.111.001.02"
+    },
+    "mx_root": "InvstgtnRspn",
+    "created_by": "aegis",
+    "created_at": "2025-10-30T00:00:00Z"
+  },
+  "namespaces": {
+    "mx": "urn:iso:std:iso:20022:tech:xsd:camt.111.001.02"
+  },
+  "defaults": {},
+  "blocks": [
+    {
+      "id": "response_headers",
+      "mappings": [
+        {
+          "source": "20",
+          "target": "InvstgtnRspn/MsgId"
+        },
+        {
+          "source": "21",
+          "target": "InvstgtnRspn/RspndrInvstgtnId"
+        },
+        {
+          "value": "COMP",
+          "target": "InvstgtnRspn/InvstgtnSts/Sts"
+        }
+      ]
+    },
+    {
+      "id": "response_data",
+      "mappings": [
+        {
+          "source": "76",
+          "target": "InvstgtnRspn/InvstgtnData/RspnData/RspnNrrtv",
+          "transform": [
+            {
+              "fn": "truncate",
+              "args": {
+                "max": 500
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "original_request",
+      "mappings": [
+        {
+          "source": "21",
+          "target": "OrgnlInvstgtnReq/MsgId"
+        },
+        {
+          "value": "INFORMATION",
+          "target": "OrgnlInvstgtnReq/InvstgtnTp/Prtry"
+        },
+        {
+          "target": "OrgnlInvstgtnReq/Rqstr/Agt/FinInstnId/Othr/Id",
+          "value": "NOTPROVIDED"
+        },
+        {
+          "target": "OrgnlInvstgtnReq/Rspndr/Agt/FinInstnId/Othr/Id",
+          "value": "NOTPROVIDED"
+        }
+      ]
+    }
+  ],
+  "validations": [
+    { "path": "InvstgtnRspn/MsgId", "required": true },
+    { "path": "InvstgtnRspn/InvstgtnSts/Sts", "required": true },
+    { "path": "InvstgtnRspn/InvstgtnData/RspnData/RspnNrrtv", "required": true },
+    { "path": "OrgnlInvstgtnReq/MsgId", "required": true },
+    { "path": "OrgnlInvstgtnReq/InvstgtnTp/Prtry", "required": true },
+    { "path": "OrgnlInvstgtnReq/Rqstr/Agt/FinInstnId/Othr/Id", "required": true },
+    { "path": "OrgnlInvstgtnReq/Rspndr/Agt/FinInstnId/Othr/Id", "required": true }
+  ],
+  "transforms_catalog": [
+    "truncate(max)"
+  ],
+  "error_policies": {
+    "on_missing_required": "fail",
+    "on_transform_error": "warn_and_copy_raw",
+    "on_unknown_tag": "ignore"
+  }
+}
