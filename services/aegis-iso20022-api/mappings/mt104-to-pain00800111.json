@@ -1,0 +1,354 @@
+{
+  "meta": {
+    "template_version": "1.0.0",
+    "use_case": "MT104_TO_PAIN008",
+    "source": {
+      "standard": "SWIFT_MT",
+      "message_type": "MT104",
+      "variant": "FIN"
+    },
+    "target": {
+      "standard": "ISO20022",
+      "message": "pain.008",
+      "schema_id": "pain.008.001.11"
+    },
+    "mx_root": "CstmrDrctDbtInitn",
+    "created_by": "aegis",
+    "created_at": "2025-10-28T00:00:00Z"
+  },
+  "namespaces": {
+    "mx": "urn:iso:std:iso:20022:tech:xsd:pain.008.001.11"
+  },
+  "defaults": {
+    "GrpHdr/MsgId": {
+      "value": "$context.request_id"
+    },
+    "GrpHdr/CreDtTm": {
+      "value": "$now"
+    },
+    "GrpHdr/NbOfTxs": {
+      "value": "1"
+    }
+  },
+  "blocks": [
+    {
+      "id": "group_header",
+      "mappings": [
+        {
+          "source": "20",
+          "target": "GrpHdr/MsgId"
+        },
+        {
+          "source": "32B",
+          "target": "GrpHdr/CtrlSum",
+          "transform": [
+            {
+              "fn": "regex_extract",
+              "args": {
+                "pattern": "^([A-Z]{3})(.+)$",
+                "group": 2
+              }
+            },
+            "to_decimal"
+          ]
+        },
+        {
+          "source": "50K",
+          "target": "GrpHdr/InitgPty/Nm",
+          "transform": {
+            "fn": "regex_extract",
+            "args": {
+              "pattern": "^(?:/.*\\n)?([^\\n]+)",
+              "group": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "payment_info",
+      "target_root": "PmtInf",
+      "mappings": [
+        {
+          "source": "20",
+          "target": "PmtInfId"
+        },
+        {
+          "target": "PmtMtd",
+          "value": "DD"
+        },
+        {
+          "target": "NbOfTxs",
+          "value": "1"
+        },
+        {
+          "source": "32B",
+          "target": "CtrlSum",
+          "transform": [
+            {
+              "fn": "regex_extract",
+              "args": {
+                "pattern": "^([A-Z]{3})(.+)$",
+                "group": 2
+              }
+            },
+            "to_decimal"
+          ]
+        },
+        {
+          "target": "PmtTpInf/SvcLvl/Cd",
+          "value": "SEPA"
+        },
+        {
+          "target": "PmtTpInf/LclInstrm/Cd",
+          "value": "CORE"
+        },
+        {
+          "source": "30",
+          "target": "ReqdColltnDt",
+          "transform": [
+            {
+              "fn": "date_parse",
+              "args": {
+                "format": "%y%m%d"
+              }
+            }
+          ]
+        },
+        {
+          "source": "50K",
+          "target": "Cdtr/Nm",
+          "transform": {
+            "fn": "regex_extract",
+            "args": {
+              "pattern": "^(?:/.*\\n)?([^\\n]+)",
+              "group": 1
+            }
+          }
+        },
+        {
+          "source": "50K",
+          "target": "Cdtr/PstlAdr/AdrLine",
+          "transform": [
+            {
+              "fn": "regex_extract",
+              "args": {
+                "pattern": "^(?:/.*\\n)?[^\\n]+\\n([\\s\\S]+)$",
+                "group": 1
+              }
+            },
+            "lines"
+          ]
+        },
+        {
+          "source": "50K",
+          "target": "CdtrAcct/Id/IBAN",
+          "transform": [
+            {
+              "fn": "regex_extract",
+              "args": {
+                "pattern": "^/([^\\n]+)",
+                "group": 1
+              }
+            },
+            "iban_normalize"
+          ],
+          "on_fail": "CdtrAcct/Id/Othr/Id"
+        },
+        {
+          "source": "52A",
+          "target": "CdtrAgt/FinInstnId/BICFI",
+          "transform": {
+            "fn": "regex_extract",
+            "args": {
+              "pattern": "^([A-Za-z0-9]{8,11})",
+              "group": 1
+            }
+          }
+        },
+        {
+          "target": "ChrgBr",
+          "value": "SLEV"
+        },
+        {
+          "target": "CdtrSchmeId/Id/PrvtId/Othr/Id",
+          "value": "NOTPROVIDED"
+        }
+      ]
+    },
+    {
+      "id": "transaction",
+      "target_root": "PmtInf/DrctDbtTxInf",
+      "mappings": [
+        {
+          "source": "21",
+          "target": "PmtId/EndToEndId"
+        },
+        {
+          "source": "32B",
+          "target": "InstdAmt",
+          "transform": [
+            {
+              "fn": "regex_extract",
+              "args": {
+                "pattern": "^([A-Z]{3})(.+)$",
+                "group": 2
+              }
+            },
+            "to_decimal"
+          ]
+        },
+        {
+          "source": "32B",
+          "target": "InstdAmt/@Ccy",
+          "transform": {
+            "fn": "regex_extract",
+            "args": {
+              "pattern": "^([A-Z]{3})(.+)$",
+              "group": 1
+            }
+          }
+        },
+        {
+          "source": "21",
+          "target": "DrctDbtTx/MndtRltdInf/MndtId"
+        },
+        {
+          "source": "30",
+          "target": "DrctDbtTx/MndtRltdInf/DtOfSgntr",
+          "transform": [
+            {
+              "fn": "date_parse",
+              "args": {
+                "format": "%y%m%d"
+              }
+            }
+          ]
+        },
+        {
+          "target": "DrctDbtTx/MndtRltdInf/AmdmntInd",
+          "value": "false"
+        },
+        {
+          "source": "50C",
+          "target": "DbtrAgt/FinInstnId/BICFI",
+          "transform": {
+            "fn": "regex_extract",
+            "args": {
+              "pattern": "^([A-Za-z0-9]{8,11})",
+              "group": 1
+            }
+          },
+          "on_fail": "DbtrAgt/FinInstnId/Othr/Id"
+        },
+        {
+          "source": "59",
+          "target": "Dbtr/Nm",
+          "transform": {
+            "fn": "regex_extract",
+            "args": {
+              "pattern": "^(?:/.*\\n)?([^\\n]+)",
+              "group": 1
+            }
+          }
+        },
+        {
+          "source": "59",
+          "target": "Dbtr/PstlAdr/AdrLine",
+          "transform": [
+            {
+              "fn": "regex_extract",
+              "args": {
+                "pattern": "^(?:/.*\\n)?[^\\n]+\\n([\\s\\S]+)$",
+                "group": 1
+              }
+            },
+            "lines"
+          ]
+        },
+        {
+          "source": "59",
+          "target": "DbtrAcct/Id/IBAN",
+          "transform": [
+            {
+              "fn": "regex_extract",
+              "args": {
+                "pattern": "^/([^\\n]+)",
+                "group": 1
+              }
+            },
+            "iban_normalize"
+          ],
+          "on_fail": "DbtrAcct/Id/Othr/Id"
+        },
+        {
+          "source": "70",
+          "target": "RmtInf/Ustrd",
+          "transform": [
+            {
+              "fn": "truncate",
+              "args": {
+                "max": 140
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "validations": [
+    {
+      "path": "GrpHdr/MsgId",
+      "required": true
+    },
+    {
+      "path": "GrpHdr/CtrlSum",
+      "required": true
+    },
+    {
+      "path": "PmtInf/PmtInfId",
+      "required": true
+    },
+    {
+      "path": "PmtInf/ReqdColltnDt",
+      "required": true
+    },
+    {
+      "path": "PmtInf/Cdtr/Nm",
+      "required": true
+    },
+    {
+      "path": "PmtInf/CdtrAcct/Id/IBAN",
+      "required": true
+    },
+    {
+      "path": "PmtInf/CdtrAgt/FinInstnId/BICFI",
+      "required": true
+    },
+    {
+      "path": "PmtInf/DrctDbtTxInf/InstdAmt",
+      "required": true
+    },
+    {
+      "path": "PmtInf/DrctDbtTxInf/Dbtr/Nm",
+      "required": true
+    },
+    {
+      "path": "PmtInf/DrctDbtTxInf/DbtrAcct/Id/IBAN",
+      "required": true
+    }
+  ],
+  "transforms_catalog": [
+    "regex_extract(pattern,group)",
+    "to_decimal",
+    "date_parse(format)",
+    "lines",
+    "truncate(max)",
+    "iban_normalize"
+  ],
+  "error_policies": {
+    "on_missing_required": "fail",
+    "on_transform_error": "warn_and_copy_raw",
+    "on_unknown_tag": "ignore"
+  }
+}

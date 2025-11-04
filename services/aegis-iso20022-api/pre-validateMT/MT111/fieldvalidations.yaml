@@ -1,0 +1,166 @@
+- tag: '20'
+  name: Sender's Reference
+  sequence: A
+  presence: mandatory
+  format: 16x
+  description: Reference assigned by the sender to uniquely identify the message.
+  validations:
+  - id: 20-NR-1
+    type: network_rule
+    rule: no_leading_or_trailing_slash_or_double_slash
+    error_code: T26
+    message: Field must not start or end with '/' and must not contain '//' anywhere in its contents.
+- tag: '21'
+  name: Cheque Number
+  sequence: A
+  presence: mandatory
+  format: 16x
+  description: Number of the cheque for which stop payment is requested.
+  validations:
+  - id: 21-NR-1
+    type: network_rule
+    rule: no_leading_or_trailing_slash_or_double_slash
+    error_code: T26
+    message: Field must not start or end with '/' and must not contain '//' anywhere in its contents.
+- tag: '30'
+  name: Date of Issue
+  sequence: A
+  presence: mandatory
+  format: 6!n
+  description: Date on which the cheque was issued.
+  validations:
+  - id: 30-NR-1
+    type: network_rule
+    rule: must_be_valid_date_yymmdd
+    error_code: T50
+    message: Date must be a valid YYMMDD calendar date.
+- tag: 32a
+  name: Amount
+  sequence: A
+  presence: mandatory
+  options_allowed:
+  - A
+  - B
+  option_A:
+    label: Value Date / Currency / Amount
+    format: 6!n3!a15d
+    validations:
+    - id: 32aA-NR-1
+      type: network_rule
+      rule: must_be_valid_date_yymmdd
+      error_code: T50
+      message: Date must be a valid YYMMDD calendar date.
+    - id: 32aA-NR-2
+      type: network_rule
+      rule: currency_must_be_valid_iso4217
+      error_code: T52
+      message: Currency must be a valid ISO 4217 code.
+    - id: 32aA-NR-3
+      type: network_rule
+      rule: amount_integer_part_at_least_one_digit
+      error_code: C03
+      message: Amount must include at least one digit before the decimal comma.
+    - id: 32aA-NR-4
+      type: network_rule
+      rule: amount_decimal_places_within_currency_precision
+      error_code: T40
+      message: Digits after the comma must not exceed the currency precision.
+    - id: 32aA-NR-5
+      type: network_rule
+      rule: amount_decimal_comma_mandatory
+      error_code: T43
+      message: Amount must include a decimal comma.
+  option_B:
+    label: Currency / Amount
+    format: 3!a15d
+    validations:
+    - id: 32aB-NR-1
+      type: network_rule
+      rule: currency_must_be_valid_iso4217
+      error_code: T52
+      message: Currency must be a valid ISO 4217 code.
+    - id: 32aB-NR-2
+      type: network_rule
+      rule: amount_integer_part_at_least_one_digit
+      error_code: C03
+      message: Amount must include at least one digit before the decimal comma.
+    - id: 32aB-NR-3
+      type: network_rule
+      rule: amount_decimal_places_within_currency_precision
+      error_code: T40
+      message: Digits after the comma must not exceed the currency precision.
+    - id: 32aB-NR-4
+      type: network_rule
+      rule: amount_decimal_comma_mandatory
+      error_code: T43
+      message: Amount must include a decimal comma.
+- tag: 52a
+  name: Drawer Bank
+  sequence: A
+  presence: optional
+  options_allowed:
+  - A
+  - B
+  - D
+  option_A:
+    label: Party Identifier / Identifier Code
+    format: '[/1!a][/34x] 4!a2!a2!c[3!c]'
+    national_clearing_codes_ref: lookups.national_clearing_codes
+    validations:
+    - id: 52aA-NR-1
+      type: network_rule
+      rule: identifier_code_must_be_valid_bic
+      error_code: T27
+      message: Identifier Code must be a valid BIC in the required format (4!a2!a2!c[3!c]).
+    - id: 52aA-NR-2
+      type: network_rule
+      rule: identifier_code_must_be_fin_destination
+      error_code: T28
+      message: Identifier Code must correspond to a valid FIN destination.
+    - id: 52aA-NR-3
+      type: network_rule
+      rule: identifier_code_branch_identifier_validity
+      error_code: T29
+      message: Identifier Code must contain a valid branch identifier, when present.
+    - id: 52aA-NR-4
+      type: network_rule
+      rule: identifier_code_non_connected_validity
+      error_code: T45
+      message: Identifier Code must not reference an invalid non-connected BIC.
+    - id: 52aA-NR-5
+      type: network_rule
+      rule: identifier_code_must_be_financial_institution
+      error_code: C05
+      message: Identifier Code must identify a registered financial institution BIC.
+  option_B:
+    label: Party Identifier / Location
+    format: '[/1!a][/34x] 35x'
+  option_D:
+    label: Party Identifier / Name and Address
+    format: '[/1!a][/34x] 4*35x'
+- tag: '59'
+  name: Payee
+  sequence: A
+  presence: optional
+  format: '[/34x] 4*35x'
+  description: Identifies the beneficiary of the cheque.
+  usage_notes:
+  - id: 59-U-1
+    description: Account line must not be used.
+  validations:
+  - id: 59-NR-1
+    type: network_rule
+    rule: payee_account_must_not_be_present
+    error_code: E10
+    message: Account line must remain empty.
+- tag: '75'
+  name: Queries
+  sequence: A
+  presence: optional
+  format: 6*35x
+  description: Provides query codes, reasons for stop payment, or reimbursement requests.
+  usage_notes:
+  - id: 75-U-1
+    description: Each query must be placed on a separate line when multiple queries are provided.
+  - id: 75-U-2
+    description: Place required supplementary information immediately after the query number.

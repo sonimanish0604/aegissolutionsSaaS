@@ -1,0 +1,45 @@
+{
+  "meta": {
+    "template_version": "1.0.0",
+    "use_case": "MT195_TO_CAMT033",
+    "source": { "standard": "SWIFT_MT", "message_type": "MT195", "variant": "FIN" },
+    "target": { "standard": "ISO20022", "message": "camt.033", "schema_id": "camt.033.001.07" },
+    "mx_root": "ReqForDplct",
+    "created_by": "aegis",
+    "created_at": "2025-10-22T00:00:00Z"
+  },
+  "namespaces": {
+    "mx": "urn:iso:std:iso:20022:tech:xsd:camt.033.001.07"
+  },
+
+  "defaults": {},
+
+  "blocks": [
+    {
+      "id": "assignment",
+      "mappings": [
+        { "source": "20", "target": "Assgnmt/Id" },
+        { "target": "Assgnmt/Assgnr/Agt/FinInstnId/Othr/Id", "value": "NOTPROVIDED" },
+        { "target": "Assgnmt/Assgne/Agt/FinInstnId/Othr/Id", "value": "NOTPROVIDED" },
+        { "target": "Assgnmt/CreDtTm", "value": null, "transform": ["now"] }
+      ]
+    }
+  ],
+
+  "validations": [
+    { "path": "Assgnmt/Id", "required": true },
+    { "path": "Assgnmt/Assgnr/Agt/FinInstnId/Othr/Id", "required": true },
+    { "path": "Assgnmt/Assgne/Agt/FinInstnId/Othr/Id", "required": true },
+    { "path": "Assgnmt/CreDtTm", "required": true }
+  ],
+
+  "transforms_catalog": [
+    "now"
+  ],
+
+  "error_policies": {
+    "on_missing_required": "fail",
+    "on_transform_error": "warn_and_copy_raw",
+    "on_unknown_tag": "ignore"
+  }
+}

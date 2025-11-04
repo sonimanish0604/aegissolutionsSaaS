@@ -1,0 +1,128 @@
+#MT101 network Validation rules
+
+- rule_id: C1
+  description: >
+    If an exchange rate is given in field 36, the corresponding forex deal must be referenced in field 21F.
+  error_code: D54
+  sequence: B
+  conditions:
+    field_36:
+      present:
+        field_21F: mandatory
+      not_present:
+        field_21F: optional
+- rule_id: C2
+  description: >
+    In each occurrence of sequence B, if field 33B is present and the amount in field 32B is not equal to zero, then field 36 must be present.
+    Otherwise, field 36 is not allowed.
+  error_code: D60
+  sequence: B
+  conditions:
+    field_33B:
+      present:
+        field_32B:
+          amount_equals_zero:
+            field_36: not_allowed
+          amount_not_equals_zero:
+            field_36: mandatory
+      not_present:
+        field_36: not_allowed
+- rule_id: C3
+  description: >
+    If there is only one debit account, the ordering customer must be identified in field 50a (option F, G or H) in sequence A.
+    If multiple debit accounts are used, they must be identified for every transaction in field 50a (option F, G or H) of sequence B.
+    Field 50a must be present in either sequence A (index 5) or in each occurrence of sequence B (index 15), but never in both, nor absent from both.
+  error_code: D61
+  exclusivity:
+    field_50a_options: [F, G, H]
+    sequence_A_index: 5
+    sequence_B_index: 15
+    allowed_combinations:
+      - sequence_A: present
+        sequence_B: not_allowed
+      - sequence_A: not_present
+        sequence_B: mandatory
+
+- rule_id: C4
+  description: >
+    Field 50a (option C or L) may be present in either sequence A (index 4), or in one or more occurrences of sequence B (index 14),
+    but must not be present in both sequences A and B.
+  error_code: D62
+  exclusivity:
+    field_50a_options: [C, L]
+    sequence_A_index: 4
+    sequence_B_index: 14
+    allowed_combinations:
+      - sequence_A: present
+        sequence_B: not_allowed
+      - sequence_A: not_present
+        sequence_B: optional
+- rule_id: C5
+  description: >
+    If field 33B is present in sequence B, its currency code must be different from the currency code in field 32B
+    in the same occurrence of sequence B.
+  error_code: D68
+  sequence: B
+  conditions:
+    field_33B:
+      present:
+        currency_code_must_differ_from: field_32B
+- rule_id: C6
+  description: >
+    Field 52a may be present in either sequence A or in one or more occurrences of sequence B,
+    but must not be present in both sequences.
+  error_code: D64
+  exclusivity:
+    field: 52a
+    sequence_A_index: any
+    sequence_B_index: any
+    allowed_combinations:
+      - sequence_A: present
+        sequence_B: not_allowed
+      - sequence_A: not_present
+        sequence_B: optional
+- rule_id: C7
+  description: >
+    If field 56a is present, field 57a must also be present.
+  error_code: D65
+  conditions:
+    field_56a:
+      present:
+        field_57a: mandatory
+      not_present:
+        field_57a: optional
+
+- rule_id: C8
+  description: >
+    If field 21R is present in sequence A, then in each occurrence of sequence B,
+    the currency code in field 32B must be the same.
+  error_code: D98
+  cross_sequence_condition:
+    trigger:
+      sequence_A:
+        field_21R: present
+    enforcement:
+      sequence_B:
+        field_32B:
+          currency_code: must_be_consistent_across_all_occurrences
+- rule_id: C9
+  description: >
+    In each occurrence of sequence B, the presence of fields 33B and 21F is dependent on the presence and value of fields 32B and 23E.
+  error_code: E54
+  sequence: B
+  conditions:
+    field_32B:
+      amount_equals_zero:
+        field_23E:
+          present_code_EQUI:
+            field_33B: mandatory
+            field_21F: optional
+          present_code_not_EQUI:
+            field_33B: not_allowed
+            field_21F: not_allowed
+          not_present:
+            field_33B: not_allowed
+            field_21F: not_allowed
+      amount_not_equals_zero:
+        field_33B: optional
+        field_21F: optional

@@ -1,0 +1,198 @@
+MT103_Usage_Rules:
+  rules:
+    - id: C1
+      description: >
+        If field 33B is present and its currency code differs from field 32A, then field 36 must be present.
+        Otherwise, field 36 is not allowed.
+      error_code: D75
+      conditions:
+        field_33B: present
+        currency_mismatch: field_33B ≠ field_32A
+      enforcement:
+        field_36: mandatory
+      fallback:
+        field_36: not_allowed
+
+    - id: C2
+      description: >
+        If both Sender's and Receiver's BIC country codes are in the European list, field 33B is mandatory.
+        Otherwise, field 33B is optional.
+      error_code: D49
+      lookup_reference: bic_european_country_codes
+      conditions:
+        sender_bic_country_code: in_lookup
+        receiver_bic_country_code: in_lookup
+      enforcement:
+        field_33B: mandatory
+      fallback:
+        field_33B: optional
+
+    - id: C3
+      description: >
+        If field 23B contains SPRI, field 23E may only contain SDVA, TELB, PHOB, INTC.
+        If field 23B contains SSTD or SPAY, field 23E must not be used.
+      error_codes:
+        SPRI: E01
+        SSTD_SPAY: E02
+      conditions:
+        field_23B:
+          SPRI:
+            field_23E: allowed_values [SDVA, TELB, PHOB, INTC]
+          SSTD_SPAY:
+            field_23E: not_allowed
+
+    - id: C4
+      description: >
+        If field 23B contains SPRI, SSTD, or SPAY, field 53a must not use option D.
+      error_code: E03
+      conditions:
+        field_23B: [SPRI, SSTD, SPAY]
+        field_53a_option: must_not_be_D
+
+    - id: C5
+      description: >
+        If field 23B contains SPRI, SSTD, or SPAY and field 53a uses option B, then Party Identifier must be present in field 53B.
+      error_code: E04
+      conditions:
+        field_23B: [SPRI, SSTD, SPAY]
+        field_53a_option: B
+      enforcement:
+        field_53B_party_identifier: mandatory
+
+    - id: C6
+      description: >
+        If field 23B contains SPRI, SSTD, or SPAY, field 54a may only use option A.
+      error_code: E05
+      conditions:
+        field_23B: [SPRI, SSTD, SPAY]
+        field_54a_option: must_be_A
+
+    - id: C7
+      description: >
+        If field 55a is present, then both fields 53a and 54a must also be present.
+      error_code: E06
+      conditions:
+        field_55a: present
+      enforcement:
+        field_53a: mandatory
+        field_54a: mandatory
+
+    - id: C8
+      description: >
+        If field 23B contains SPRI, SSTD, or SPAY, field 55a may only use option A.
+      error_code: E07
+      conditions:
+        field_23B: [SPRI, SSTD, SPAY]
+        field_55a_option: must_be_A
+
+    - id: C9
+      description: >
+        If field 56a is present, field 57a must also be present.
+      error_code: C81
+      conditions:
+        field_56a: present
+      enforcement:
+        field_57a: mandatory
+
+    - id: C10
+      description: >
+        If field 23B contains SPRI, field 56a must not be present.
+        If field 23B contains SSTD or SPAY, field 56a may use option A or C.
+        If option C is used, it must contain a clearing code.
+      error_codes:
+        SPRI: E16
+        SSTD_SPAY: E17
+      conditions:
+        field_23B:
+          SPRI:
+            field_56a: not_allowed
+          SSTD_SPAY:
+            field_56a_option: [A, C]
+            if_C: clearing_code_required
+
+    - id: C11
+      description: >
+        If field 23B contains SPRI, SSTD, or SPAY, field 57a may use option A, C, or D.
+        If option D is used, subfield 1 (Party Identifier) must be present.
+      error_code: E09
+      conditions:
+        field_23B: [SPRI, SSTD, SPAY]
+        field_57a_option: [A, C, D]
+        if_D: party_identifier_required
+
+    - id: C12
+      description: >
+        If field 23B contains SPRI, SSTD, or SPAY, subfield 1 (Account) in field 59a is mandatory.
+      error_code: E10
+      conditions:
+        field_23B: [SPRI, SSTD, SPAY]
+      enforcement:
+        field_59a_account: mandatory
+
+    - id: C13
+      description: >
+        If any field 23E contains CHQB, subfield 1 (Account) in field 59a is not allowed.
+      error_code: E18
+      conditions:
+        field_23E: contains CHQB
+      enforcement:
+        field_59a_account: not_allowed
+
+    - id: C14
+      description: >
+        Field 71A determines the presence rules for fields 71F and 71G.
+      error_codes:
+        OUR: E13
+        SHA: D50
+        BEN: E15
+      conditions:
+        field_71A:
+          OUR:
+            field_71F: not_allowed
+            field_71G: optional
+          SHA:
+            field_71F: optional
+            field_71G: not_allowed
+          BEN:
+            field_71F: mandatory
+            field_71G: not_allowed
+
+    - id: C15
+      description: >
+        If either field 71F or field 71G is present, field 33B is mandatory.
+        Otherwise, field 33B is optional.
+        Presence of 71F and 71G is also regulated by rule C14.
+        Presence of 33B is also regulated by rule C2.
+      error_code: D51
+      conditions:
+        field_71F_or_71G: present
+      enforcement:
+        field_33B: mandatory
+      fallback:
+        field_33B: optional
+      notes:
+        - See rule C14 for 71F/71G constraints
+        - See rule C2 for 33B constraints
+
+    - id: C16
+      description: >
+        If field 56a is not present, no field 23E may contain TELI or PHOI.
+      error_code: E44
+      conditions:
+        field_56a: not_present
+        field_23E: must_not_contain [TELI, PHOI]
+
+    - id: C17
+      description: >
+        If field 57a is not present, no field 23E may contain TELE or PHON.
+      error_code: E45
+      conditions:
+        field_57a: not_present
+        field_23E: must_not_contain [TELE, PHON]
+
+    - id: C18
+      description: >
+        The currency code in fields 71G and 32A must be the same.
+      error_code: C02
+      conditions:
+        field_71G_currency: must_equal field_32A_currency
