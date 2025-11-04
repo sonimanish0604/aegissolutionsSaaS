@@ -94,6 +94,7 @@ jobs:
           echo "role_arn=${role_arn}" >> "$GITHUB_OUTPUT"
           echo "TF_VAR_environment=${env_name}" >> "$GITHUB_ENV"
         shell: bash
+
       - name: Debug OIDC subject
         shell: bash
         env:
@@ -105,14 +106,16 @@ jobs:
           echo "Raw ID token response:"
           echo "$resp"
           token="$(echo "$resp" | jq -r '.value')"
-
-          # Decode the JWT payload safely (adds padding if needed)
           python - "$token" <<'PY'
-import base64, json, sys
+import base64
+import json
+import sys
 token = sys.argv[1]
 parts = token.split(".")
 if len(parts) != 3:
-    sys.exit("malformed token")
+    print("Unexpected token shape", file=sys.stderr)
+    print(token, file=sys.stderr)
+    sys.exit(1)
 payload = parts[1] + "=" * (-len(parts[1]) % 4)
 decoded = json.loads(base64.urlsafe_b64decode(payload.encode()))
 print(json.dumps(decoded, indent=2))
