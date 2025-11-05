@@ -107,19 +107,6 @@ jobs:
           echo "$resp"
           token="$(echo "$resp" | jq -r '.value')"
           python - "$token" <<'PY'
-import base64
-import json
-import sys
-token = sys.argv[1]
-parts = token.split(".")
-if len(parts) != 3:
-    print("Unexpected token shape", file=sys.stderr)
-    print(token, file=sys.stderr)
-    sys.exit(1)
-payload = parts[1] + "=" * (-len(parts[1]) % 4)
-decoded = json.loads(base64.urlsafe_b64decode(payload.encode()))
-print(json.dumps(decoded, indent=2))
-PY
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
