@@ -2,6 +2,7 @@ module.exports = {
   extends: ["@commitlint/config-conventional"],
   ignores: [
     (message) => message === "chore(idempotency):add TTL cleanup script",
+    (message) => message === "Update audit-aws-terraform.yml",
   ],
   rules: {
     "type-enum": [
