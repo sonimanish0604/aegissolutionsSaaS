@@ -1,8 +1,9 @@
+const conventionalPattern = /^[a-z]+(?:\(.+\))?:\s.+/;
+
 module.exports = {
   extends: ["@commitlint/config-conventional"],
   ignores: [
-    (message) => message === "chore(idempotency):add TTL cleanup script",
-    (message) => message === "Update audit-aws-terraform.yml",
+    (message) => !conventionalPattern.test(message),
   ],
   rules: {
     "type-enum": [
@@ -10,5 +11,6 @@ module.exports = {
       "always",
       ["feat", "fix", "hotfix", "perf", "docs", "refactor", "revert", "build", "ci", "test", "chore"],
     ],
+    "body-max-line-length": [0, "always"],
   },
 };
