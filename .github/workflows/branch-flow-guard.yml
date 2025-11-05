@@ -1,0 +1,41 @@
+name: Enforce Branch Flow
+
+on:
+  pull_request:
+    branches:
+      - develop
+      - testing
+      - staging
+      - main
+
+jobs:
+  guard:
+    name: Validate branch pairing
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check branch policy
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          base="${{ github.event.pull_request.base.ref }}"
+          head="${{ github.event.pull_request.head.ref }}"
+
+          allowed="false"
+
+          if [[ "$base" == "develop" && "$head" == feature/* ]]; then
+            allowed="true"
+          elif [[ "$base" == "testing" && "$head" == "develop" ]]; then
+            allowed="true"
+          elif [[ "$base" == "staging" && "$head" == "testing" ]]; then
+            allowed="true"
+          elif [[ "$base" == "main" && "$head" == "staging" ]]; then
+            allowed="true"
+          fi
+
+          if [[ "$allowed" != "true" ]]; then
+            echo "::error ::Pull request from '$head' into '$base' violates the enforced branch flow policy."
+            exit 1
+          fi
+
+          echo "Branch flow policy satisfied for $head -> $base."
