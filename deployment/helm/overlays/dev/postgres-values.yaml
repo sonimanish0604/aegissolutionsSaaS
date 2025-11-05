@@ -1,0 +1,26 @@
+global:
+  postgresql:
+    auth:
+      username: app_user
+      database: app_db
+# ⚠️ for dev only. In real envs, put this in a Secret or external secrets manager.
+auth:
+  username: app_user
+  password: app_pass
+  database: app_db
+
+primary:
+  service:
+    type: ClusterIP
+    ports:
+      postgresql: 5432
+  persistence:
+    enabled: false   # dev-only; set true + size: 10Gi for persistence
+# Enable built-in metrics exporter
+metrics:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    namespace: observability   # Prometheus lives here
+    interval: 15s
+    additionalLabels: {}

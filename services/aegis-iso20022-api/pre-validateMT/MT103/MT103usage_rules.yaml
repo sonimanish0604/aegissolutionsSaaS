@@ -1,0 +1,66 @@
+MT103_Usage_Rules:
+  shared_rules:
+    - id: U1
+      description: >
+        Field 72 may only be present when it is structured, that is, only contains coded information.
+      applies_to: [MT103, MT103_REMIT, MT103STP]
+
+    - id: U2
+      description: >
+        When sending the message via FileAct, institutions should bilaterally agree on the maximum size of the message.
+      applies_to: [MT103, MT103_REMIT, MT103STP]
+
+    - id: U3
+      description: >
+        Amount relationship: (33B × 36) + 71G − Σ(71F) = 32A.
+        Presence of fields governed by conditional rules C1, C2, C14, and C15.
+        If a field is not present, exclude it from the formula.
+        If field 71F is present more than once, all occurrences must be included.
+      applies_to: [MT103, MT103_REMIT, MT103STP]
+      formula:
+        expression: 32A = (33B × 36) + 71G − Σ(71F)
+        notes:
+          - Exclude missing fields
+          - Include all occurrences of 71F
+
+  conditional_rules:
+    - id: U4
+      description: >
+        When the cover method is used for a customer credit transfer:
+        - Copy field 20 of MT103 unchanged into field 21 of MT202 COV.
+        - Copy field 121 (user header block) of MT103 unchanged into field 121 of MT202 COV.
+      applies_to: [MT103, MT103_REMIT]
+      excluded_from: [MT103STP]
+
+    - id: U5
+      description: >
+        When the receiver of an MT103 credits the beneficiary or rejects the payment,
+        a confirmation to Tracker (TRCKCHZZ) is mandatory.
+      applies_to: [MT103, MT103_REMIT]
+      excluded_from: [MT103STP]
+
+    - id: U6
+      description: >
+        If both Sender's and Receiver's BIC country codes are in the extended European list,
+        then in each occurrence of sequence B:
+        - If field 57A is not present, IBAN is mandatory in subfield Account of field 59a.
+        - If field 57A is present and its BIC country code is also in the list, IBAN is mandatory.
+        In all other cases, IBAN is optional and its format is not validated.
+      error_code: D19
+      lookup_reference: bic_european_country_codes_extended
+      applies_to: [MT103, MT103_REMIT, MT103STP]
+      enforcement:
+        field_57A:
+          not_present:
+            field_59a_account_subfield:
+              iban_required: true
+              iban_format: ISO_13616
+          present:
+            bic_country_code_in_57A: in_lookup
+            field_59a_account_subfield:
+              iban_required: true
+              iban_format: ISO_13616
+      fallback:
+        field_59a_account_subfield:
+          iban_required: false
+          iban_format: not_validated

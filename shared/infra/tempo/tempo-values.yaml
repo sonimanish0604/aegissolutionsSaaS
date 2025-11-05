@@ -1,0 +1,5 @@
+# shared/infra/tempo/tempo-values.yaml
+persistence:
+  enabled: true
+  size: 10Gi
+  storageClass: ""

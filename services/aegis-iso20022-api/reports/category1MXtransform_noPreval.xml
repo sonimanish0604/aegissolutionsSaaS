@@ -1,0 +1,1149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxTransforms generatedAt="2025-10-30T03:20:32.969833Z">
+  <sample label="MT101" mtType="MT101" preValidation="not_enabled" mxType="pain.001.001.12" variant="" status="ok" code="CONVERTED">
+    <mapping>mappings/mt101-to-pain00100112.json</mapping>
+    <payload><![CDATA[<?xml version='1.0' encoding='UTF-8'?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.001.12">
+  <CstmrCdtTrfInitn>
+    <GrpHdr>
+      <MsgId>REF20251022A</MsgId>
+      <CreDtTm>2025-10-30T03:20:32Z</CreDtTm>
+      <NbOfTxs>1</NbOfTxs>
+      <CtrlSum>12345.67</CtrlSum>
+      <InitgPty>
+        <Nm>MAX MUSTERMANN</Nm>
+      </InitgPty>
+    </GrpHdr>
+    <PmtInf>
+      <PmtInfId>REF20251022A</PmtInfId>
+      <PmtMtd>TRF</PmtMtd>
+      <NbOfTxs>1</NbOfTxs>
+      <CtrlSum>12345.67</CtrlSum>
+      <ReqdExctnDt>
+        <Dt>2025-10-22</Dt>
+      </ReqdExctnDt>
+      <Dbtr>
+        <Nm>MAX MUSTERMANN</Nm>
+        <PstlAdr>
+          <AdrLine>MAX MUSTERMANN</AdrLine>
+        </PstlAdr>
+      </Dbtr>
+      <DbtrAcct>
+        <Id>
+          <IBAN>DE44500105175407324931</IBAN>
+        </Id>
+      </DbtrAcct>
+      <DbtrAgt>
+        <FinInstnId>
+          <Othr>
+            <Id>NOTPROVIDED</Id>
+          </Othr>
+        </FinInstnId>
+      </DbtrAgt>
+      <ChrgBr>SHAR</ChrgBr>
+      <CdtTrfTxInf>
+        <PmtId>
+          <InstrId>INV-5568</InstrId>
+          <EndToEndId>INV-5568</EndToEndId>
+        </PmtId>
+        <Amt>
+          <InstdAmt Ccy="USD">12345.67</InstdAmt>
+        </Amt>
+        <CdtrAgt>
+          <FinInstnId>
+            <BICFI>BANKUS33XXX</BICFI>
+          </FinInstnId>
+        </CdtrAgt>
+        <Cdtr>
+          <Nm>JOHN DOE</Nm>
+          <PstlAdr>
+            <AdrLine>JOHN DOE</AdrLine>
+          </PstlAdr>
+        </Cdtr>
+        <CdtrAcct>
+          <Id>
+            <Othr>
+              <Id>US12300099900011122</Id>
+            </Othr>
+          </Id>
+        </CdtrAcct>
+        <RmtInf>
+          <Ustrd>5568 NET30</Ustrd>
+        </RmtInf>
+      </CdtTrfTxInf>
+    </PmtInf>
+  </CstmrCdtTrfInitn>
+</Document>
+]]></payload>
+  </sample>
+  <sample label="MT102" mtType="MT102" preValidation="not_enabled" mxType="pacs.008.001.13" variant="" status="ok" code="CONVERTED">
+    <mapping>mappings/mt102-to-pacs00800113.json</mapping>
+    <payload><![CDATA[<?xml version='1.0' encoding='UTF-8'?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pacs.008.001.13">
+  <FIToFICstmrCdtTrf>
+    <GrpHdr>
+      <MsgId>2025-10-30T03:20:32Z</MsgId>
+      <CreDtTm>2025-10-30T03:20:32Z</CreDtTm>
+      <NbOfTxs>1</NbOfTxs>
+      <SttlmInf>
+        <SttlmMtd>CLRG</SttlmMtd>
+      </SttlmInf>
+      <InstgAgt>
+        <FinInstnId>
+          <Othr>
+            <Id>NOTPROVIDED</Id>
+          </Othr>
+        </FinInstnId>
+      </InstgAgt>
+    </GrpHdr>
+    <CdtTrfTxInf>
+      <PmtId>
+        <InstrId>BATCHREF001</InstrId>
+        <EndToEndId>BATCHREF001</EndToEndId>
+        <TxId>REF102-251028-01</TxId>
+      </PmtId>
+      <IntrBkSttlmAmt Ccy="EUR">12345.67</IntrBkSttlmAmt>
+      <IntrBkSttlmDt>2025-10-28</IntrBkSttlmDt>
+      <ChrgBr>SHAR</ChrgBr>
+      <Dbtr>
+        <Nm>FR</Nm>
+        <PstlAdr>
+          <AdrLine>FR</AdrLine>
+        </PstlAdr>
+      </Dbtr>
+      <DbtrAcct>
+        <Id>
+          <IBAN>FR7630001007941234567890185</IBAN>
+        </Id>
+      </DbtrAcct>
+      <DbtrAgt>
+        <FinInstnId>
+          <Othr>
+            <Id>NOTPROVIDED</Id>
+          </Othr>
+        </FinInstnId>
+      </DbtrAgt>
+      <CdtrAgt>
+        <FinInstnId>
+          <Othr>
+            <Id>NOTPROVIDED</Id>
+          </Othr>
+        </FinInstnId>
+      </CdtrAgt>
+      <Cdtr>
+        <Nm>US</Nm>
+        <PstlAdr>
+          <AdrLine>US</AdrLine>
+        </PstlAdr>
+      </Cdtr>
+      <CdtrAcct>
+        <Id>
+          <Othr>
+            <Id>US12300099900055566</Id>
+          </Othr>
+        </Id>
+      </CdtrAcct>
+    </CdtTrfTxInf>
+  </FIToFICstmrCdtTrf>
+</Document>
+]]></payload>
+  </sample>
+  <sample label="MT102-STP" mtType="MT102-STP" preValidation="not_enabled" mxType="pacs.008.001.13" variant="stp" status="ok" code="CONVERTED">
+    <mapping>mappings/mt102stp-to-pacs00800113.json</mapping>
+    <payload><![CDATA[<?xml version='1.0' encoding='UTF-8'?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pacs.008.001.13">
+  <FIToFICstmrCdtTrf>
+    <GrpHdr>
+      <MsgId>2025-10-30T03:20:32Z</MsgId>
+      <CreDtTm>2025-10-30T03:20:32Z</CreDtTm>
+      <NbOfTxs>1</NbOfTxs>
+      <SttlmInf>
+        <SttlmMtd>CLRG</SttlmMtd>
+      </SttlmInf>
+      <InstgAgt>
+        <FinInstnId>
+          <BICFI>BNPAFRPPXXX</BICFI>
+        </FinInstnId>
+      </InstgAgt>
+      <InstdAgt>
+        <FinInstnId>
+          <BICFI>CITIUS33XXX</BICFI>
+        </FinInstnId>
+      </InstdAgt>
+    </GrpHdr>
+    <CdtTrfTxInf>
+      <PmtId>
+        <InstrId>BATCH20251022</InstrId>
+        <EndToEndId>BATCH20251022</EndToEndId>
+        <TxId>BATCH20251022</TxId>
+      </PmtId>
+      <IntrBkSttlmAmt Ccy="USD">56789.00</IntrBkSttlmAmt>
+      <IntrBkSttlmDt>2025-10-22</IntrBkSttlmDt>
+      <ChrgBr>SHAR</ChrgBr>
+      <Dbtr>
+        <Nm>NOTPROVIDED</Nm>
+      </Dbtr>
+      <DbtrAcct>
+        <Id>
+          <Othr>
+            <Id>NOTPROVIDED</Id>
+          </Othr>
+        </Id>
+      </DbtrAcct>
+      <DbtrAgt>
+        <FinInstnId>
+          <BICFI>BNPAFRPPXXX</BICFI>
+        </FinInstnId>
+      </DbtrAgt>
+      <CdtrAgt>
+        <FinInstnId>
+          <BICFI>CITIUS33XXX</BICFI>
+        </FinInstnId>
+      </CdtrAgt>
+      <Cdtr>
+        <Nm>NOTPROVIDED</Nm>
+      </Cdtr>
+      <CdtrAcct>
+        <Id>
+          <Othr>
+            <Id>NOTPROVIDED</Id>
+          </Othr>
+        </Id>
+      </CdtrAcct>
+    </CdtTrfTxInf>
+  </FIToFICstmrCdtTrf>
+</Document>
+]]></payload>
+  </sample>
+  <sample label="MT103" mtType="MT103" preValidation="not_enabled" mxType="pacs.008.001.13" variant="" status="ok" code="CONVERTED">
+    <mapping>mappings/mt103-to-pacs00800113.json</mapping>
+    <payload><![CDATA[<?xml version='1.0' encoding='UTF-8'?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pacs.008.001.13">
+  <FIToFICstmrCdtTrf>
+    <GrpHdr>
+      <MsgId>2025-10-30T03:20:32Z</MsgId>
+      <CreDtTm>2025-10-30T03:20:32Z</CreDtTm>
+      <NbOfTxs>1</NbOfTxs>
+      <SttlmInf>
+        <SttlmMtd>CLRG</SttlmMtd>
+      </SttlmInf>
+    </GrpHdr>
+    <CdtTrfTxInf>
+      <PmtId>
+        <InstrId>REF123456</InstrId>
+        <EndToEndId>REF123456</EndToEndId>
+      </PmtId>
+      <IntrBkSttlmAmt Ccy="USD">12345.67</IntrBkSttlmAmt>
+      <IntrBkSttlmDt>2025-09-21</IntrBkSttlmDt>
+      <ChrgBr>SHAR</ChrgBr>
+      <InstgAgt>
+        <FinInstnId>
+          <Othr>
+            <Id>NOTPROVIDED</Id>
+          </Othr>
+        </FinInstnId>
+      </InstgAgt>
+      <Dbtr>
+        <Nm>NEW YORK US</Nm>
+        <PstlAdr>
+          <AdrLine>NEW YORK US</AdrLine>
+        </PstlAdr>
+      </Dbtr>
+      <DbtrAcct>
+        <Id>
+          <Othr>
+            <Id>123456789</Id>
+          </Othr>
+        </Id>
+      </DbtrAcct>
+      <DbtrAgt>
+        <FinInstnId>
+          <Othr>
+            <Id>NOTPROVIDED</Id>
+          </Othr>
+        </FinInstnId>
+      </DbtrAgt>
+      <CdtrAgt>
+        <FinInstnId>
+          <Othr>
+            <Id>NOTPROVIDED</Id>
+          </Othr>
+        </FinInstnId>
+      </CdtrAgt>
+      <Cdtr>
+        <Nm>JANE SMITH</Nm>
+        <PstlAdr>
+          <AdrLine>JANE SMITH</AdrLine>
+        </PstlAdr>
+      </Cdtr>
+      <CdtrAcct>
+        <Id>
+          <IBAN>GB29NWBK60161331926819</IBAN>
+        </Id>
+      </CdtrAcct>
+      <RmtInf>
+        <Ustrd>Invoice 9981</Ustrd>
+      </RmtInf>
+    </CdtTrfTxInf>
+  </FIToFICstmrCdtTrf>
+</Document>
+]]></payload>
+  </sample>
+  <sample label="MT103-REMIT" mtType="MT103-REMIT" preValidation="not_enabled" mxType="pacs.008.001.13" variant="" status="ok" code="CONVERTED">
+    <mapping>mappings/mt103remit-to-pacs00800113.json</mapping>
+    <payload><![CDATA[<?xml version='1.0' encoding='UTF-8'?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pacs.008.001.13">
+  <FIToFICstmrCdtTrf>
+    <GrpHdr>
+      <MsgId>2025-10-30T03:20:32Z</MsgId>
+      <CreDtTm>2025-10-30T03:20:32Z</CreDtTm>
+      <NbOfTxs>1</NbOfTxs>
+      <SttlmInf>
+        <SttlmMtd>CLRG</SttlmMtd>
+      </SttlmInf>
+    </GrpHdr>
+    <CdtTrfTxInf>
+      <PmtId>
+        <InstrId>REFREMIT01</InstrId>
+        <EndToEndId>REFREMIT01</EndToEndId>
+      </PmtId>
+      <IntrBkSttlmAmt Ccy="EUR">9876.54</IntrBkSttlmAmt>
+      <IntrBkSttlmDt>2025-10-22</IntrBkSttlmDt>
+      <ChrgBr>SHAR</ChrgBr>
+      <InstgAgt>
+        <FinInstnId>
+          <Othr>
+            <Id>NOTPROVIDED</Id>
+          </Othr>
+        </FinInstnId>
+      </InstgAgt>
+      <Dbtr>
+        <Nm>DE-60311 FRANKFURT</Nm>
+        <PstlAdr>
+          <AdrLine>DE-60311 FRANKFURT</AdrLine>
+        </PstlAdr>
+      </Dbtr>
+      <DbtrAcct>
+        <Id>
+          <Othr>
+            <Id>DE44500105175407324931</Id>
+          </Othr>
+        </Id>
+      </DbtrAcct>
+      <DbtrAgt>
+        <FinInstnId>
+          <Othr>
+            <Id>NOTPROVIDED</Id>
+          </Othr>
+        </FinInstnId>
+      </DbtrAgt>
+      <CdtrAgt>
+        <FinInstnId>
+          <Othr>
+            <Id>NOTPROVIDED</Id>
+          </Othr>
+        </FinInstnId>
+      </CdtrAgt>
+      <Cdtr>
+        <Nm>FR-75008 PARIS</Nm>
+        <PstlAdr>
+          <AdrLine>FR-75008 PARIS</AdrLine>
+        </PstlAdr>
+      </Cdtr>
+      <CdtrAcct>
+        <Id>
+          <IBAN>FR1420041010050500013M02606</IBAN>
+        </Id>
+      </CdtrAcct>
+      <RmtInf>
+        <Ustrd>Remittance information for invoice 123456 covering consulting services.</Ustrd>
+      </RmtInf>
+    </CdtTrfTxInf>
+  </FIToFICstmrCdtTrf>
+</Document>
+]]></payload>
+  </sample>
+  <sample label="MT103-STP" mtType="MT103-STP" preValidation="not_enabled" mxType="pacs.008.001.13" variant="" status="ok" code="CONVERTED">
+    <mapping>mappings/mt103stp-to-pacs00800113.json</mapping>
+    <payload><![CDATA[<?xml version='1.0' encoding='UTF-8'?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pacs.008.001.13">
+  <FIToFICstmrCdtTrf>
+    <GrpHdr>
+      <MsgId>2025-10-30T03:20:33Z</MsgId>
+      <CreDtTm>2025-10-30T03:20:33Z</CreDtTm>
+      <NbOfTxs>1</NbOfTxs>
+      <SttlmInf>
+        <SttlmMtd>CLRG</SttlmMtd>
+      </SttlmInf>
+      <InstgAgt>
+        <FinInstnId>
+          <BICFI>AAAAUS33XXX</BICFI>
+        </FinInstnId>
+      </InstgAgt>
+      <InstdAgt>
+        <FinInstnId>
+          <BICFI>BBBBDEFFXXX</BICFI>
+        </FinInstnId>
+      </InstdAgt>
+    </GrpHdr>
+    <CdtTrfTxInf>
+      <PmtId>
+        <InstrId>STPREF0001</InstrId>
+        <EndToEndId>STPREF0001</EndToEndId>
+        <TxId>STPREF0001</TxId>
+      </PmtId>
+      <IntrBkSttlmAmt Ccy="EUR">5432.10</IntrBkSttlmAmt>
+      <IntrBkSttlmDt>2025-10-22</IntrBkSttlmDt>
+      <ChrgBr>SHAR</ChrgBr>
+      <InstgAgt>
+        <FinInstnId>
+          <BICFI>AAAAUS33XXX</BICFI>
+        </FinInstnId>
+      </InstgAgt>
+      <InstdAgt>
+        <FinInstnId>
+          <BICFI>BBBBDEFFXXX</BICFI>
+        </FinInstnId>
+      </InstdAgt>
+      <Dbtr>
+        <Nm>NOTPROVIDED</Nm>
+      </Dbtr>
+      <DbtrAcct>
+        <Id>
+          <Othr>
+            <Id>NOTPROVIDED</Id>
+          </Othr>
+        </Id>
+      </DbtrAcct>
+      <DbtrAgt>
+        <FinInstnId>
+          <BICFI>AAAAUS33XXX</BICFI>
+        </FinInstnId>
+      </DbtrAgt>
+      <CdtrAgt>
+        <FinInstnId>
+          <BICFI>BBBBDEFFXXX</BICFI>
+        </FinInstnId>
+      </CdtrAgt>
+      <Cdtr>
+        <Nm>CCCCGB2LXXX</Nm>
+      </Cdtr>
+      <CdtrAcct>
+        <Id>
+          <Othr>
+            <Id>NOTPROVIDED</Id>
+          </Othr>
+        </Id>
+      </CdtrAcct>
+    </CdtTrfTxInf>
+  </FIToFICstmrCdtTrf>
+</Document>
+]]></payload>
+  </sample>
+  <sample label="MT104" mtType="MT104" preValidation="not_enabled" mxType="pain.008.001.11" variant="" status="ok" code="CONVERTED">
+    <mapping>mappings/mt104-to-pain00800111.json</mapping>
+    <payload><![CDATA[<?xml version='1.0' encoding='UTF-8'?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.008.001.11">
+  <CstmrDrctDbtInitn>
+    <GrpHdr>
+      <MsgId>DDREF20250101</MsgId>
+      <CreDtTm>2025-10-30T03:20:33Z</CreDtTm>
+      <NbOfTxs>1</NbOfTxs>
+      <CtrlSum>150.00</CtrlSum>
+      <InitgPty>
+        <Nm>DE-10115 BERLIN</Nm>
+      </InitgPty>
+    </GrpHdr>
+    <PmtInf>
+      <PmtInfId>DDREF20250101</PmtInfId>
+      <PmtMtd>DD</PmtMtd>
+      <NbOfTxs>1</NbOfTxs>
+      <CtrlSum>150.00</CtrlSum>
+      <PmtTpInf>
+        <SvcLvl>
+          <Cd>SEPA</Cd>
+        </SvcLvl>
+        <LclInstrm>
+          <Cd>CORE</Cd>
+        </LclInstrm>
+      </PmtTpInf>
+      <ReqdColltnDt>2025-01-01</ReqdColltnDt>
+      <Cdtr>
+        <Nm>DE-10115 BERLIN</Nm>
+        <PstlAdr>
+          <AdrLine>DE-10115 BERLIN</AdrLine>
+        </PstlAdr>
+      </Cdtr>
+      <CdtrAcct>
+        <Id>
+          <IBAN>DE09876543210987654321</IBAN>
+        </Id>
+      </CdtrAcct>
+      <CdtrAgt>
+        <FinInstnId>
+          <BICFI>AAAADEFFXXX</BICFI>
+        </FinInstnId>
+      </CdtrAgt>
+      <ChrgBr>SLEV</ChrgBr>
+      <CdtrSchmeId>
+        <Id>
+          <PrvtId>
+            <Othr>
+              <Id>NOTPROVIDED</Id>
+            </Othr>
+          </PrvtId>
+        </Id>
+      </CdtrSchmeId>
+      <DrctDbtTxInf>
+        <PmtId>
+          <EndToEndId>DDTRX0001</EndToEndId>
+        </PmtId>
+        <InstdAmt Ccy="EUR">150.00</InstdAmt>
+        <DrctDbtTx>
+          <MndtRltdInf>
+            <MndtId>DDTRX0001</MndtId>
+            <DtOfSgntr>2025-01-01</DtOfSgntr>
+            <AmdmntInd>false</AmdmntInd>
+          </MndtRltdInf>
+        </DrctDbtTx>
+        <DbtrAgt>
+          <FinInstnId>
+            <BICFI>DEUTDEFFXXX</BICFI>
+          </FinInstnId>
+        </DbtrAgt>
+        <Dbtr>
+          <Nm>US-10004 NEW YORK</Nm>
+          <PstlAdr>
+            <AdrLine>US-10004 NEW YORK</AdrLine>
+          </PstlAdr>
+        </Dbtr>
+        <DbtrAcct>
+          <Id>
+            <IBAN>US12300099900011122</IBAN>
+          </Id>
+        </DbtrAcct>
+        <RmtInf>
+          <Ustrd>Electricity invoice 445566</Ustrd>
+        </RmtInf>
+      </DrctDbtTxInf>
+    </PmtInf>
+  </CstmrDrctDbtInitn>
+</Document>
+]]></payload>
+  </sample>
+  <sample label="MT105" mtType="MT105" preValidation="not_enabled" mxType="None" variant="" status="ok" code="NO_CONVERSION_APPLICABLE">
+    <notes>MT105 carried unchanged. No ISO 20022 conversion performed.</notes>
+  </sample>
+  <sample label="MT107" mtType="MT107" preValidation="not_enabled" mxType="pacs.003.001.11" variant="" status="ok" code="CONVERTED">
+    <mapping>mappings/mt107-to-pacs00300111.json</mapping>
+    <payload><![CDATA[<?xml version='1.0' encoding='UTF-8'?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pacs.003.001.11">
+  <FIToFICstmrDrctDbt>
+    <GrpHdr>
+      <MsgId>2025-10-30T03:20:33Z</MsgId>
+      <CreDtTm>2025-10-30T03:20:33Z</CreDtTm>
+      <NbOfTxs>1</NbOfTxs>
+      <SttlmInf>
+        <SttlmMtd>CLRG</SttlmMtd>
+      </SttlmInf>
+      <InstgAgt>
+        <FinInstnId>
+          <BICFI>AAAADEFFXXX</BICFI>
+        </FinInstnId>
+      </InstgAgt>
+    </GrpHdr>
+    <DrctDbtTxInf>
+      <PmtId>
+        <InstrId>COLLREF0001</InstrId>
+        <EndToEndId>COLLREF0001</EndToEndId>
+      </PmtId>
+      <PmtTpInf>
+        <SvcLvl>
+          <Cd>SEPA</Cd>
+        </SvcLvl>
+        <LclInstrm>
+          <Cd>CORE</Cd>
+        </LclInstrm>
+      </PmtTpInf>
+      <IntrBkSttlmAmt Ccy="EUR">250.00</IntrBkSttlmAmt>
+      <IntrBkSttlmDt>2025-02-01</IntrBkSttlmDt>
+      <ChrgBr>SLEV</ChrgBr>
+      <DrctDbtTx>
+        <MndtRltdInf>
+          <MndtId>COLLREF0001</MndtId>
+          <DtOfSgntr>2025-02-01</DtOfSgntr>
+          <AmdmntInd>false</AmdmntInd>
+        </MndtRltdInf>
+        <CdtrSchmeId>
+          <Id>
+            <PrvtId>
+              <Othr>
+                <Id>NOTPROVIDED</Id>
+              </Othr>
+            </PrvtId>
+          </Id>
+        </CdtrSchmeId>
+      </DrctDbtTx>
+      <Cdtr>
+        <Nm>DE-10115 BERLIN</Nm>
+        <PstlAdr>
+          <AdrLine>DE-10115 BERLIN</AdrLine>
+        </PstlAdr>
+      </Cdtr>
+      <CdtrAcct>
+        <Id>
+          <IBAN>DE09876543210987654321</IBAN>
+        </Id>
+      </CdtrAcct>
+      <CdtrAgt>
+        <FinInstnId>
+          <BICFI>AAAADEFFXXX</BICFI>
+        </FinInstnId>
+      </CdtrAgt>
+      <Dbtr>
+        <Nm>US-94105 SAN FRANCISCO</Nm>
+        <PstlAdr>
+          <AdrLine>US-94105 SAN FRANCISCO</AdrLine>
+        </PstlAdr>
+      </Dbtr>
+      <DbtrAcct>
+        <Id>
+          <IBAN>US12300099900022233</IBAN>
+        </Id>
+      </DbtrAcct>
+      <DbtrAgt>
+        <FinInstnId>
+          <Othr>
+            <Id>NOTPROVIDED</Id>
+          </Othr>
+        </FinInstnId>
+      </DbtrAgt>
+      <RmtInf>
+        <Ustrd>January subscription</Ustrd>
+      </RmtInf>
+    </DrctDbtTxInf>
+  </FIToFICstmrDrctDbt>
+</Document>
+]]></payload>
+  </sample>
+  <sample label="MT110" mtType="MT110" preValidation="not_enabled" mxType="camt.107.001.02" variant="" status="ok" code="CONVERTED">
+    <mapping>mappings/mt110-to-camt10700102.json</mapping>
+    <payload><![CDATA[<?xml version='1.0' encoding='UTF-8'?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.107.001.02">
+  <ChqPresntmntNtfctn>
+    <GrpHdr>
+      <MsgId>CHKCOLL202501</MsgId>
+      <CreDtTm>2025-10-30T03:20:33Z</CreDtTm>
+      <NbOfChqs>1</NbOfChqs>
+    </GrpHdr>
+    <Chq>
+      <InstrId>CHKCOLL202501</InstrId>
+      <ChqNb>CHK000123456789</ChqNb>
+      <IsseDt>2025-02-01</IsseDt>
+      <Amt Ccy="USD">1250.00</Amt>
+      <Pyer>
+        <Nm>JOHN PAYER</Nm>
+        <PstlAdr>
+          <StrtNm>10 MARKET STREET</StrtNm>
+          <TwnNm>NEW YORK</TwnNm>
+          <Ctry>US</Ctry>
+        </PstlAdr>
+      </Pyer>
+      <PyerAcct>
+        <Id>
+          <Othr>
+            <Id>1234567890</Id>
+          </Othr>
+        </Id>
+      </PyerAcct>
+      <Pyee>
+        <Nm>PAYEE LIMITED</Nm>
+        <PstlAdr>
+          <AdrLine>GB-LONDON</AdrLine>
+        </PstlAdr>
+      </Pyee>
+      <InstrForChqAgt>
+        <InstrInf>Cheque settlement invoice 555</InstrInf>
+      </InstrForChqAgt>
+    </Chq>
+  </ChqPresntmntNtfctn>
+</Document>
+]]></payload>
+  </sample>
+  <sample label="MT111" mtType="MT111" preValidation="not_enabled" mxType="camt.108.001.02" variant="" status="ok" code="CONVERTED">
+    <mapping>mappings/mt111-to-camt10800102.json</mapping>
+    <payload><![CDATA[<?xml version='1.0' encoding='UTF-8'?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.108.001.02">
+  <ChqCxlOrStopReq>
+    <GrpHdr>
+      <MsgId>STOPCHK202501</MsgId>
+      <CreDtTm>2025-10-30T03:20:33Z</CreDtTm>
+      <NbOfChqs>1</NbOfChqs>
+    </GrpHdr>
+    <Chq>
+      <InstrId>STOPCHK202501</InstrId>
+      <ChqNb>CHK99887766</ChqNb>
+      <IsseDt>2024-12-31</IsseDt>
+      <Amt Ccy="USD">1500.00</Amt>
+      <DrwrAgt>
+        <FinInstnId>
+          <BICFI>AAAAUS33XXX</BICFI>
+        </FinInstnId>
+      </DrwrAgt>
+      <Pyee>
+        <Nm>PAYEE LIMITED</Nm>
+      </Pyee>
+      <ChqCxlOrStopRsn>
+        <Orgtr>PAYR</Orgtr>
+        <Rsn>
+          <Prtry>Lost cheque reported by customer</Prtry>
+        </Rsn>
+        <AddtlInf>Lost cheque reported by customer</AddtlInf>
+      </ChqCxlOrStopRsn>
+    </Chq>
+  </ChqCxlOrStopReq>
+</Document>
+]]></payload>
+  </sample>
+  <sample label="MT112" mtType="MT112" preValidation="not_enabled" mxType="camt.109.001.02" variant="" status="ok" code="CONVERTED">
+    <mapping>mappings/mt112-to-camt10900102.json</mapping>
+    <payload><![CDATA[<?xml version='1.0' encoding='UTF-8'?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.109.001.02">
+  <ChqCxlOrStopRpt>
+    <GrpHdr>
+      <MsgId>ANSWERCHK202501</MsgId>
+      <CreDtTm>2025-10-30T03:20:33Z</CreDtTm>
+      <NbOfChqs>1</NbOfChqs>
+    </GrpHdr>
+    <Chq>
+      <InstrId>ANSWERCHK202501</InstrId>
+      <ChqNb>CHK99887766</ChqNb>
+      <IsseDt>2024-12-31</IsseDt>
+      <Amt Ccy="USD">1500.00</Amt>
+      <DrwrAgt>
+        <FinInstnId>
+          <BICFI>AAAAUS33XXX</BICFI>
+        </FinInstnId>
+      </DrwrAgt>
+      <Pyee>
+        <Nm>PAYEE LIMITED</Nm>
+      </Pyee>
+      <ChqCxlOrStopSts>
+        <Orgtr>PAYR</Orgtr>
+        <Sts>
+          <Prtry>Stop payment confirmed</Prtry>
+        </Sts>
+        <AddtlInf>2/Replacement cheque may be issued</AddtlInf>
+      </ChqCxlOrStopSts>
+    </Chq>
+  </ChqCxlOrStopRpt>
+</Document>
+]]></payload>
+  </sample>
+  <sample label="MT192" mtType="MT192" preValidation="not_enabled" mxType="camt.056.001.11" variant="" status="ok" code="CONVERTED">
+    <mapping>mappings/mt192-to-camt05600111.json</mapping>
+    <payload><![CDATA[<?xml version='1.0' encoding='UTF-8'?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.056.001.11">
+  <FIToFIPmtCxlReq>
+    <Assgnmt>
+      <Id>CSE-001</Id>
+      <Assgnr>
+        <Agt>
+          <FinInstnId>
+            <Othr>
+              <Id>NOTPROVIDED</Id>
+            </Othr>
+          </FinInstnId>
+        </Agt>
+      </Assgnr>
+      <Assgne>
+        <Agt>
+          <FinInstnId>
+            <Othr>
+              <Id>NOTPROVIDED</Id>
+            </Othr>
+          </FinInstnId>
+        </Agt>
+      </Assgne>
+      <CreDtTm>2025-10-30T03:20:33Z</CreDtTm>
+    </Assgnmt>
+    <Undrlyg>
+      <OrgnlGrpInfAndCxl>
+        <OrgnlMsgId>pacs8bizmsgidr01</OrgnlMsgId>
+        <OrgnlMsgNmId>103</OrgnlMsgNmId>
+      </OrgnlGrpInfAndCxl>
+      <TxInf>
+        <CxlId>CSE-001</CxlId>
+        <OrgnlTxId>pacs8bizmsgidr01</OrgnlTxId>
+        <OrgnlUETR>8a562c67-ca16-48ba-b074-65581be6f001</OrgnlUETR>
+        <OrgnlIntrBkSttlmAmt Ccy="EUR">1500000</OrgnlIntrBkSttlmAmt>
+        <OrgnlIntrBkSttlmDt>2021-02-17</OrgnlIntrBkSttlmDt>
+        <CxlRsnInf>
+          <Rsn>
+            <Cd>AM09</Cd>
+          </Rsn>
+        </CxlRsnInf>
+      </TxInf>
+    </Undrlyg>
+  </FIToFIPmtCxlReq>
+</Document>
+]]></payload>
+  </sample>
+  <sample label="MT195-CONFIRM" mtType="MT195" preValidation="not_enabled" mxType="camt.028.001.12" variant="" status="ok" code="CONVERTED">
+    <mapping>mappings/mt195-to-camt02800112.json</mapping>
+    <payload><![CDATA[<?xml version='1.0' encoding='UTF-8'?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.028.001.12">
+  <AddtlPmtInf>
+    <Assgnmt>
+      <Id>QRY20251022</Id>
+      <Assgnr>
+        <Agt>
+          <FinInstnId>
+            <Othr>
+              <Id>NOTPROVIDED</Id>
+            </Othr>
+          </FinInstnId>
+        </Agt>
+      </Assgnr>
+      <Assgne>
+        <Agt>
+          <FinInstnId>
+            <Othr>
+              <Id>NOTPROVIDED</Id>
+            </Othr>
+          </FinInstnId>
+        </Agt>
+      </Assgne>
+      <CreDtTm>2025-10-30T03:20:33Z</CreDtTm>
+    </Assgnmt>
+    <Undrlyg>
+      <IntrBk>
+        <OrgnlGrpInf>
+          <OrgnlMsgId>TRX10320251020</OrgnlMsgId>
+          <OrgnlMsgNmId>TRX10320251020</OrgnlMsgNmId>
+        </OrgnlGrpInf>
+        <OrgnlTxId>TRX10320251020</OrgnlTxId>
+        <OrgnlIntrBkSttlmAmt Ccy="USD">10000</OrgnlIntrBkSttlmAmt>
+      </IntrBk>
+    </Undrlyg>
+    <Inf>
+      <InstrId>TRX10320251020</InstrId>
+      <TxId>TRX10320251020</TxId>
+      <IntrBkSttlmAmt Ccy="USD">10000</IntrBkSttlmAmt>
+      <Dbtr>
+        <Nm>NEW YORK NY</Nm>
+        <PstlAdr>
+          <AdrLine>NEW YORK NY</AdrLine>
+        </PstlAdr>
+      </Dbtr>
+      <DbtrAcct>
+        <Id>
+          <Othr>
+            <Id>123456789</Id>
+          </Othr>
+        </Id>
+      </DbtrAcct>
+      <Cdtr>
+        <Nm>BERLIN</Nm>
+        <PstlAdr>
+          <AdrLine>BERLIN</AdrLine>
+        </PstlAdr>
+      </Cdtr>
+      <CdtrAcct>
+        <Id>
+          <Othr>
+            <Id>987654321</Id>
+          </Othr>
+        </Id>
+      </CdtrAcct>
+      <RmtInf>
+        <Ustrd>PLEASE CONFIRM RECEIPT OF MT103 TRX10320251020</Ustrd>
+      </RmtInf>
+    </Inf>
+  </AddtlPmtInf>
+</Document>
+]]></payload>
+  </sample>
+  <sample label="MT195-UNABLE" mtType="MT195" preValidation="not_enabled" mxType="camt.026.001.10" variant="unable_to_apply" status="ok" code="CONVERTED">
+    <mapping>mappings/mt195-to-camt02600110.json</mapping>
+    <payload><![CDATA[<?xml version='1.0' encoding='UTF-8'?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.026.001.10">
+  <UblToApply>
+    <Assgnmt>
+      <Id>QRY20251022</Id>
+      <Assgnr>
+        <Agt>
+          <FinInstnId>
+            <Othr>
+              <Id>NOTPROVIDED</Id>
+            </Othr>
+          </FinInstnId>
+        </Agt>
+      </Assgnr>
+      <Assgne>
+        <Agt>
+          <FinInstnId>
+            <Othr>
+              <Id>NOTPROVIDED</Id>
+            </Othr>
+          </FinInstnId>
+        </Agt>
+      </Assgne>
+      <CreDtTm>2025-10-30T03:20:33Z</CreDtTm>
+    </Assgnmt>
+    <Undrlyg>
+      <IntrBk>
+        <OrgnlGrpInf>
+          <OrgnlMsgId>TRX10320251020</OrgnlMsgId>
+          <OrgnlMsgNmId>TRX10320251020</OrgnlMsgNmId>
+        </OrgnlGrpInf>
+        <OrgnlTxId>TRX10320251020</OrgnlTxId>
+        <OrgnlIntrBkSttlmAmt Ccy="USD">10000</OrgnlIntrBkSttlmAmt>
+      </IntrBk>
+    </Undrlyg>
+    <Justfn>
+      <AnyInf>true</AnyInf>
+    </Justfn>
+  </UblToApply>
+</Document>
+]]></payload>
+  </sample>
+  <sample label="MT195-CLAIM" mtType="MT195" preValidation="not_enabled" mxType="camt.027.001.10" variant="claim_non_receipt" status="ok" code="CONVERTED">
+    <mapping>mappings/mt195-to-camt02700110.json</mapping>
+    <payload><![CDATA[<?xml version='1.0' encoding='UTF-8'?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.027.001.10">
+  <ClmNonRct>
+    <Assgnmt>
+      <Id>QRY20251022</Id>
+      <Assgnr>
+        <Agt>
+          <FinInstnId>
+            <Othr>
+              <Id>NOTPROVIDED</Id>
+            </Othr>
+          </FinInstnId>
+        </Agt>
+      </Assgnr>
+      <Assgne>
+        <Agt>
+          <FinInstnId>
+            <Othr>
+              <Id>NOTPROVIDED</Id>
+            </Othr>
+          </FinInstnId>
+        </Agt>
+      </Assgne>
+      <CreDtTm>2025-10-30T03:20:33Z</CreDtTm>
+    </Assgnmt>
+    <Undrlyg>
+      <IntrBk>
+        <OrgnlGrpInf>
+          <OrgnlMsgId>TRX10320251020</OrgnlMsgId>
+          <OrgnlMsgNmId>TRX10320251020</OrgnlMsgNmId>
+        </OrgnlGrpInf>
+        <OrgnlTxId>TRX10320251020</OrgnlTxId>
+        <OrgnlIntrBkSttlmAmt Ccy="USD">10000</OrgnlIntrBkSttlmAmt>
+      </IntrBk>
+    </Undrlyg>
+    <CoverDtls>
+      <MssngCoverInd>true</MssngCoverInd>
+    </CoverDtls>
+    <InstrForAssgne>
+      <InstrInf>CLAIM NON RECEIPT OF MT103 TRX10320251020</InstrInf>
+    </InstrForAssgne>
+  </ClmNonRct>
+</Document>
+]]></payload>
+  </sample>
+  <sample label="MT195-DUPLICATE" mtType="MT195" preValidation="not_enabled" mxType="camt.033.001.07" variant="request_duplicate" status="ok" code="CONVERTED">
+    <mapping>mappings/mt195-to-camt03300107.json</mapping>
+    <payload><![CDATA[<?xml version='1.0' encoding='UTF-8'?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.033.001.07">
+  <ReqForDplct>
+    <Assgnmt>
+      <Id>QRY20251022</Id>
+      <Assgnr>
+        <Agt>
+          <FinInstnId>
+            <Othr>
+              <Id>NOTPROVIDED</Id>
+            </Othr>
+          </FinInstnId>
+        </Agt>
+      </Assgnr>
+      <Assgne>
+        <Agt>
+          <FinInstnId>
+            <Othr>
+              <Id>NOTPROVIDED</Id>
+            </Othr>
+          </FinInstnId>
+        </Agt>
+      </Assgne>
+      <CreDtTm>2025-10-30T03:20:33Z</CreDtTm>
+    </Assgnmt>
+  </ReqForDplct>
+</Document>
+]]></payload>
+  </sample>
+  <sample label="MT195-INFO" mtType="MT195" preValidation="not_enabled" mxType="camt.028.001.12" variant="" status="ok" code="CONVERTED">
+    <mapping>mappings/mt195-to-camt02800112.json</mapping>
+    <payload><![CDATA[<?xml version='1.0' encoding='UTF-8'?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.028.001.12">
+  <AddtlPmtInf>
+    <Assgnmt>
+      <Id>QRY20251022</Id>
+      <Assgnr>
+        <Agt>
+          <FinInstnId>
+            <Othr>
+              <Id>NOTPROVIDED</Id>
+            </Othr>
+          </FinInstnId>
+        </Agt>
+      </Assgnr>
+      <Assgne>
+        <Agt>
+          <FinInstnId>
+            <Othr>
+              <Id>NOTPROVIDED</Id>
+            </Othr>
+          </FinInstnId>
+        </Agt>
+      </Assgne>
+      <CreDtTm>2025-10-30T03:20:33Z</CreDtTm>
+    </Assgnmt>
+    <Undrlyg>
+      <IntrBk>
+        <OrgnlGrpInf>
+          <OrgnlMsgId>TRX10320251020</OrgnlMsgId>
+          <OrgnlMsgNmId>TRX10320251020</OrgnlMsgNmId>
+        </OrgnlGrpInf>
+        <OrgnlTxId>TRX10320251020</OrgnlTxId>
+        <OrgnlIntrBkSttlmAmt Ccy="USD">10000</OrgnlIntrBkSttlmAmt>
+      </IntrBk>
+    </Undrlyg>
+    <Inf>
+      <InstrId>TRX10320251020</InstrId>
+      <TxId>TRX10320251020</TxId>
+      <IntrBkSttlmAmt Ccy="USD">10000</IntrBkSttlmAmt>
+      <Dbtr>
+        <Nm>NEW YORK NY</Nm>
+        <PstlAdr>
+          <AdrLine>NEW YORK NY</AdrLine>
+        </PstlAdr>
+      </Dbtr>
+      <DbtrAcct>
+        <Id>
+          <Othr>
+            <Id>123456789</Id>
+          </Othr>
+        </Id>
+      </DbtrAcct>
+      <Cdtr>
+        <Nm>BERLIN</Nm>
+        <PstlAdr>
+          <AdrLine>BERLIN</AdrLine>
+        </PstlAdr>
+      </Cdtr>
+      <CdtrAcct>
+        <Id>
+          <Othr>
+            <Id>987654321</Id>
+          </Othr>
+        </Id>
+      </CdtrAcct>
+      <RmtInf>
+        <Ustrd>REQUEST FOR INFORMATION MT103 TRX10320251020</Ustrd>
+      </RmtInf>
+    </Inf>
+  </AddtlPmtInf>
+</Document>
+]]></payload>
+  </sample>
+  <sample label="MT196-CANCEL" mtType="MT196" preValidation="not_enabled" mxType="camt.029.001.13" variant="cancellation" status="ok" code="CONVERTED">
+    <mapping>mappings/mt196-to-camt02900113.json</mapping>
+    <payload><![CDATA[<?xml version='1.0' encoding='UTF-8'?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.029.001.13">
+  <RsltnOfInvstgtn>
+    <Assgnmt>
+      <Id>6457AZ</Id>
+      <Assgnr>
+        <Agt>
+          <FinInstnId>
+            <Othr>
+              <Id>NOTPROVIDED</Id>
+            </Othr>
+          </FinInstnId>
+        </Agt>
+      </Assgnr>
+      <Assgne>
+        <Agt>
+          <FinInstnId>
+            <Othr>
+              <Id>NOTPROVIDED</Id>
+            </Othr>
+          </FinInstnId>
+        </Agt>
+      </Assgne>
+      <CreDtTm>2025-10-30T03:20:33Z</CreDtTm>
+    </Assgnmt>
+    <Sts>
+      <Conf>CNCL</Conf>
+    </Sts>
+    <SplmtryData>
+      <PlcAndNm>MT196</PlcAndNm>
+      <Envlp>
+        <Cntt>CANCELLED</Cntt>
+      </Envlp>
+    </SplmtryData>
+  </RsltnOfInvstgtn>
+</Document>
+]]></payload>
+  </sample>
+  <sample label="MT196-QUERY" mtType="MT196" preValidation="not_enabled" mxType="camt.111.001.02" variant="information" status="ok" code="CONVERTED">
+    <mapping>mappings/mt196-to-camt11100102.json</mapping>
+    <payload><![CDATA[<?xml version='1.0' encoding='UTF-8'?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.111.001.02">
+  <InvstgtnRspn>
+    <InvstgtnRspn>
+      <MsgId>AW191</MsgId>
+      <RspndrInvstgtnId>316ARB</RspndrInvstgtnId>
+      <InvstgtnSts>
+        <Sts>COMP</Sts>
+      </InvstgtnSts>
+      <InvstgtnData>
+        <RspnData>
+          <RspnNrrtv>VALUE DATE SHOULD BE 090601 WE HAVE CHANGED ACCORDINGLY</RspnNrrtv>
+        </RspnData>
+      </InvstgtnData>
+    </InvstgtnRspn>
+    <OrgnlInvstgtnReq>
+      <MsgId>316ARB</MsgId>
+      <InvstgtnTp>
+        <Prtry>INFORMATION</Prtry>
+      </InvstgtnTp>
+      <Rqstr>
+        <Agt>
+          <FinInstnId>
+            <Othr>
+              <Id>NOTPROVIDED</Id>
+            </Othr>
+          </FinInstnId>
+        </Agt>
+      </Rqstr>
+      <Rspndr>
+        <Agt>
+          <FinInstnId>
+            <Othr>
+              <Id>NOTPROVIDED</Id>
+            </Othr>
+          </FinInstnId>
+        </Agt>
+      </Rspndr>
+    </OrgnlInvstgtnReq>
+  </InvstgtnRspn>
+</Document>
+]]></payload>
+  </sample>
+</mxTransforms>

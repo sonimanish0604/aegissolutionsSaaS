@@ -1,0 +1,29 @@
+# .github/workflows/onboarding-ci.yml
+name: onboarding-ci
+permissions:
+  contents: read
+on:
+  pull_request:
+    paths:
+      - "control-plane/onboarding-service/**"
+      - "shared/**"
+      - ".github/workflows/onboarding-ci.yml"
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        api_version: [v1, v2]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with: { python-version: "3.11" }
+      - name: Install deps
+        run: pip install -U pip pytest
+      - name: Lint & unit
+        run: |
+          pytest -q control-plane/onboarding-service/tests/api/${{ matrix.api_version }}
+      - name: Validate OpenAPI
+        run: |
+          pip install openapi-spec-validator
+          openapi-spec-validator control-plane/onboarding-service/openapi/onboarding.${{ matrix.api_version }}.yaml

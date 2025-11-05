@@ -1,0 +1,54 @@
+MT105_Usage_Rules:
+  rules:
+    - id: U1
+      description: >
+        Users must refer to the official Message Implementation Guidelines (MIGs) for full format and field specifications.
+      applies_to: MT105
+
+    - id: U2
+      description: >
+        The use and content of MT105 is governed by an established bilateral agreement between the Sender and Receiver.
+      applies_to: MT105
+
+    - id: U3
+      description: >
+        The SWIFT character set 'x' ONLY must be used in fields 27, 20, 21, and 12.
+      applies_to: MT105
+      enforcement:
+        fields: [27, 20, 21, 12]
+        character_set: x
+
+    - id: U4
+      description: >
+        Field 77F must use EDIFACT syntax and level A character set ('y' on SWIFT Network), as defined in ISO 9735.
+      applies_to: MT105
+      enforcement:
+        field_77F:
+          character_set: y
+          syntax: EDIFACT_Level_A
+
+    - id: U5
+      description: >
+        If the EDIFACT message exceeds 1800 characters, it may be split across multiple MT105 messages.
+        Each message must carry the same value in field 21 (Related Reference).
+      applies_to: MT105
+      enforcement:
+        field_77F:
+          max_length: 1800
+        field_21:
+          must_match_across_series: true
+
+    - id: U6
+      description: >
+        The last field in the message (77F) must be followed by 'CrLf-' to indicate End of Text.
+      applies_to: MT105
+      enforcement:
+        field_77F:
+          must_end_with: "CrLf-"
+
+    - id: U7
+      description: >
+        It is recommended that EDIFACT messages be transported one at a time (not bundled in a single MT105).
+      applies_to: MT105
+      recommendation:
+        edifact_message_count_per_MT105: 1

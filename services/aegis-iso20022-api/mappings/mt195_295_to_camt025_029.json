@@ -1,0 +1,21 @@
+{
+  "20": {
+    "description": "Transaction Reference Number",
+    "xpath": "Document.Rpt.RptId"
+  },
+  "21": {
+    "description": "Related Reference",
+    "xpath": "Document.Rpt.RelatedRef"
+  },
+  "75": {
+    "description": "Narrative",
+    "xpath": "Document.Rpt.Narrative"
+  },
+  "_meta": {
+    "source": "MT195/295",
+    "target": "camt.025/029.001.08",
+    "generated_by": "Copilot",
+    "confidence": "high",
+    "timestamp": "2025-10-19T03:18:00Z"
+  }
+}

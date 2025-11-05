@@ -1,0 +1,64 @@
+MT101_Usage_Rules:
+  description: >
+    Business rules for MT101 message structure and validation, applicable across sequences A and B.
+  rules:
+    - id: R1
+      description: >
+        If field 21R is present in sequence A, and field 28D indicates that more than one message is chained,
+        the currency code must be the same for all occurrences of field 32B in sequence B of all chained messages.
+      conditions:
+        sequence_A:
+          field_21R: present
+          field_28D: chained
+        sequence_B:
+          field_32B:
+            currency_code: must_be_consistent_across_all_chained_messages
+
+    - id: R2
+      description: >
+        In case of an equivalent amount transfer, identified with the code EQUI in field 23E,
+        the transaction amount in field 32B must equal zero.
+      conditions:
+        field_23E: EQUI
+        field_32B:
+          amount: must_equal_zero
+
+    - id: R3
+      description: >
+        In case of sweeping, topping or zero balancing operations, identified with a code in field 23E,
+        the transaction amount in field 32B can equal zero.
+      conditions:
+        field_23E: [SWPT, TOPP, ZERO]  # Example codes; adjust as needed
+        field_32B:
+          amount: may_equal_zero
+
+    - id: R4
+      description: >
+        If field 28D indicates that messages are chained, all messages belonging to the same chain
+        must have exactly the same sender's reference in field 20.
+      conditions:
+        field_28D: chained
+        field_20: must_be_identical_across_chain
+
+    - id: R5
+      description: >
+        If field 28D indicates that messages are chained, sequence A must be repeated and be identical
+        for all messages belonging to the same chain.
+      conditions:
+        field_28D: chained
+        sequence_A: must_be_identical_across_chain
+
+    - id: R6
+      description: >
+        When the currency of the settlement amount is in euro and it is necessary to indicate the equivalent
+        in National Currency Denomination (NCD), the following fields must be populated accordingly.
+      conditions:
+        field_32B:
+          currency: EUR
+        field_33B:
+          currency: NCD
+          amount: equivalent_to_field_32B
+        field_36:
+          conversion_rate: fixed_between_EUR_and_NCD
+        field_21F:
+          value: NONREF

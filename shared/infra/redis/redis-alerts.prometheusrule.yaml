@@ -1,0 +1,54 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: redis-alerts
+  namespace: observability
+  labels:
+    release: kps
+spec:
+  groups:
+  - name: redis.rules
+    rules:
+    - alert: RedisDown
+      expr: redis_up == 0
+      for: 2m
+      labels:
+        severity: critical
+      annotations:
+        summary: Redis instance is down
+        description: No Redis targets are up for 2 minutes.
+    - alert: RedisHighMemory
+      expr: redis_memory_used_bytes > 200000000
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: Redis high memory usage
+        description: redis_memory_used_bytes exceeded 200MB for 5 minutes.
+    - alert: RedisLowHitRatio
+      expr: "(\n  sum(rate(redis_keyspace_hits_total[5m]))\n) / clamp_min(\n  sum(rate(redis_keyspace_hits_total[5m]))\
+        \ + sum(rate(redis_keyspace_misses_total[5m])), 1\n) < 0.8"
+      for: 10m
+      labels:
+        severity: warning
+      annotations:
+        summary: Redis keyspace hit ratio low
+        description: Cache hit ratio below 80% for 10 minutes.
+    - alert: RedisEvictionsSpike
+      expr: sum(rate(redis_evicted_keys_total[5m])) > 0
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: Redis evictions occurring
+        description: Evictions > 0 keys/sec for 5 minutes; consider memory tuning
+          or TTL policy.
+    - alert: RedisAOFFsyncHigh
+      expr: sum(rate(redis_aof_write_calls_total[5m])) > 50
+      for: 10m
+      labels:
+        severity: info
+      annotations:
+        summary: Redis AOF fsyncs high
+        description: AOF write calls/sec > 50 for 10 minutes; review AOF settings
+          and I/O.

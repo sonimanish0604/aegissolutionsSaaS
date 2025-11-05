@@ -1,0 +1,226 @@
+version: "2025-11"
+family: "Category 1"
+
+charsets:
+  X:
+    description: "SWIFT FIN X character set"
+    allowed_chars_literal: >
+      abcdefghijklmnopqrstuvwxyz
+      ABCDEFGHIJKLMNOPQRSTUVWXYZ
+      0123456789
+      / - ? : ( ) . , ‘ + [CRLF] [SPACE]
+    rules:
+      crlf_must_be_pair: true
+      crlf_sequence: "CRLF"
+      disallow_lonely_cr_or_lf: true
+
+  Y:
+    description: "EDIFACT Level A (used e.g. MT105 field 77F)"
+    allowed_chars_literal: >
+      ABCDEFGHIJKLMNOPQRSTUVWXYZ
+      0123456789
+      . , – ( ) / = ‘ + : ? ! ” % & * < > ; [SPACE]
+    rules: {}
+
+  Z:
+    description: "Information Service character set (e.g. MT103 REMIT 77T)"
+    allowed_chars_literal: >
+      abcdefghijklmnopqrstuvwxyz
+      ABCDEFGHIJKLMNOPQRSTUVWXYZ
+      0123456789
+      . , – ( ) / = ‘ + : ? ! ” % & * < > ; {
+      @ # _
+      [CR] [LF] [SPACE]
+    rules:
+      normalize_linebreaks_to_crlf: true
+
+formats:
+  # Core format interpreters
+  "16x": { length: 16, kind: "x", charset: "X" }
+  "6!n": { length: 6,  kind: "n", exact: true }
+  "5n/5n": { parts: [{len:5,kind:"n"},{sep:"/"},{len:5,kind:"n"}], exact: true }
+  "3!a15d": { parts: [{len:3,kind:"a",exact:true},{len:15,kind:"d"}], charset: "X" }
+  "35x": { max_length: 35, kind: "x", charset: "X" }
+  "4!c": { length: 4, kind: "c", exact: true }
+  "12d": { max_length: 12, kind: "d", charset: "X" }
+  "/34x": { leading_slash:true, max_length:34, kind:"x", charset:"X" }
+  "4!a2!a2!c[3!c]": { pattern: "BIC", exact: true }
+
+lookups:
+  instruction_codes:
+    CHQB: { meaning: "Pay beneficiary by cheque only; :59a account line must not be used.", addl_info: false }
+    CMSW: { meaning: "Sweep account", addl_info: false }
+    CMTO: { meaning: "Top account; floor may follow", addl_info: true }
+    CMZB: { meaning: "Zero-balance account", addl_info: false }
+    CORT: { meaning: "Corporate trade payment", addl_info: false }
+    EQUI: { meaning: "Equivalent amount in different currency", addl_info: false }
+    INTC: { meaning: "Intra-company payment", addl_info: false }
+    NETS: { meaning: "Settle via net settlement system", addl_info: false }
+    OTHR: { meaning: "Bilateral code/info", addl_info: true }
+    PHON: { meaning: "Call beneficiary; phone must follow", addl_info: true }
+
+  mt196_reason_codes:
+    AC04: "Closed Account Number – account number specified has been closed."
+    AGNT: "Agent Decision – agent refused to cancel."
+    AM04: "Insufficient Funds – available funds are insufficient."
+    ARDT: "Already Returned – transaction already returned."
+    ARPL: "Awaiting Reply – awaiting response from the customer or next agent."
+    CUST: "Customer Decision – cancellation refused by customer."
+    INDM: "Indemnity Requested – indemnity required before funds can be returned."
+    LEGL: "Legal Decision – cancellation refused due to legal/regulatory rules."
+    NOAS: "No Answer From Customer – no response received from customer/beneficiary."
+    NOOR: "No Original Transaction Received – original transaction never received."
+    PTNA: "Past To Next Agent – cancellation forwarded to the next agent."
+    RQDA: "Requested Debit Authority – debit authority requested."
+    REPA: { meaning: "Related e-Payments reference", addl_info: true }
+    RTGS: { meaning: "Settle via RTGS", addl_info: false }
+    URGP: { meaning: "Urgent/time-sensitive", addl_info: false }
+
+  party_identifier_codes:
+    ARNU: "Alien Registration Number"
+    CCPT: "Passport Number"
+    CUST: "Customer Identification Number"
+    DRLC: "Driver’s Licence Number"
+    EMPL: "Employer Number"
+    NIDN: "National Identity Number"
+    SOSE: "Social Security Number"
+    TXID: "Tax Identification Number"
+
+  option_F_line_numbers:
+    "1": "Name of Ordering Customer"
+    "2": "Address Line"
+    "3": "Country and Town (first 3 must include ISO country code)"
+    "4": "Date of Birth (YYYYMMDD)"
+    "5": "Place of Birth (<ISO country>/<place>)"
+    "6": "Customer Identification Number (<ISO country_of_issuer>/<issuer>/<id>)"
+    "7": "National Identity Number (<ISO country>/<id>)"
+    "8": "Additional Information (continuation for 6/7 or Code/Country/Identifier)"
+  beneficiary_option_F_line_numbers:
+    "1": "Name of Beneficiary Customer"
+    "2": "Address Line"
+    "3": "Country and Town (first 3 must include ISO country code)"
+  remittance_codes:
+    INV: "Invoice reference (followed by date, reference, and invoice details)"
+    IPI: "International Payment Instruction reference (followed by up to 20 characters)"
+    RFB: "Reference for Beneficiary (followed by up to 16 characters)"
+    ROC: "Reference of Customer (ordering customer reference)"
+    TSU: "Trade Services Utility transaction identifier / invoice / amount paid sequence"
+  regulatory_reporting_codes:
+    BENEFRES: "Residence of the beneficiary customer"
+    ORDERRES: "Residence of the ordering customer"
+  bank_operation_codes:
+    CHQB: "Cheque – pay beneficiary by cheque only; :59a account line must remain empty."
+    CREDIT: "Credit transfer(s) under a bilateral agreement between Sender and Receiver."
+    CRTST: "Test credit transfer for test purposes (Test & Training destinations only)."
+    SPAY: "SWIFTPay credit transfer to be processed under the SWIFTPay service level."
+  mt103_bank_operation_codes:
+    CRED: "Normal credit transfer processed without a specific SWIFT service level."
+    CRTS: "Test credit transfer (use only in Test & Training)."
+    SPAY: "SWIFTPay credit transfer processed under the SWIFTPay service level."
+    SPRI: "Priority credit transfer processed under the Priority service level."
+    SSTD: "Standard credit transfer processed under the Standard service level."
+  charge_codes:
+    BEN: "All transaction charges borne by the beneficiary customer"
+    OUR: "All transaction charges borne by the ordering customer"
+    SHA: "Transaction charges shared: ordering customer pays its institution, remainder borne by beneficiary customer"
+  mt103_instruction_codes:
+    CHQB: { meaning: "Pay beneficiary customer by cheque only; field 59a account line must not be used.", addl_info: false }
+    CORT: { meaning: "Corporate trade payment (e.g. FX deal, securities transaction).", addl_info: false }
+    HOLD: { meaning: "Hold funds for collection upon beneficiary identification.", addl_info: true }
+    INTC: { meaning: "Intra-company payment between group companies.", addl_info: false }
+    PHOB: { meaning: "Contact the beneficiary by phone.", addl_info: true }
+    PHOI: { meaning: "Contact the intermediary institution by phone.", addl_info: true }
+    PHON: { meaning: "Contact the account with institution by phone.", addl_info: true }
+    REPA: { meaning: "Related e-payments reference provided.", addl_info: true }
+    SDVA: { meaning: "Execute payment with same-day value to the beneficiary.", addl_info: false }
+    TELB: { meaning: "Advise the beneficiary by the most efficient telecommunication means.", addl_info: true }
+    TELE: { meaning: "Advise the account with institution by the most efficient telecommunication means.", addl_info: true }
+    TELI: { meaning: "Advise the intermediary institution by the most efficient telecommunication means.", addl_info: true }
+  mt103_remit_formats:
+    ANSI: "ANSI/X12 formatted remittance content."
+    IXML: "ISO 20022 XML message content."
+    NARR: "Narrative remittance content."
+    SWIF: "SWIFT-format remittance content mirroring field 70 structure."
+    UEDI: "UN-EDIFACT formatted remittance content beginning with the UNH segment."
+  mt104_instruction_codes:
+    AUTH: &mt104_auth { meaning: "Pre-authorised direct debit instruction.", addl_info: false }
+    NAUT: &mt104_naut { meaning: "Non pre-authorised direct debit instruction.", addl_info: false }
+    OTHR: &mt104_othr { meaning: "Other/bilaterally agreed instruction code (additional narrative permitted).", addl_info: true }
+    RFDD: &mt104_rfdd { meaning: "Request for Direct Debit instruction.", addl_info: false }
+    RTND: &mt104_rtnd { meaning: "Return of a previously sent MT104.", addl_info: false }
+  mt104_instruction_codes_sequence_b:
+    AUTH: *mt104_auth
+    NAUT: *mt104_naut
+    OTHR: *mt104_othr
+
+  national_clearing_codes:
+    AT: { name: "Austrian Bankleitzahl", length: "5n" }
+    AU: { name: "Australian BSB", length: "6n" }
+    BL: { name: "German Bankleitzahl", length: "8n" }
+    CC: { name: "Canadian Routing Number", length: "9n" }
+    CH: { name: "CHIPS UID", length: "6n" }
+    CP: { name: "CHIPS Participant", length: "4n" }
+    CN: { name: "CNAPS", length: "12–14n" }
+    ES: { name: "Spanish Domestic", length: "8–9n" }
+    FW: { name: "Fedwire Routing", length: "9n" }
+    GR: { name: "HEBIC", length: "7n" }
+    HK: { name: "Hong Kong Bank Code", length: "3n" }
+    IE: { name: "Irish NSC", length: "6n" }
+    IN: { name: "IFSC", length: "11c" }
+    IT: { name: "Italian Domestic ID", length: "10n" }
+    NZ: { name: "New Zealand NCC", length: "6n" }
+    PL: { name: "Polish KNR", length: "8n" }
+    PT: { name: "Portuguese NCC", length: "8n" }
+    RU: { name: "Russian CBR ID", length: "9n" }
+    SC: { name: "UK Sort Code", length: "6n" }
+    SW_BC: { name: "Swiss BC", length: "3–5n" }
+    SW_SIC: { name: "Swiss SIC", length: "6n" }
+    RT: { name: "Real-time gross settlement routing code", length: "variable" }
+    ZA: { name: "South African National Clearing Code", length: "6n" }
+
+bic_european_country_codes:
+  # Country codes used to validate Sender's and Receiver's BICs for regional rules
+AD  # Andorra
+AT  # Austria
+BE  # Belgium
+BG  # Bulgaria
+BV  # Bouvet Island
+CH  # Switzerland
+CY  # Cyprus
+CZ  # Czech Republic
+DE  # Germany
+DK  # Denmark
+EE  # Estonia
+ES  # Spain
+FI  # Finland
+FR  # France
+GB  # United Kingdom
+GF  # French Guiana
+GI  # Gibraltar
+GP  # Guadeloupe
+GR  # Greece
+HU  # Hungary
+IE  # Ireland
+IS  # Iceland
+IT  # Italy
+LI  # Liechtenstein
+LT  # Lithuania
+LU  # Luxembourg
+LV  # Latvia
+MC  # Monaco
+MQ  # Martinique
+MT  # Malta
+NL  # Netherlands
+NO  # Norway
+PL  # Poland
+PM  # Saint Pierre and Miquelon
+PT  # Portugal
+RE  # Réunion
+RO  # Romania
+SE  # Sweden
+SI  # Slovenia
+SJ  # Svalbard and Jan Mayen
+SK  # Slovakia
+SM  # San Marino
+TF  # French Southern Territories
+VA  # Vatican City

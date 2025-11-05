@@ -1,0 +1,39 @@
+# Helm values for Bitnami PostgreSQL
+# Location: shared/infra/postgres/postgres-values.yaml
+
+auth:
+  username: aegis
+  password: aegis
+  database: controlplane
+
+primary:
+  persistence:
+    enabled: true
+    size: 5Gi
+    storageClass: ""  # uses default
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+service:
+  type: ClusterIP
+  ports:
+    postgresql: 5432
+
+volumePermissions:
+  enabled: true
+  securityContext:
+    runAsUser: 0
+
+# Optional metrics exporter for Prometheus/Grafana
+metrics:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    namespace: observability
+    interval: 30s

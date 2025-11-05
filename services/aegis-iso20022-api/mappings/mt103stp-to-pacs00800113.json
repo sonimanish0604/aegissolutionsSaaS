@@ -1,0 +1,118 @@
+{
+  "meta": {
+    "template_version": "1.0.0",
+    "use_case": "MT103STP_TO_PACS008",
+    "source": { "standard": "SWIFT_MT", "message_type": "MT103STP", "variant": "FIN" },
+    "target": { "standard": "ISO20022", "message": "pacs.008", "schema_id": "pacs.008.001.13" },
+    "created_by": "aegis",
+    "created_at": "2025-10-28T00:00:00Z"
+  },
+  "namespaces": {
+    "mx": "urn:iso:std:iso:20022:tech:xsd:pacs.008.001.13"
+  },
+  "defaults": {
+    "GrpHdr/MsgId": { "value": "$context.request_id" },
+    "GrpHdr/CreDtTm": { "value": "$now" },
+    "GrpHdr/NbOfTxs": { "value": "1" },
+    "GrpHdr/SttlmInf/SttlmMtd": { "value": "CLRG" }
+  },
+  "blocks": [
+    {
+      "id": "grp_hdr",
+      "mappings": [
+        {
+          "source": "50A",
+          "target": "GrpHdr/InstgAgt/FinInstnId/BICFI",
+          "transform": { "fn": "regex_extract", "args": { "pattern": "^/?([A-Za-z0-9]{8,11})", "group": 1 } }
+        },
+        {
+          "source": "57A",
+          "target": "GrpHdr/InstdAgt/FinInstnId/BICFI",
+          "transform": { "fn": "regex_extract", "args": { "pattern": "^/?([A-Za-z0-9]{8,11})", "group": 1 } }
+        }
+      ]
+    },
+    {
+      "id": "credit_tx",
+      "target_root": "CdtTrfTxInf",
+      "mappings": [
+        { "source": "20", "target": "PmtId/InstrId" },
+        { "source": "20", "target": "PmtId/EndToEndId" },
+        { "source": "20", "target": "PmtId/TxId" },
+        {
+          "source": "32A",
+          "target": "IntrBkSttlmAmt",
+          "transform": [
+            { "fn": "regex_extract", "args": { "pattern": "^(\\d{6})([A-Z]{3})(.+)$", "group": 3 } },
+            "to_decimal"
+          ]
+        },
+        {
+          "source": "32A",
+          "target": "IntrBkSttlmAmt/@Ccy",
+          "transform": { "fn": "regex_extract", "args": { "pattern": "^(\\d{6})([A-Z]{3})(.+)$", "group": 2 } }
+        },
+        {
+          "source": "32A",
+          "target": "IntrBkSttlmDt",
+          "transform": [
+            { "fn": "regex_extract", "args": { "pattern": "^(\\d{6})([A-Z]{3})(.+)$", "group": 1 } },
+            { "fn": "date_parse", "args": { "format": "%y%m%d" } }
+          ]
+        },
+        {
+          "source": "71A",
+          "target": "ChrgBr",
+          "transform": "charge_code"
+        },
+        {
+          "source": "50A",
+          "target": "InstgAgt/FinInstnId/BICFI",
+          "transform": { "fn": "regex_extract", "args": { "pattern": "^/?([A-Za-z0-9]{8,11})", "group": 1 } }
+        },
+        {
+          "source": "57A",
+          "target": "InstdAgt/FinInstnId/BICFI",
+          "transform": { "fn": "regex_extract", "args": { "pattern": "^/?([A-Za-z0-9]{8,11})", "group": 1 } }
+        },
+        { "target": "Dbtr/Nm", "value": "NOTPROVIDED" },
+        { "target": "DbtrAcct/Id/Othr/Id", "value": "NOTPROVIDED" },
+        {
+          "source": "50A",
+          "target": "DbtrAgt/FinInstnId/BICFI",
+          "transform": { "fn": "regex_extract", "args": { "pattern": "^/?([A-Za-z0-9]{8,11})", "group": 1 } }
+        },
+        {
+          "source": "57A",
+          "target": "CdtrAgt/FinInstnId/BICFI",
+          "transform": { "fn": "regex_extract", "args": { "pattern": "^/?([A-Za-z0-9]{8,11})", "group": 1 } }
+        },
+        {
+          "source": "59A",
+          "target": "Cdtr/Nm",
+          "transform": { "fn": "regex_extract", "args": { "pattern": "^/?([A-Za-z0-9]{8,11})", "group": 1 } }
+        },
+        { "target": "CdtrAcct/Id/Othr/Id", "value": "NOTPROVIDED" }
+      ]
+    }
+  ],
+  "validations": [
+    { "path": "GrpHdr/MsgId", "required": true },
+    { "path": "GrpHdr/CreDtTm", "required": true },
+    { "path": "GrpHdr/NbOfTxs", "required": true },
+    { "path": "CdtTrfTxInf/IntrBkSttlmAmt", "required": true },
+    { "path": "CdtTrfTxInf/IntrBkSttlmAmt/@Ccy", "required": true },
+    { "path": "CdtTrfTxInf/IntrBkSttlmDt", "required": true }
+  ],
+  "transforms_catalog": [
+    "regex_extract(pattern,group)",
+    "to_decimal",
+    "date_parse(format)",
+    "charge_code"
+  ],
+  "error_policies": {
+    "on_missing_required": "fail",
+    "on_transform_error": "warn_and_copy_raw",
+    "on_unknown_tag": "ignore"
+  }
+}

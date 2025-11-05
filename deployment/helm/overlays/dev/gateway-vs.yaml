@@ -1,0 +1,30 @@
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: aegis-gw
+  namespace: aegis
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts: ["*"]
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: httpbin
+  namespace: aegis
+spec:
+  hosts: ["*"]
+  gateways: ["aegis/aegis-gw"]
+  http:
+  - match:
+    - uri: { prefix: "/" }
+    route:
+    - destination:
+        host: httpbin.aegis.svc.cluster.local
+        port: { number: 8000 }

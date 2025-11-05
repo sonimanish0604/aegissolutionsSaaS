@@ -1,0 +1,174 @@
+{
+  "meta": {
+    "template_version": "1.0.0",
+    "use_case": "MT101_TO_PAIN001",
+    "source": { "standard": "SWIFT_MT", "message_type": "MT101", "variant": "FIN" },
+    "target": { "standard": "ISO20022", "message": "pain.001", "schema_id": "pain.001.001.12" },
+    "mx_root": "CstmrCdtTrfInitn",
+    "created_by": "aegis",
+    "created_at": "2025-10-22T00:00:00Z"
+  },
+  "namespaces": {
+    "mx": "urn:iso:std:iso:20022:tech:xsd:pain.001.001.12"
+  },
+
+  "defaults": {},
+
+  "blocks": [
+    {
+      "id": "grp_hdr",
+      "mappings": [
+        { "source": "20", "target": "GrpHdr/MsgId" },
+        { "target": "GrpHdr/CreDtTm", "value": null, "transform": ["now"] },
+        { "target": "GrpHdr/NbOfTxs", "value": "1" },
+        {
+          "source": "32B",
+          "target": "GrpHdr/CtrlSum",
+          "transform": [
+            { "fn": "regex_extract", "args": { "pattern": "^([A-Z]{3})([0-9.,]+)$", "group": 2 } },
+            "to_decimal"
+          ]
+        },
+        {
+          "source": "50H",
+          "target": "GrpHdr/InitgPty/Nm",
+          "transform": { "fn": "regex_extract", "args": { "pattern": "^(?:/.*\\n)?([^\\n]+)", "group": 1 } }
+        }
+      ]
+    },
+    {
+      "id": "pmt_inf",
+      "target_root": "PmtInf",
+      "mappings": [
+        { "source": "20", "target": "PmtInfId" },
+        { "target": "PmtMtd", "value": "TRF" },
+        { "target": "NbOfTxs", "value": "1" },
+        {
+          "source": "32B",
+          "target": "CtrlSum",
+          "transform": [
+            { "fn": "regex_extract", "args": { "pattern": "^([A-Z]{3})([0-9.,]+)$", "group": 2 } },
+            "to_decimal"
+          ]
+        },
+        {
+          "source": "30",
+          "target": "ReqdExctnDt/Dt",
+          "transform": [
+            { "fn": "regex_extract", "args": { "pattern": "^(\\d{8})", "group": 1 } },
+            { "fn": "date_parse", "args": { "format": "%Y%m%d" } }
+          ]
+        },
+        {
+          "source": "50H",
+          "target": "Dbtr/Nm",
+          "transform": { "fn": "regex_extract", "args": { "pattern": "^(?:/.*\\n)?([^\\n]+)", "group": 1 } }
+        },
+        {
+          "source": "50H",
+          "target": "Dbtr/PstlAdr/AdrLine",
+          "transform": [
+            { "fn": "regex_extract", "args": { "pattern": "^(?:/.*\\n)?[^\\n]+\\n([\\s\\S]+)$", "group": 1 } },
+            "lines"
+          ]
+        },
+        {
+          "source": "50H",
+          "target": "DbtrAcct/Id/IBAN",
+          "transform": [
+            { "fn": "regex_extract", "args": { "pattern": "^/([^\\n]+)", "group": 1 } }
+          ],
+          "on_fail": "DbtrAcct/Id/Othr/Id"
+        },
+        { "target": "DbtrAgt/FinInstnId/Othr/Id", "value": "NOTPROVIDED" },
+        {
+          "source": "71A",
+          "target": "ChrgBr",
+          "transform": "charge_code"
+        }
+      ]
+    },
+    {
+      "id": "credit_tx",
+      "target_root": "PmtInf/CdtTrfTxInf",
+      "mappings": [
+        { "source": "21", "target": "PmtId/InstrId" },
+        { "source": "21", "target": "PmtId/EndToEndId" },
+        {
+          "source": "32B",
+          "target": "Amt/InstdAmt",
+          "transform": [
+            { "fn": "regex_extract", "args": { "pattern": "^([A-Z]{3})([0-9.,]+)$", "group": 2 } },
+            "to_decimal"
+          ]
+        },
+        {
+          "source": "32B",
+          "target": "Amt/InstdAmt/@Ccy",
+          "transform": { "fn": "regex_extract", "args": { "pattern": "^([A-Z]{3})", "group": 1 } }
+        },
+        {
+          "source": "57A",
+          "target": "CdtrAgt/FinInstnId/BICFI",
+          "transform": { "fn": "regex_extract", "args": { "pattern": "^/?([A-Za-z0-9]{8,11})", "group": 1 } }
+        },
+        {
+          "source": "59",
+          "target": "Cdtr/Nm",
+          "transform": { "fn": "regex_extract", "args": { "pattern": "^(?:/.*\\n)?([^\\n]+)", "group": 1 } }
+        },
+        {
+          "source": "59",
+          "target": "Cdtr/PstlAdr/AdrLine",
+          "transform": [
+            { "fn": "regex_extract", "args": { "pattern": "^(?:/.*\\n)?[^\\n]+\\n([\\s\\S]+)$", "group": 1 } },
+            "lines"
+          ]
+        },
+        {
+          "source": "59",
+          "target": "CdtrAcct/Id/Othr/Id",
+          "transform": { "fn": "regex_extract", "args": { "pattern": "^/([^\\n]+)", "group": 1 } }
+        },
+        {
+          "source": "70",
+          "target": "RmtInf/Ustrd",
+          "transform": { "fn": "regex_extract", "args": { "pattern": "/[A-Z]{3}/(.+)", "group": 1 } }
+        }
+      ]
+    }
+  ],
+
+  "validations": [
+    { "path": "GrpHdr/MsgId", "required": true },
+    { "path": "GrpHdr/CreDtTm", "required": true },
+    { "path": "GrpHdr/NbOfTxs", "required": true },
+    { "path": "GrpHdr/InitgPty/Nm", "required": true },
+    { "path": "PmtInf/PmtInfId", "required": true },
+    { "path": "PmtInf/PmtMtd", "required": true },
+    { "path": "PmtInf/NbOfTxs", "required": true },
+    { "path": "PmtInf/ReqdExctnDt/Dt", "required": true },
+    { "path": "PmtInf/Dbtr/Nm", "required": true },
+    { "path": "PmtInf/DbtrAcct/Id/IBAN", "required": true },
+    { "path": "PmtInf/CdtTrfTxInf/PmtId/InstrId", "required": true },
+    { "path": "PmtInf/CdtTrfTxInf/Amt/InstdAmt", "required": true },
+    { "path": "PmtInf/CdtTrfTxInf/Amt/InstdAmt/@Ccy", "required": true },
+    { "path": "PmtInf/CdtTrfTxInf/Cdtr/Nm", "required": true },
+    { "path": "PmtInf/CdtTrfTxInf/CdtrAcct/Id/Othr/Id", "required": true }
+  ],
+
+  "transforms_catalog": [
+    "regex_extract(pattern,group)",
+    "to_decimal",
+    "date_parse(format)",
+    "lines",
+    "now",
+    "charge_code"
+  ],
+
+  "error_policies": {
+    "on_missing_required": "fail",
+    "on_transform_error": "warn_and_copy_raw",
+    "on_unknown_tag": "ignore"
+  }
+}

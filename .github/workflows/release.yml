@@ -1,0 +1,87 @@
+name: Semantic Release
+
+on:
+  push:
+    branches:
+      - testing
+      - staging
+      - main
+
+jobs:
+  release:
+    name: Publish release artifacts
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+      id-token: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Install project dependencies
+        working-directory: services/aegis-iso20022-api
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Install security tooling
+        run: |
+          curl -sSL https://github.com/gitleaks/gitleaks/releases/download/v8.18.1/gitleaks_8.18.1_linux_x64.tar.gz -o gitleaks.tar.gz
+          tar -xzf gitleaks.tar.gz gitleaks
+          sudo mv gitleaks /usr/local/bin/gitleaks
+          rm gitleaks.tar.gz
+
+          pip install semgrep
+          curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sudo sh -s -- -b /usr/local/bin
+          curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sudo sh -s -- -b /usr/local/bin
+      - name: Install SOC2 dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest
+          pip install -r services/aegis-iso20022-api/requirements.txt
+
+      - name: Generate SOC2 compliance report
+        working-directory: services/aegis-iso20022-api
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/artifacts"
+          python scripts/soc2_compliance.py --output "$GITHUB_WORKSPACE/artifacts/soc2_report.json"
+
+      - name: Archive compliance report
+        uses: actions/upload-artifact@v4
+        with:
+          name: soc2-report-${{ github.ref_name }}
+          path: artifacts/soc2_report.json
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install semantic-release toolchain
+        run: |
+          npm install --no-save semantic-release@23 \
+            @semantic-release/changelog@6 \
+            @semantic-release/git@10 \
+            @semantic-release/github@10 \
+            @semantic-release/commit-analyzer@13 \
+            @semantic-release/release-notes-generator@13 \
+            conventional-changelog-conventionalcommits@7
+
+      - name: Configure Git user
+        run: |
+          git config user.name "aegis-release-bot"
+          git config user.email "release-bot@aegis.local"
+
+      - name: Run semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx semantic-release

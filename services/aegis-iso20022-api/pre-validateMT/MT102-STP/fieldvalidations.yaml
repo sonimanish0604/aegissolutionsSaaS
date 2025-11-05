@@ -1,0 +1,996 @@
+- tag: '20'
+  name: File Reference
+  sequence: A
+  presence: mandatory
+  format: 16x
+  description: Reference assigned by the sender to unambiguously identify the message.
+  validations:
+  - id: 20-NR-1
+    type: network_rule
+    rule: no_leading_or_trailing_slash_or_double_slash
+    error_code: T26
+    message: Field must not start or end with '/' and must not contain '//' anywhere in its contents.
+  usage_notes:
+  - id: 20-U-1
+    description: Quote this reference in related confirmations or statements (for example MT 900 or MT 950).
+  - id: 20-U-2
+    description: File reference must be unique for each file and is part of the identification used for queries or cancellations.
+- tag: '23'
+  name: Bank Operation Code
+  sequence: A
+  presence: mandatory
+  presence_condition: Referenced in rule C7.
+  format: 6!a
+  description: Identifies the overall type of operation conveyed in the file.
+  usage_notes:
+  - id: 23-U-1
+    description: 'Allowed codes: CREDIT, CRTST, SPAY (bilateral codes not permitted).'
+  - id: 23-U-2
+    description: Code CRTST is only valid when sent by a Test & Training destination.
+- tag: 50a
+  name: Ordering Customer
+  sequence: A
+  presence: conditional
+  presence_condition: See rule C3 for placement across sequences A and B.
+  description: Identifies the customer ordering all transactions described in sequence B.
+  options_allowed:
+  - A
+  - F
+  - K
+  option_A:
+    label: Account / Identifier Code
+    format: '[/34x] 4!a2!a2!c[3!c]'
+    validations:
+    - id: 50aA-NR-1
+      type: network_rule
+      rule: identifier_code_must_be_valid_bic
+      error_code: T27
+      message: Identifier Code must be a valid BIC in the required format (4!a2!a2!c[3!c]).
+    - id: 50aA-NR-2
+      type: network_rule
+      rule: identifier_code_must_be_fin_destination
+      error_code: T28
+      message: Identifier Code must correspond to a valid FIN destination.
+    - id: 50aA-NR-3
+      type: network_rule
+      rule: identifier_code_branch_identifier_validity
+      error_code: T29
+      message: Identifier Code must contain a valid branch identifier, when present.
+    - id: 50aA-NR-4
+      type: network_rule
+      rule: identifier_code_non_connected_validity
+      error_code: T45
+      message: Identifier Code must not reference an invalid non-connected BIC.
+  option_F:
+    label: Party Identifier / Number, Name and Address
+    format: 35x 4*(1!n/33x)
+    party_identifier_formats:
+    - 35x
+    - 4!a/2!a/27x
+    name_and_address_line_format: 1!n/33x
+    line_number_lookup_ref: lookups.option_F_line_numbers
+    codes_allowed_ref: lookups.party_identifier_codes
+    validations:
+    - id: 50aF-NR-1
+      type: network_rule
+      rule: option_f_party_identifier_line_structure
+      error_code: T54
+      message: Party Identifier line must use 35x or 4!a/2!a/27x and each subsequent line must follow 1!n/33x.
+    - id: 50aF-NR-2
+      type: network_rule
+      rule: option_f_party_identifier_code_lookup
+      error_code: T55
+      message: When Party Identifier uses code/country/identifier format, the code must be one of the allowed values.
+    - id: 50aF-NR-3
+      type: network_rule
+      rule: option_f_party_identifier_country_iso
+      error_code: T73
+      message: When Party Identifier uses code/country/identifier format, the country code must be a valid ISO country code.
+    - id: 50aF-NR-4
+      type: network_rule
+      rule: option_f_first_name_address_line_is_1
+      error_code: T56
+      message: First Name/Address line must begin with number 1.
+    - id: 50aF-NR-5
+      type: network_rule
+      rule: option_f_numbers_in_ascending_order
+      error_code: T56
+      message: Numbered Name/Address lines must appear in ascending numerical order.
+    - id: 50aF-NR-6
+      type: network_rule
+      rule: option_f_requires_number_3_with_country
+      error_code: T56
+      message: At least one Name/Address line must use number 3 to provide country and town information.
+    - id: 50aF-NR-7
+      type: network_rule
+      rule: option_f_number_3_country_iso
+      error_code: T73
+      message: The first occurrence of number 3 must include a valid ISO country code.
+    - id: 50aF-NR-8
+      type: network_rule
+      rule: option_f_number_repeat_constraints
+      error_code: T56
+      message: "Numbers 1, 2, and 3 may repeat at most twice; numbers 4\u20138 must not repeat."
+    - id: 50aF-NR-9
+      type: network_rule
+      rule: option_f_numbers_4_and_5_pairing
+      error_code: T56
+      message: Number 4 must not appear without number 5, and number 5 must not appear without number 4.
+    - id: 50aF-NR-10
+      type: network_rule
+      rule: option_f_number_4_valid_date
+      error_code: T50
+      message: Number 4 must be followed by a valid date in YYYYMMDD not later than the sender's submission date.
+    - id: 50aF-NR-11
+      type: network_rule
+      rule: option_f_numbers_5_6_7_country_iso
+      error_code: T73
+      message: Numbers 5, 6, and 7 must include a valid ISO country code.
+    - id: 50aF-NR-12
+      type: network_rule
+      rule: option_f_numbers_5_6_7_details_required
+      error_code: T56
+      message: Numbers 5, 6, and 7 must be followed by '/' and additional identifying details.
+    - id: 50aF-NR-13
+      type: network_rule
+      rule: option_f_number_8_usage_constraints
+      error_code: T56
+      message: Number 8 may only continue identifiers provided under numbers 1, 6, or 7.
+  option_K:
+    label: Account / Name and Address
+    format: '[/34x] 4*35x'
+  usage_notes:
+  - id: 50a-U-1
+    description: State the ordering customer's account in option A or the account line of options F/K when known.
+  - id: 50a-U-2
+    description: In option F numbers 1, 2, and 3 may repeat; ensure the first occurrence of number 3 includes the town within
+      additional details when number 2 is used.
+  - id: 50a-U-3
+    description: If more space is required for identifiers under option F, continue using number 8 or choose an alternate
+      identifier format.
+- tag: 52a
+  name: Ordering Institution
+  sequence: A
+  presence: conditional
+  presence_condition: See rule C5 for when the ordering institution must be identified.
+  description: Specifies the financial institution, when different from the sender, that instructed the transmission of all
+    transactions in sequence B.
+  options_allowed:
+  - A
+  option_A:
+    label: Party Identifier / Identifier Code
+    format: '[/1!a][/34x] 4!a2!a2!c[3!c]'
+    national_clearing_codes_ref: lookups.national_clearing_codes
+    validations:
+    - id: 52aA-NR-1
+      type: network_rule
+      rule: identifier_code_must_be_valid_bic
+      error_code: T27
+      message: Identifier Code must be a valid BIC in the required format (4!a2!a2!c[3!c]).
+    - id: 52aA-NR-2
+      type: network_rule
+      rule: identifier_code_must_be_fin_destination
+      error_code: T28
+      message: Identifier Code must correspond to a valid FIN destination.
+    - id: 52aA-NR-3
+      type: network_rule
+      rule: identifier_code_branch_identifier_validity
+      error_code: T29
+      message: Identifier Code must contain a valid branch identifier, when present.
+    - id: 52aA-NR-4
+      type: network_rule
+      rule: identifier_code_non_connected_validity
+      error_code: T45
+      message: Identifier Code must not reference an invalid non-connected BIC.
+    - id: 52aA-NR-5
+      type: network_rule
+      rule: identifier_code_must_be_financial_institution
+      error_code: C05
+      message: Identifier Code must identify a registered financial institution BIC.
+  usage_notes:
+  - id: 52a-U-1
+    description: Option A (BIC) is preferred; use option C with a clearing system code when no BIC is available.
+  - id: 52a-U-2
+    description: Use option B to identify a sender's branch that lacks a meaningful BIC or clearing system code for the receiver.
+- tag: 26T
+  name: Transaction Type Code
+  sequence: A
+  presence: conditional
+  presence_condition: See rule C5 for usage requirements.
+  format: 3!c
+  description: Identifies the nature or purpose of all transactions in the file (for example, salaries, pensions, dividends).
+  usage_notes:
+  - id: 26T-U-1
+    description: Codes from the EUROSTAT "Code List for Balance of Payments Collection Systems" may be used; additional bilateral
+      codes may be agreed.
+- tag: 77B
+  name: Regulatory Reporting
+  sequence: A
+  presence: conditional
+  presence_condition: See rule C5 for regulatory reporting requirements.
+  format: 3*35x
+  codes_allowed_ref: lookups.regulatory_reporting_codes
+  validation_notes:
+  - Line 1 may follow the pattern /<Code>/<Country Code>[//additional information]; subsequent lines may continue additional
+    information prefixed with '//'.
+  usage_notes:
+  - id: 77B-U-1
+    description: Provide statutory or regulatory details requested by the sender's or receiver's authorities.
+  - id: 77B-U-2
+    description: Codes BENEFRES or ORDERRES identify the country of residence; use ISO 3166-1 alpha-2 country codes.
+  - id: 77B-U-3
+    description: Do not duplicate information already conveyed in other fields.
+- tag: 71A
+  name: Details of Charges
+  sequence: A
+  presence: conditional
+  presence_condition: See rules C4 and C9 for usage.
+  format: 3!a
+  codes_allowed_ref: lookups.charge_codes
+  validations:
+  - id: 71A-A-NR-1
+    type: network_rule
+    rule: charge_code_must_be_recognised
+    error_code: T08
+    message: Charges code must be one of BEN, OUR, or SHA.
+  usage_notes:
+  - id: 71A-A-U-1
+    description: Indicates who bears charges for all transactions in the file; these codes drive downstream processing.
+- tag: '36'
+  name: Exchange Rate
+  sequence: A
+  presence: conditional
+  presence_condition: See rule C6 for when a file-level exchange rate is required.
+  format: 12d
+  description: Exchange rate applied when converting all instructed amounts (field 33B) to transaction amounts (field 32B).
+  validations:
+  - id: 36-A-NR-1
+    type: network_rule
+    rule: amount_decimal_places_within_currency_precision
+    error_code: T40
+    message: Exchange rate fractional precision must not exceed the allowed number of digits.
+  - id: 36-A-NR-2
+    type: network_rule
+    rule: amount_decimal_comma_mandatory
+    error_code: T43
+    message: Exchange rate must include a decimal comma.
+  usage_notes:
+  - id: 36-A-U-1
+    description: Present when a currency conversion has been performed by the ordering customer or instructing institution.
+- tag: '21'
+  name: Transaction Reference
+  sequence: B
+  presence: mandatory
+  format: 16x
+  description: Unique reference for the individual transaction within this occurrence of sequence B.
+  validations:
+  - id: 21-NR-1
+    type: network_rule
+    rule: no_leading_or_trailing_slash_or_double_slash
+    error_code: T26
+    message: Field must not start or end with '/' and must not contain '//' anywhere in its contents.
+  usage_notes:
+  - id: 21-U-1
+    description: Together with field 20, this forms the transaction identification for queries, cancellations, and related
+      follow-ups.
+- tag: 32B
+  name: Transaction Amount
+  sequence: B
+  presence: mandatory
+  presence_condition: Referenced in rules C1, C2, and C6.
+  format: 3!a15d
+  description: Amount remitted by the sender for this transaction.
+  constraints:
+    currency: ISO4217
+  validations:
+  - id: 32B-NR-1
+    type: network_rule
+    rule: currency_must_be_valid_iso4217
+    error_code: T52
+    message: Currency must be a valid ISO 4217 currency code.
+  - id: 32B-NR-2
+    type: network_rule
+    rule: amount_integer_part_at_least_one_digit
+    error_code: C03
+    message: Amount must include at least one digit before the decimal comma.
+  - id: 32B-NR-3
+    type: network_rule
+    rule: amount_decimal_places_within_currency_precision
+    error_code: T40
+    message: Number of digits after the decimal comma must not exceed the precision allowed for the currency.
+  - id: 32B-NR-4
+    type: network_rule
+    rule: amount_decimal_comma_mandatory
+    error_code: T43
+    message: Amount must include a decimal comma.
+  - id: 32B-NR-5
+    type: network_rule
+    rule: currency_not_in_disallowed_commodities
+    error_code: C08
+    message: Commodity currency codes XAU, XAG, XPD, and XPT are not permitted in this field.
+  usage_notes:
+  - id: 32B-U-1
+    description: Represents the net amount when charges are OUR, or the instructed amount when charges are SHA or BEN (after
+      deducting sender charges if BEN).
+- tag: 50a
+  name: Ordering Customer
+  sequence: B
+  presence: conditional
+  presence_condition: See rule C3 for placement across sequences A and B.
+  description: Identifies the ordering customer for this transaction.
+  options_allowed:
+  - A
+  - F
+  - K
+  option_A:
+    label: Account / Identifier Code
+    format: '[/34x] 4!a2!a2!c[3!c]'
+    validations:
+    - id: 50aA-NR-1
+      type: network_rule
+      rule: identifier_code_must_be_valid_bic
+      error_code: T27
+      message: Identifier Code must be a valid BIC in the required format (4!a2!a2!c[3!c]).
+    - id: 50aA-NR-2
+      type: network_rule
+      rule: identifier_code_must_be_fin_destination
+      error_code: T28
+      message: Identifier Code must correspond to a valid FIN destination.
+    - id: 50aA-NR-3
+      type: network_rule
+      rule: identifier_code_branch_identifier_validity
+      error_code: T29
+      message: Identifier Code must contain a valid branch identifier, when present.
+    - id: 50aA-NR-4
+      type: network_rule
+      rule: identifier_code_non_connected_validity
+      error_code: T45
+      message: Identifier Code must not reference an invalid non-connected BIC.
+  option_F:
+    label: Party Identifier / Number, Name and Address
+    format: 35x 4*(1!n/33x)
+    party_identifier_formats:
+    - 35x
+    - 4!a/2!a/27x
+    name_and_address_line_format: 1!n/33x
+    line_number_lookup_ref: lookups.option_F_line_numbers
+    codes_allowed_ref: lookups.party_identifier_codes
+    validations:
+    - id: 50aF-NR-1
+      type: network_rule
+      rule: option_f_party_identifier_line_structure
+      error_code: T54
+      message: Party Identifier line must use 35x or 4!a/2!a/27x and each subsequent line must follow 1!n/33x.
+    - id: 50aF-NR-2
+      type: network_rule
+      rule: option_f_party_identifier_code_lookup
+      error_code: T55
+      message: When Party Identifier uses code/country/identifier format, the code must be one of the allowed values.
+    - id: 50aF-NR-3
+      type: network_rule
+      rule: option_f_party_identifier_country_iso
+      error_code: T73
+      message: When Party Identifier uses code/country/identifier format, the country code must be a valid ISO country code.
+    - id: 50aF-NR-4
+      type: network_rule
+      rule: option_f_first_name_address_line_is_1
+      error_code: T56
+      message: First Name/Address line must begin with number 1.
+    - id: 50aF-NR-5
+      type: network_rule
+      rule: option_f_numbers_in_ascending_order
+      error_code: T56
+      message: Numbered Name/Address lines must appear in ascending numerical order.
+    - id: 50aF-NR-6
+      type: network_rule
+      rule: option_f_requires_number_3_with_country
+      error_code: T56
+      message: At least one Name/Address line must use number 3 to provide country and town information.
+    - id: 50aF-NR-7
+      type: network_rule
+      rule: option_f_number_3_country_iso
+      error_code: T73
+      message: The first occurrence of number 3 must include a valid ISO country code.
+    - id: 50aF-NR-8
+      type: network_rule
+      rule: option_f_number_repeat_constraints
+      error_code: T56
+      message: "Numbers 1, 2, and 3 may repeat at most twice; numbers 4\u20138 must not repeat."
+    - id: 50aF-NR-9
+      type: network_rule
+      rule: option_f_numbers_4_and_5_pairing
+      error_code: T56
+      message: Number 4 must not appear without number 5, and number 5 must not appear without number 4.
+    - id: 50aF-NR-10
+      type: network_rule
+      rule: option_f_number_4_valid_date
+      error_code: T50
+      message: Number 4 must be followed by a valid date in YYYYMMDD not later than the sender's submission date.
+    - id: 50aF-NR-11
+      type: network_rule
+      rule: option_f_numbers_5_6_7_country_iso
+      error_code: T73
+      message: Numbers 5, 6, and 7 must include a valid ISO country code.
+    - id: 50aF-NR-12
+      type: network_rule
+      rule: option_f_numbers_5_6_7_details_required
+      error_code: T56
+      message: Numbers 5, 6, and 7 must be followed by '/' and additional identifying details.
+    - id: 50aF-NR-13
+      type: network_rule
+      rule: option_f_number_8_usage_constraints
+      error_code: T56
+      message: Number 8 may only continue identifiers provided under numbers 1, 6, or 7.
+  option_K:
+    label: Account / Name and Address
+    format: '[/34x] 4*35x'
+  usage_notes:
+  - id: 50a-B-U-1
+    description: Provide the ordering customer's account when known; option F follows the same numbering obligations as in
+      sequence A.
+  - id: 50a-B-U-2
+    description: Only include data for the ordering customer of this transaction occurrence.
+- tag: 52a
+  name: Ordering Institution
+  sequence: B
+  presence: conditional
+  presence_condition: See rule C5 for usage in STP variant.
+  description: Identifies the institution that instructed this transaction when different from the sender.
+  options_allowed:
+  - A
+  option_A:
+    label: Party Identifier / Identifier Code
+    format: '[/1!a][/34x] 4!a2!a2!c[3!c]'
+    national_clearing_codes_ref: lookups.national_clearing_codes
+    validations:
+    - id: 52aA-NR-1
+      type: network_rule
+      rule: identifier_code_must_be_valid_bic
+      error_code: T27
+      message: Identifier Code must be a valid BIC in the required format (4!a2!a2!c[3!c]).
+    - id: 52aA-NR-2
+      type: network_rule
+      rule: identifier_code_must_be_fin_destination
+      error_code: T28
+      message: Identifier Code must correspond to a valid FIN destination.
+    - id: 52aA-NR-3
+      type: network_rule
+      rule: identifier_code_branch_identifier_validity
+      error_code: T29
+      message: Identifier Code must contain a valid branch identifier, when present.
+    - id: 52aA-NR-4
+      type: network_rule
+      rule: identifier_code_non_connected_validity
+      error_code: T45
+      message: Identifier Code must not reference an invalid non-connected BIC.
+    - id: 52aA-NR-5
+      type: network_rule
+      rule: identifier_code_must_be_financial_institution
+      error_code: C05
+      message: Identifier Code must identify a registered financial institution BIC.
+  usage_notes:
+  - id: 52a-B-U-1
+    description: Option A is preferred; use option C for clearing-system identification when no BIC exists.
+- tag: 57a
+  name: Account With Institution
+  sequence: B
+  presence: optional
+  description: Identifies the financial institution servicing the beneficiary customer's account.
+  options_allowed:
+  - A
+  option_A:
+    label: Party Identifier / Identifier Code
+    format: '[/1!a][/34x] 4!a2!a2!c[3!c]'
+    national_clearing_codes_ref: lookups.national_clearing_codes
+    validations:
+    - id: 57aA-NR-1
+      type: network_rule
+      rule: identifier_code_must_be_valid_bic
+      error_code: T27
+      message: Identifier Code must be a valid BIC in the required format (4!a2!a2!c[3!c]).
+    - id: 57aA-NR-2
+      type: network_rule
+      rule: identifier_code_must_be_fin_destination
+      error_code: T28
+      message: Identifier Code must correspond to a valid FIN destination.
+    - id: 57aA-NR-3
+      type: network_rule
+      rule: identifier_code_branch_identifier_validity
+      error_code: T29
+      message: Identifier Code must contain a valid branch identifier, when present.
+    - id: 57aA-NR-4
+      type: network_rule
+      rule: identifier_code_non_connected_validity
+      error_code: T45
+      message: Identifier Code must not reference an invalid non-connected BIC.
+    - id: 57aA-NR-5
+      type: network_rule
+      rule: identifier_code_must_be_financial_institution
+      error_code: C05
+      message: Identifier Code must identify a registered financial institution BIC.
+  usage_notes:
+  - id: 57a-U-1
+    description: Include when funds must be routed through a specific account-with institution; if absent the receiver is
+      assumed to service the account.
+  presence_condition: Referenced in rule C11 (optional in STP).
+- tag: 59a
+  name: Beneficiary Customer
+  sequence: B
+  presence: mandatory
+  presence_condition: Referenced in rule C7.
+  options_allowed:
+  - ''
+  - A
+  - F
+  option_:
+    label: Account / Name and Address
+    format: '[/34x] 4*35x'
+  option_A:
+    label: Account / Identifier Code
+    format: '[/34x] 4!a2!a2!c[3!c]'
+    validations:
+    - id: 59aA-NR-1
+      type: network_rule
+      rule: identifier_code_must_be_valid_bic
+      error_code: T27
+      message: Identifier Code must be a valid BIC in the required format (4!a2!a2!c[3!c]).
+    - id: 59aA-NR-2
+      type: network_rule
+      rule: identifier_code_must_be_fin_destination
+      error_code: T28
+      message: Identifier Code must correspond to a valid FIN destination.
+    - id: 59aA-NR-3
+      type: network_rule
+      rule: identifier_code_branch_identifier_validity
+      error_code: T29
+      message: Identifier Code must contain a valid branch identifier, when present.
+    - id: 59aA-NR-4
+      type: network_rule
+      rule: identifier_code_non_connected_validity
+      error_code: T45
+      message: Identifier Code must not reference an invalid non-connected BIC.
+  option_F:
+    label: Account / Number, Name and Address
+    format: '[/34x] 4*(1!n/33x)'
+    line_number_lookup_ref: lookups.beneficiary_option_F_line_numbers
+    validations:
+    - id: 59aF-NR-1
+      type: network_rule
+      rule: beneficiary_option_f_first_line_is_1
+      error_code: T56
+      message: First Number/Name and Address line must begin with number 1.
+    - id: 59aF-NR-2
+      type: network_rule
+      rule: beneficiary_option_f_numbers_in_ascending_order
+      error_code: T56
+      message: Number/Name and Address lines must appear in ascending numerical order.
+    - id: 59aF-NR-3
+      type: network_rule
+      rule: beneficiary_option_f_requires_number_3
+      error_code: T56
+      message: At least one line must use number 3 for country and town information.
+    - id: 59aF-NR-4
+      type: network_rule
+      rule: beneficiary_option_f_only_allows_numbers_1_to_3
+      error_code: T56
+      message: Only numbers 1, 2, and 3 may be used in Number/Name and Address lines.
+    - id: 59aF-NR-5
+      type: network_rule
+      rule: beneficiary_option_f_number_repeat_constraints
+      error_code: T56
+      message: Numbers 1, 2, and 3 may each appear at most twice.
+    - id: 59aF-NR-6
+      type: network_rule
+      rule: beneficiary_option_f_number_3_country_iso
+      error_code: T73
+      message: The first occurrence of number 3 must include a valid ISO country code.
+  usage_notes:
+  - id: 59a-U-1
+    description: Provide at least the beneficiary customer's name or BIC; include the account number when available.
+  - id: 59a-U-2
+    description: When option F uses number 2 (address line), ensure the first occurrence of number 3 includes the town within
+      additional details.
+- tag: '70'
+  name: Remittance Information
+  sequence: B
+  presence: optional
+  format: 4*35x
+  codes_allowed_ref: lookups.remittance_codes
+  description: Provides details of the transaction for the beneficiary customer.
+  validations:
+  - id: 70-NR-1
+    type: network_rule
+    rule: remittance_info_codes_must_be_recognised
+    error_code: T47
+    message: Codes enclosed in '/' must be one of INV, IPI, RFB, ROC, or TSU.
+  usage_notes:
+  - id: 70-U-1
+    description: Multiple references may be separated by '//'; do not repeat the same code within a single occurrence.
+  - id: 70-U-2
+    description: When an ISO 11649 Creditor Reference is present, place it alone on the first line.
+  - id: 70-U-3
+    description: TSU references follow the pattern /TSU/<transaction>/<invoice>/<amount>.
+- tag: 26T
+  name: Transaction Type Code
+  sequence: B
+  presence: conditional
+  presence_condition: See rule C5 for when transaction type details are required.
+  format: 3!c
+  description: Identifies the nature or purpose of the individual transaction.
+  usage_notes:
+  - id: 26T-B-U-1
+    description: Use EUROSTAT balance of payments codes or other bilaterally agreed codes.
+- tag: 77B
+  name: Regulatory Reporting
+  sequence: B
+  presence: conditional
+  presence_condition: See rule C5 for regulatory reporting requirements.
+  format: 3*35x
+  codes_allowed_ref: lookups.regulatory_reporting_codes
+  validation_notes:
+  - Line 1 may follow the pattern /<Code>/<Country Code>[//additional information]; subsequent lines may continue additional
+    information prefixed with '//'.
+  usage_notes:
+  - id: 77B-B-U-1
+    description: Supply statutory or regulatory details demanded for this transaction.
+  - id: 77B-B-U-2
+    description: Use ISO 3166-1 alpha-2 country codes when reporting customer residence with BENEFRES or ORDERRES.
+- tag: 33B
+  name: Currency/Instructed Amount
+  sequence: B
+  presence: conditional
+  presence_condition: See rules C6, C8, and C10 for usage.
+  format: 3!a15d
+  description: Currency and amount originally instructed by the ordering customer.
+  constraints:
+    currency: ISO4217
+  validations:
+  - id: 33B-NR-1
+    type: network_rule
+    rule: currency_must_be_valid_iso4217
+    error_code: T52
+    message: Currency must be a valid ISO 4217 currency code.
+  - id: 33B-NR-2
+    type: network_rule
+    rule: amount_integer_part_at_least_one_digit
+    error_code: C03
+    message: Amount must include at least one digit before the decimal comma.
+  - id: 33B-NR-3
+    type: network_rule
+    rule: amount_decimal_places_within_currency_precision
+    error_code: T40
+    message: Number of digits after the decimal comma must not exceed the precision allowed for the currency.
+  - id: 33B-NR-4
+    type: network_rule
+    rule: amount_decimal_comma_mandatory
+    error_code: T43
+    message: Amount must include a decimal comma.
+  usage_notes:
+  - id: 33B-U-1
+    description: Forward unchanged along the transaction chain and populate whenever a currency conversion or exchange has
+      been performed.
+- tag: 71A
+  name: Details of Charges
+  sequence: B
+  presence: conditional
+  presence_condition: See rules C4 and C9 for usage per transaction.
+  format: 3!a
+  codes_allowed_ref: lookups.charge_codes
+  validations:
+  - id: 71A-B-NR-1
+    type: network_rule
+    rule: charge_code_must_be_recognised
+    error_code: T08
+    message: Charges code must be one of BEN, OUR, or SHA.
+  usage_notes:
+  - id: 71A-B-U-1
+    description: Determines how charges are borne for this transaction and drives interpretation of amounts in fields 32B,
+      71F, and 71G.
+- tag: 71F
+  name: Sender's Charges
+  sequence: B
+  presence: conditional
+  presence_condition: See rules C9 and C10 for when sender charges must be detailed.
+  format: 3!a15d
+  description: Currency and amount of charges deducted by the sender or previous banks.
+  validations:
+  - id: 71F-NR-1
+    type: network_rule
+    rule: currency_must_be_valid_iso4217
+    error_code: T52
+    message: Currency must be a valid ISO 4217 currency code.
+  - id: 71F-NR-2
+    type: network_rule
+    rule: amount_integer_part_at_least_one_digit
+    error_code: C03
+    message: Amount must include at least one digit before the decimal comma.
+  - id: 71F-NR-3
+    type: network_rule
+    rule: amount_decimal_places_within_currency_precision
+    error_code: T40
+    message: Number of digits after the decimal comma must not exceed the precision allowed for the currency.
+  - id: 71F-NR-4
+    type: network_rule
+    rule: amount_decimal_comma_mandatory
+    error_code: T43
+    message: Amount must include a decimal comma.
+  usage_notes:
+  - id: 71F-U-1
+    description: List charges in deduction order; the final occurrence represents the sender's own charges.
+- tag: 71G
+  name: Receiver's Charges
+  sequence: B
+  presence: conditional
+  presence_condition: See rules C9, C10, and C11 for usage.
+  format: 3!a15d
+  description: Currency and amount of charges due to the receiver for this transaction.
+  validations:
+  - id: 71G-NR-1
+    type: network_rule
+    rule: currency_must_be_valid_iso4217
+    error_code: T52
+    message: Currency must be a valid ISO 4217 currency code.
+  - id: 71G-NR-2
+    type: network_rule
+    rule: amount_integer_part_at_least_one_digit
+    error_code: C03
+    message: Amount must include at least one digit before the decimal comma.
+  - id: 71G-NR-3
+    type: network_rule
+    rule: amount_decimal_places_within_currency_precision
+    error_code: T40
+    message: Number of digits after the decimal comma must not exceed the precision allowed for the currency.
+  - id: 71G-NR-4
+    type: network_rule
+    rule: amount_decimal_comma_mandatory
+    error_code: T43
+    message: Amount must include a decimal comma.
+  usage_notes:
+  - id: 71G-U-1
+    description: Provided for accounting purposes to inform the receiver of charges due for this transaction.
+- tag: '36'
+  name: Exchange Rate
+  sequence: B
+  presence: conditional
+  presence_condition: See rule C6 for when an exchange rate per transaction is required.
+  format: 12d
+  description: Exchange rate applied when converting field 33B to field 32B for this transaction.
+  validations:
+  - id: 36-B-NR-1
+    type: network_rule
+    rule: amount_decimal_places_within_currency_precision
+    error_code: T40
+    message: Exchange rate fractional precision must not exceed the allowed number of digits.
+  - id: 36-B-NR-2
+    type: network_rule
+    rule: amount_decimal_comma_mandatory
+    error_code: T43
+    message: Exchange rate must include a decimal comma.
+  usage_notes:
+  - id: 36-B-U-1
+    description: Present whenever a currency conversion is performed on the sender's side for this transaction.
+- tag: 32A
+  name: Value Date, Currency Code, Amount
+  sequence: C
+  presence: mandatory
+  presence_condition: Referenced in rule C2.
+  format: 6!n3!a15d
+  description: Specifies value date, settlement currency, and settlement amount at interbank level.
+  constraints:
+    currency: ISO4217
+  validations:
+  - id: 32A-NR-1
+    type: network_rule
+    rule: must_be_valid_date_yymmdd
+    error_code: T50
+    message: Date must be a valid YYMMDD calendar date.
+  - id: 32A-NR-2
+    type: network_rule
+    rule: currency_must_be_valid_iso4217
+    error_code: T52
+    message: Currency must be a valid ISO 4217 currency code.
+  - id: 32A-NR-3
+    type: network_rule
+    rule: amount_integer_part_at_least_one_digit
+    error_code: C03
+    message: Amount must include at least one digit before the decimal comma.
+  - id: 32A-NR-4
+    type: network_rule
+    rule: amount_decimal_places_within_currency_precision
+    error_code: T40
+    message: Number of digits after the decimal comma must not exceed the precision allowed for the currency.
+  - id: 32A-NR-5
+    type: network_rule
+    rule: amount_decimal_comma_mandatory
+    error_code: T43
+    message: Amount must include a decimal comma.
+  - id: 32A-NR-6
+    type: network_rule
+    rule: currency_not_in_disallowed_commodities
+    error_code: C08
+    message: Commodity currency codes XAU, XAG, XPD, and XPT are not permitted in this field.
+  usage_notes:
+  - id: 32A-U-1
+    description: For OUR payments this equals 19 + 71G; for SHA/BEN payments it equals the total of all 32B amounts.
+- tag: '19'
+  name: Sum of Amounts
+  sequence: C
+  presence: optional
+  presence_condition: Referenced in rule C1.
+  format: 17d
+  description: Sum of all transaction amounts (fields 32B) across occurrences of sequence B.
+  validations:
+  - id: 19-NR-1
+    type: network_rule
+    rule: amount_integer_part_at_least_one_digit
+    error_code: C03
+    message: Amount must include at least one digit before the decimal comma.
+  - id: 19-NR-2
+    type: network_rule
+    rule: amount_decimal_places_within_currency_precision
+    error_code: T40
+    message: Number of digits after the decimal comma must not exceed the precision allowed for the currency in field 32A.
+  - id: 19-NR-3
+    type: network_rule
+    rule: amount_decimal_comma_mandatory
+    error_code: T43
+    message: Amount must include a decimal comma.
+  usage_notes:
+  - id: 19-U-1
+    description: Use only when the sum of transaction amounts differs from the settlement amount in field 32A (for example
+      when charges are OUR).
+- tag: 71G
+  name: Receiver's Charges
+  sequence: B
+  presence: conditional
+  presence_condition: See rules C9, C10, and C11 for usage.
+  format: 3!a15d
+  description: Currency and amount of charges due to the receiver for this transaction.
+  validations:
+  - id: 71G-NR-1
+    type: network_rule
+    rule: currency_must_be_valid_iso4217
+    error_code: T52
+    message: Currency must be a valid ISO 4217 currency code.
+  - id: 71G-NR-2
+    type: network_rule
+    rule: amount_integer_part_at_least_one_digit
+    error_code: C03
+    message: Amount must include at least one digit before the decimal comma.
+  - id: 71G-NR-3
+    type: network_rule
+    rule: amount_decimal_places_within_currency_precision
+    error_code: T40
+    message: Number of digits after the decimal comma must not exceed the precision allowed for the currency.
+  - id: 71G-NR-4
+    type: network_rule
+    rule: amount_decimal_comma_mandatory
+    error_code: T43
+    message: Amount must include a decimal comma.
+  usage_notes:
+  - id: 71G-U-1
+    description: Provided for accounting purposes to inform the receiver of charges due for this transaction.
+- tag: 13C
+  name: Time Indication
+  sequence: C
+  presence: optional
+  format: /8c/4!n1!x4!n
+  description: Provides processing time indications such as CLS funding deadlines.
+  usage_notes:
+  - id: 13C-U-1
+    description: The time zone is expressed as the offset against UTC in the final component.
+  validations:
+  - id: 13C-NR-1
+    type: network_rule
+    rule: time_indication_must_be_valid_hhmm
+    error_code: T38
+    message: Time indication must be a valid HHMM value.
+  - id: 13C-NR-2
+    type: network_rule
+    rule: time_offset_within_utc_range
+    error_code: T16
+    message: "Time offset must be within the range \xB113:00 (HH 00-13, MM 00-59)."
+  - id: 13C-NR-3
+    type: network_rule
+    rule: time_indication_sign_must_be_valid
+    error_code: T15
+    message: Sign must be '+' or '-' when an offset is provided.
+- tag: 53a
+  name: Sender's Correspondent
+  sequence: C
+  presence: optional
+  description: Identifies the account or branch through which the sender will reimburse the receiver.
+  options_allowed:
+  - A
+  - C
+  option_A:
+    label: Party Identifier / Identifier Code
+    format: '[/1!a][/34x] 4!a2!a2!c[3!c]'
+    national_clearing_codes_ref: lookups.national_clearing_codes
+    validations:
+    - id: 53aA-NR-1
+      type: network_rule
+      rule: identifier_code_must_be_valid_bic
+      error_code: T27
+      message: Identifier Code must be a valid BIC in the required format (4!a2!a2!c[3!c]).
+    - id: 53aA-NR-2
+      type: network_rule
+      rule: identifier_code_must_be_fin_destination
+      error_code: T28
+      message: Identifier Code must correspond to a valid FIN destination.
+    - id: 53aA-NR-3
+      type: network_rule
+      rule: identifier_code_branch_identifier_validity
+      error_code: T29
+      message: Identifier Code must contain a valid branch identifier, when present.
+    - id: 53aA-NR-4
+      type: network_rule
+      rule: identifier_code_non_connected_validity
+      error_code: T45
+      message: Identifier Code must not reference an invalid non-connected BIC.
+    - id: 53aA-NR-5
+      type: network_rule
+      rule: identifier_code_must_be_financial_institution
+      error_code: C05
+      message: Identifier Code must identify a registered financial institution BIC.
+  option_C:
+    label: Account
+    format: /34x
+  usage_notes:
+  - id: 53a-U-1
+    description: Absence implies the bilaterally agreed account is used for settlement; option A is preferred.
+  - id: 53a-U-2
+    description: If present, ensure corresponding cover messages are sent as required by the reimbursement arrangement.
+- tag: 54A
+  name: Receiver's Correspondent
+  sequence: C
+  presence: optional
+  format: '[/1!a][/34x] 4!a2!a2!c[3!c]'
+  description: Identifies the receiver's branch or another institution where funds will be made available to the receiver.
+  validations:
+  - id: 54A-NR-1
+    type: network_rule
+    rule: identifier_code_must_be_valid_bic
+    error_code: T27
+    message: Identifier Code must be a valid BIC in the required format (4!a2!a2!c[3!c]).
+  - id: 54A-NR-2
+    type: network_rule
+    rule: identifier_code_must_be_fin_destination
+    error_code: T28
+    message: Identifier Code must correspond to a valid FIN destination.
+  - id: 54A-NR-3
+    type: network_rule
+    rule: identifier_code_branch_identifier_validity
+    error_code: T29
+    message: Identifier Code must contain a valid branch identifier, when present.
+  - id: 54A-NR-4
+    type: network_rule
+    rule: identifier_code_non_connected_validity
+    error_code: T45
+    message: Identifier Code must not reference an invalid non-connected BIC.
+  - id: 54A-NR-5
+    type: network_rule
+    rule: identifier_code_must_be_financial_institution
+    error_code: C05
+    message: Identifier Code must identify a registered financial institution BIC.
+  usage_notes:
+  - id: 54A-U-1
+    description: Absence of fields 53a and 54A implies that the direct account relationship between sender and receiver will
+      be used.
+  - id: 54A-U-2
+    description: Do not specify a sender's branch in this field; coordinate with field 53a when both are present.
+- tag: '72'
+  name: Sender to Receiver Information
+  sequence: C
+  presence: optional
+  format: 6*35x
+  description: Conveys additional instructions to the receiver.
+  validations:
+  - id: 72-NR-1
+    type: network_rule
+    rule: sender_to_receiver_reject_return_guideline
+    error_code: T80
+    message: If /REJT/ or /RETN/ is used, the Payments Reject/Return Guidelines must be followed.
+  usage_notes:
+  - id: 72-U-1
+    description: Use only after bilateral agreement and in encoded form to avoid processing delays.

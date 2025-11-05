@@ -23,6 +23,9 @@ coverage/
 .DS_Store
 Thumbs.db
 
+# Binary documents
+*.docx
+
 # Docker
 *.log
 docker-data/
@@ -34,3 +37,8 @@ terraform.tfstate*
 
 # Helm
 charts/**/charts/
+gitconnect
+gitconnect.pub
+*.pem
+*.key
+*.env

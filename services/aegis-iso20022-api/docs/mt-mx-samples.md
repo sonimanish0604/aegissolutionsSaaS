@@ -1,0 +1,181 @@
+# MT→MX Sample Messages
+
+Reference curl payloads for the message types currently wired up in this service. Each request posts to `http://127.0.0.1:8080/translate` with the MT payload embedded as JSON.
+
+---
+
+## MT101 → pain.001.001.12
+
+```
+curl -s http://127.0.0.1:8080/translate \
+  -H "Content-Type: application/json" \
+  -d @- <<'JSON'
+{
+  "mt_raw": "{1:F01BANKDEFFXXXX0000000000}{2:I101BANKUS33XXXXN}{4:\n:20:REF20251022A\n:28D:1/1\n:50H:/DE44500105175407324931\nMAX MUSTERMANN\n:30:20251022\n:21:INV-5568\n:32B:USD12345,67\n:57A:BANKUS33XXX\n:59:/US12300099900011122\nJOHN DOE\n:70:/INV/5568 NET30\n:71A:SHA\n-}"
+}
+JSON
+```
+
+---
+
+## MT103 → pacs.008.001.13
+
+```
+curl -s http://127.0.0.1:8080/translate \
+  -H "Content-Type: application/json" \
+  -d @- <<'JSON'
+{
+  "mt_raw": "{1:F01AAAAUS33XXXX0000000000}{2:I103BBBBNZ2XXXXN}{4:\n:20:REF123456\n:23B:CRED\n:32A:250921USD12345,67\n:50K:/123456789\nJOHN DOE\n1 MAIN STREET\nNEW YORK US\n:59:/GB29NWBK60161331926819\nJANE SMITH\n:70:Invoice 9981\n:71A:SHA\n-}"
+}
+JSON
+```
+
+---
+
+## MT102 → pacs.008.001.13
+
+```
+curl -s http://127.0.0.1:8080/translate \
+  -H "Content-Type: application/json" \
+  -d @- <<'JSON'
+{
+  "mt_raw": "{1:F01BNPAFRPPAXXX0000000000}{2:I102CITIUS33XXXXN}{4:\n:20:BATCH20251022\n:21R:123456\n:32A:251022USD56789,00\n:50K:/FR7630001007941234567890185\nSOCIETE ABC\n:59:/US12300099900022233\nACME INC\n:71A:SHA\n-}"
+}
+JSON
+```
+
+---
+
+## MT102STP → pacs.008.001.13
+
+```
+curl -s http://127.0.0.1:8080/translate \
+  -H "Content-Type: application/json" \
+  -d @- <<'JSON'
+{
+  "mt_raw": "{1:F01BNPAFRPPAXXX0000000000}{2:I102CITIUS33XXXXN}{3:{119:STP}}{4:\n:20:BATCH20251022\n:32A:251022USD56789,00\n:50A:BNPAFRPPXXX\n:59A:CITIUS33XXX\n:71A:SHA\n-}"
+}
+JSON
+```
+
+---
+
+## MT202 → pacs.009.001.12
+
+```
+curl -s http://127.0.0.1:8080/translate \
+  -H "Content-Type: application/json" \
+  -d @- <<'JSON'
+{
+  "mt_raw": "{1:F01CHASGB2LXXXX0000000000}{2:O2020000000000 CHASDEFXXXXX00000000000101010000N}{3:{111:001}{121: 00000000-0000-4000-8000-000000000000}}{4:\n:20:P5607186 298\n:21:ABCD/1234567\n:32A:250921USD12345,67\n:50K:/123456789\nJOHN DOE\n1 MAIN STREET\nNEW YORK US\n:59:/GB29NWBK60161331926819\nJANE SMITH\n:70:Invoice 9981\n:71A:SHA\n-}"
+}
+JSON
+```
+
+---
+
+## MT202COV → pacs.009.001.12
+
+```
+curl -s http://127.0.0.1:8080/translate \
+  -H "Content-Type: application/json" \
+  -d @- <<'JSON'
+{
+  "mt_raw": "{1:F01CHASGB2LXXXX0000000000}{2:O2020000000000 CHASDEFXXXXX00000000000101010000N}{3:{111:001}{121: 00000000-0000-4000-8000-000000000000}}{4:\n:20:P5607186 298\n:21:ABCD/1234567\n:32A:200212EUR39,36\n:57A:DEUTDEFF\n:58A:DEUTUS33\n:72:/BNF/Testing of Translation of MT202 into a pacs.009 Core\n:50F:/123456\n1/SAMPLE_DB_NAME LTD\n2/SAMPLE_DB_STREET,123\n3/US/SAMPLE_DB_CITY SAMPLE_Z1P_C0D3\n:57A:DEUTUS33\n:59:/99009900\nSAMPLE_CR_NAME SAMPLE_CR_STREET 456 SAMPLE_CR_CITY SAMPLE_Z1P_C0D3 US\n:70:/ROC/1234567//\nRemittance Information for SAMPLE_CR_NAME\n-}"
+}
+JSON
+```
+
+---
+
+## MT210 → camt.057.001.08
+
+```
+curl -s http://127.0.0.1:8080/translate \
+  -H "Content-Type: application/json" \
+  -d @- <<'JSON'
+{
+  "mt_raw": "{1:F01KREDBEBBXXXX0000000000}{2:O2100000991231 RABOBE22XXXX00000000009912310000N}{3:{121: 761d46fb-3734-4953-a160-afa9d8101212}}{4:4:\n:20:45003ZUHIH\n:25:RAB02564185-365\n:30:201201\n:21:NTFCTNITEM01\n:32B:EUR2000000,\n:50: SAMPLE_DB_NAME LTD\nSAMPLE_DB_STREET,123 B\n:56A:CBPXBE99\n-}{5:{CHK:BC59D414F788}}"
+}
+JSON
+```
+
+---
+
+## MT192 → camt.056.001.11
+
+```
+curl -s http://127.0.0.1:8080/translate \
+  -H "Content-Type: application/json" \
+  -d @- <<'JSON'
+{
+  "mt_raw": "{1:F01NDEAFIHHXXXX0000000000}{2:O1920000991231 RBOSGB2LXXXX00000000009912310000N}{3:{121: 8a562c67-ca16-48ba-b074-65581be6f001}}{4:\n:20:CSE-001\n:21:pacs8bizmsgidr01\n:11S:103\n201217\n:79:/AM09/\n/UETR/8a562c67-ca16-48ba-b074-65581be6f001\n:32A:210217EUR1500000,\n-}{5:{CHK:A8D90896761B}}"
+}
+JSON
+```
+
+---
+
+## MT195 Variants
+
+### Default (Additional Payment Information → camt.028.001.12)
+
+```
+curl -s http://127.0.0.1:8080/translate \
+  -H "Content-Type: application/json" \
+  -d @- <<'JSON'
+{
+  "mt_raw": "{1:F01BANKUS33AXXX0000000000}{2:I195BANKDEFFXXXXN}{4:\n:20:QRY20251022\n:21:TRX10320251020\n:11S:251022\n:32B:USD10000,\n:50K:/123456789\nJOHN DOE\n123 MAIN ST\nNEW YORK NY\n:59:/987654321\nACME CORP\n456 INDUSTRY RD\nBERLIN\n:72:/QUERY/PLEASE CONFIRM RECEIPT OF MT103 TRX10320251020\n-}"
+}
+JSON
+```
+
+Change `:72:` to alter routing:
+
+- `/QUERY/UNABLE TO APPLY …` → camt.026.001.10
+- `/QUERY/CLAIM NON RECEIPT …` → camt.027.001.10
+- `/QUERY/REQUEST FOR DUPLICATE …` → camt.033.001.07
+
+---
+
+## MT196 → camt.029 / camt.111
+
+`MT196` answers are routed according to the content of field `:76:`:
+
+- If the narrative contains cancellation keywords (`CANCEL`, `CNCL`, `RJCR`, `PDCR`, `ACCR`) the engine emits **camt.029.001.13** (`ResolutionOfInvestigationV13`). The XML confirms the cancellation with `Sts/Conf`, and the free-form reason text is preserved inside `SplmtryData/Envlp/Cntt`.
+- Otherwise the message is treated as a response to an investigation/query and converted into **camt.111.001.02** (`InvestigationResponseV02`), carrying the answer inside `InvestigationData/RspnData/RspnNrrtv`.
+
+Both variants reuse the caller's `:20:` as the message identifier and `:21:` as the original reference. When RJCR/PDCR is reported, field `:76:` must also contain one of the SWIFT reason codes (`AC04`, `AGNT`, `AM04`, `ARDT`, `ARPL`, `CUST`, `INDM`, `LEGL`, `NOAS`, `NOOR`, `PTNA`, `RQDA`); the pre-validator enforces this before translation.
+
+Sample payloads live in `tests/category1_samples.py` entries `MT196-CANCEL` and `MT196-QUERY`, which can be posted to `/translate` in the same way as the other examples below.
+
+---
+
+## MT202 (cover-style) → pacs.009.001.12
+
+```
+curl -s http://127.0.0.1:8080/translate \
+  -H "Content-Type: application/json" \
+  -d @- <<'JSON'
+{
+  "mt_raw": "{1:F01CHASGB2LXXXX0000000000}{2:I202BBBBUS33XXXXN}{4:\n:20:P5607186 298\n:21:ABCD/1234567\n:32A:250921USD12345,67\n:50K:/123456789\nJOHN DOE\n1 MAIN STREET\nNEW YORK US\n:59:/GB29NWBK60161331926819\nJANE SMITH\n:70:Invoice 9981\n:71A:SHA\n-}"
+}
+JSON
+```
+
+> Adjust host/port if the API is exposed elsewhere.
+
+
+### Generating reports
+
+```bash
+python scripts/generate_category1_mx_report.py
+```
+
+To generate a comparison report that bypasses MT prevalidation (the column will show `NOT ENABLED`), run:
+
+```bash
+python scripts/generate_category1_mx_report.py \
+  --skip-prevalidation \
+  --output-prefix category1MXtransform_noPreval
+```

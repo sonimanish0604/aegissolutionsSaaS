@@ -1,0 +1,36 @@
+# venv & python junk
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+
+# local dev and tool caches
+.cache/
+.mypy_cache/
+.pytest_cache/
+.coverage
+dist/
+build/
+
+# editor/OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# generated artifacts
+iso-bootstrap/out/
+# Keep critical mapping assets under version control
+# Patterns left empty intentionally so *.json mappings stay tracked
+# logs and tmp remain ignored for runtime output
+logs/
+tmp/
+
+# big binaries (kept out of git)
+*.pdf
+*.zip
+*.xsd
+*.xslt
+*.docx
