@@ -73,7 +73,8 @@ jobs:
             @semantic-release/git@10 \
             @semantic-release/github@10 \
             @semantic-release/commit-analyzer@13 \
-            @semantic-release/release-notes-generator@13
+            @semantic-release/release-notes-generator@13 \
+            conventional-changelog-conventionalcommits@7
 
       - name: Configure Git user
         run: |
