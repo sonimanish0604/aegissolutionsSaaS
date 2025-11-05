@@ -1,0 +1,149 @@
+name: Audit AWS Terraform
+
+on:
+  push:
+    branches:
+      - testing
+      - staging
+      - main
+    paths:
+      - "marketplace-adapters/aws/**"
+      - ".github/workflows/audit-aws-terraform.yml"
+  pull_request:
+    branches:
+      - testing
+      - staging
+      - main
+    paths:
+      - "marketplace-adapters/aws/**"
+      - ".github/workflows/audit-aws-terraform.yml"
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment to target (testing|staging|production)"
+        required: true
+        default: "testing"
+        type: choice
+        options:
+          - testing
+          - staging
+          - production
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  TF_WORKING_DIR: marketplace-adapters/aws/testing
+  AWS_DEFAULT_REGION: us-east-1
+
+jobs:
+  terraform:
+    name: Terraform Plan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Resolve deployment target
+        id: target
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          DISPATCH_ENV: ${{ github.event.inputs.environment }}
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+          GITHUB_REF: ${{ github.ref }}
+          TESTING_ROLE_ARN: ${{ secrets.AWS_TESTING_DEPLOY_ROLE_ARN }}
+          STAGING_ROLE_ARN: ${{ secrets.AWS_STAGING_DEPLOY_ROLE_ARN }}
+          PRODUCTION_ROLE_ARN: ${{ secrets.AWS_PRODUCTION_DEPLOY_ROLE_ARN }}
+        run: |
+          set -euo pipefail
+
+          target="${DISPATCH_ENV}"
+          if [ "${EVENT_NAME}" = "pull_request" ]; then
+            target="${BASE_REF}"
+          elif [ "${EVENT_NAME}" = "push" ]; then
+            target="${GITHUB_REF##*/}"
+          fi
+
+          case "${target}" in
+            testing)
+              env_name="testing"
+              role_arn="${TESTING_ROLE_ARN}"
+              ;;
+            staging)
+              env_name="staging"
+              role_arn="${STAGING_ROLE_ARN}"
+              ;;
+            production|main)
+              env_name="production"
+              role_arn="${PRODUCTION_ROLE_ARN}"
+              ;;
+            *)
+              echo "Unsupported branch/environment '${target}'" >&2
+              exit 1
+              ;;
+          esac
+
+          if [ -z "${role_arn}" ]; then
+            echo "Missing AWS role ARN secret for environment '${env_name}'." >&2
+            exit 1
+          fi
+
+          echo "environment=${env_name}" >> "$GITHUB_OUTPUT"
+          echo "role_arn=${role_arn}" >> "$GITHUB_OUTPUT"
+          echo "TF_VAR_environment=${env_name}" >> "$GITHUB_ENV"
+        shell: bash
+
+      - name: Debug OIDC subject
+        shell: bash
+        env:
+          GH_AUDIENCE: sts.amazonaws.com
+        run: |
+          set -euo pipefail
+          resp="$(curl -sS -H "Authorization: Bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" \
+            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=${GH_AUDIENCE}")"
+          echo "Raw ID token response:"
+          echo "$resp"
+          token="$(echo "$resp" | jq -r '.value')"
+          python - "$token" <<'PY'
+import base64
+import json
+import sys
+token = sys.argv[1]
+parts = token.split(".")
+if len(parts) != 3:
+    print("Unexpected token shape", file=sys.stderr)
+    print(token, file=sys.stderr)
+    sys.exit(1)
+payload = parts[1] + "=" * (-len(parts[1]) % 4)
+decoded = json.loads(base64.urlsafe_b64decode(payload.encode()))
+print(json.dumps(decoded, indent=2))
+PY
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ steps.target.outputs.role_arn }}
+          aws-region: ${{ env.AWS_DEFAULT_REGION }}
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_wrapper: false
+
+      - name: Terraform Init
+        run: terraform -chdir="${TF_WORKING_DIR}" init -input=false
+
+      - name: Terraform Validate
+        run: terraform -chdir="${TF_WORKING_DIR}" validate
+
+      - name: Terraform Plan
+        run: terraform -chdir="${TF_WORKING_DIR}" plan -input=false -lock=false -out="plan-${{ steps.target.outputs.environment }}.tfplan"
+
+      - name: Upload plan artifact
+        if: success() || failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-plan-${{ steps.target.outputs.environment }}
+          path: "${{ env.TF_WORKING_DIR }}/plan-${{ steps.target.outputs.environment }}.tfplan"

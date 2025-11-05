@@ -1,0 +1,95 @@
+{
+  "meta": {
+    "template_version": "1.0.0",
+    "use_case": "MT195_TO_CAMT026",
+    "source": { "standard": "SWIFT_MT", "message_type": "MT195", "variant": "FIN" },
+    "target": { "standard": "ISO20022", "message": "camt.026", "schema_id": "camt.026.001.10" },
+    "mx_root": "UblToApply",
+    "created_by": "aegis",
+    "created_at": "2025-10-22T00:00:00Z"
+  },
+  "namespaces": {
+    "mx": "urn:iso:std:iso:20022:tech:xsd:camt.026.001.10"
+  },
+
+  "defaults": {},
+
+  "blocks": [
+    {
+      "id": "assignment",
+      "mappings": [
+        { "source": "20", "target": "Assgnmt/Id" },
+        { "target": "Assgnmt/Assgnr/Agt/FinInstnId/Othr/Id", "value": "NOTPROVIDED" },
+        { "target": "Assgnmt/Assgne/Agt/FinInstnId/Othr/Id", "value": "NOTPROVIDED" },
+        { "target": "Assgnmt/CreDtTm", "value": null, "transform": ["now"] }
+      ]
+    },
+    {
+      "id": "underlying_intrbk",
+      "target_root": "Undrlyg/IntrBk",
+      "mappings": [
+        { "source": "21", "target": "OrgnlGrpInf/OrgnlMsgId" },
+        { "source": "21", "target": "OrgnlGrpInf/OrgnlMsgNmId" },
+        { "source": "21", "target": "OrgnlTxId" },
+        {
+          "source": "72",
+          "target": "OrgnlUETR",
+          "transform": { "fn": "regex_extract", "args": { "pattern": "/UETR/([A-Fa-f0-9-]{36})", "group": 1 } }
+        },
+        {
+          "source": "32B",
+          "target": "OrgnlIntrBkSttlmAmt",
+          "transform": [
+            { "fn": "regex_extract", "args": { "pattern": "^([A-Z]{3})([0-9.,]+)", "group": 2 } },
+            { "fn": "to_decimal" }
+          ]
+        },
+        {
+          "source": "32B",
+          "target": "OrgnlIntrBkSttlmAmt/@Ccy",
+          "transform": { "fn": "regex_extract", "args": { "pattern": "^([A-Z]{3})", "group": 1 } }
+        },
+        {
+          "source": "21",
+          "target": "OrgnlIntrBkSttlmDt",
+          "transform": [
+            { "fn": "regex_extract", "args": { "pattern": "(\\d{8})", "group": 1 } },
+            { "fn": "date_parse", "args": { "format": "%Y%m%d" } }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "justification",
+      "mappings": [
+        { "target": "Justfn/AnyInf", "value": "true" }
+      ]
+    }
+  ],
+
+  "validations": [
+    { "path": "Assgnmt/Id", "required": true },
+    { "path": "Assgnmt/Assgnr/Agt/FinInstnId/Othr/Id", "required": true },
+    { "path": "Assgnmt/Assgne/Agt/FinInstnId/Othr/Id", "required": true },
+    { "path": "Assgnmt/CreDtTm", "required": true },
+    { "path": "Undrlyg/IntrBk/OrgnlGrpInf/OrgnlMsgId", "required": true },
+    { "path": "Undrlyg/IntrBk/OrgnlGrpInf/OrgnlMsgNmId", "required": true },
+    { "path": "Undrlyg/IntrBk/OrgnlTxId", "required": true },
+    { "path": "Undrlyg/IntrBk/OrgnlIntrBkSttlmAmt", "required": true },
+    { "path": "Undrlyg/IntrBk/OrgnlIntrBkSttlmAmt/@Ccy", "required": true },
+    { "path": "Justfn/AnyInf", "required": true }
+  ],
+
+  "transforms_catalog": [
+    "regex_extract(pattern,group)",
+    "to_decimal",
+    "date_parse(format)",
+    "now"
+  ],
+
+  "error_policies": {
+    "on_missing_required": "fail",
+    "on_transform_error": "warn_and_copy_raw",
+    "on_unknown_tag": "ignore"
+  }
+}

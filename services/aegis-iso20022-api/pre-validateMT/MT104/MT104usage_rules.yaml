@@ -1,0 +1,23 @@
+MT104_Usage_Rules:
+  message_user_groups:
+    - name: Direct_Debit_MUG
+      description: >
+        Subscribers exchange Direct Debit instructions via MT104.
+        Proceeds are credited to the Sender's account at the Receiver and ultimately to the Ordering Customer/Instructing Party.
+      validation_flag:
+        field_119: must_not_be_present
+      field_constraints:
+        governed_by: MT104_Network_Validation_Rules
+        notes: >
+          Only institutions registered in this MUG may use fields subject to special validation.
+
+    - name: Request_for_Direct_Debit_MUG
+      description: >
+        Subscribers exchange Request for Direct Debit instructions via MT104.
+        Proceeds are credited directly to a customer's account at the Receiver.
+      validation_flag:
+        field_119: must_equal RFDD
+      field_constraints:
+        governed_by: MT104_Network_Validation_Rules
+        notes: >
+          Only institutions registered in this MUG may use fields subject to special validation.

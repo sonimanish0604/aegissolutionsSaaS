@@ -1,0 +1,54 @@
+MT102_Usage_Rules:
+  description: >
+    Logical relationships between amount-related fields (33B, 32B, 36, 71G, 71F, 19, 32A) across sequences B and C.
+    Presence of these fields is governed by conditional rules C5–C11. If a field is not present, it must be excluded from the formula.
+    If field 71F occurs multiple times, all occurrences must be included in the calculation.
+  formulas:
+    - id: F1
+      description: >
+        For each occurrence of sequence B, the instructed amount in field 33B,
+        adjusted with the exchange rate in field 36, minus the Sender's charges in field(s) 71F,
+        equals the transaction amount in field 32B.
+      expression: 32B = (33B × 36) − Σ(71F)
+    - id: F2
+      description: >
+        The sum of all transaction amounts in fields 32B equals the total amount in field 19.
+      expression: 19 = Σ(32B)
+    - id: F3
+      description: >
+        The sum of all Receiver's charges in fields 71G of sequence B equals the total Receiver's charges in field 71G of sequence C.
+      expression: 71G_C = Σ(71G_B)
+    - id: F4
+      description: >
+        The total amount in field 19 (or Σ(32B)) plus the total Receiver's charges in field 71G of sequence C
+        equals the interbank settled amount in field 32A.
+      expression: 32A = 19 + 71G_C
+
+  conditional_behavior:
+    sequence_B_by_71A:
+      OUR:
+        field_32B: "Net amount to be credited to the Beneficiary"
+        field_71F: not_allowed
+        field_71G: optional
+      SHA:
+        field_32B: "Amount as instructed by the originator"
+        field_71F: optional
+        field_71G: not_allowed
+      BEN:
+        field_32B: "Amount after sending bank has deducted charges"
+        field_71F: mandatory
+        field_71G: not_allowed
+
+    sequence_C_by_71A:
+      OUR:
+        field_19: "Sum of field(s) 32B of sequence B"
+        field_32A: "Settlement Amount = field 19 + field 71G of sequence C"
+        field_71G: "Sum of fields 71G of sequences B"
+      SHA:
+        field_19: not_used
+        field_32A: "Settlement Amount = Sum of field(s) 32B of sequence B"
+        field_71G: not_allowed
+      BEN:
+        field_19: not_used
+        field_32A: "Settlement Amount = Sum of field(s) 32B of sequence B"
+        field_71G: not_allowed

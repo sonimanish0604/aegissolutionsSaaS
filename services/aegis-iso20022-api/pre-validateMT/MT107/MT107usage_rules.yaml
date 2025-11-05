@@ -1,0 +1,25 @@
+MT107_Usage_Rules:
+  rules:
+    - id: U1
+      description: >
+        If the Creditor's bank (field 52a) is missing, it is assumed to be the Sender.
+      applies_to: MT107
+      substitution:
+        missing_field: 52a
+        assumed_party: Sender
+
+    - id: U2
+      description: >
+        If the Instructing Party (field 50C or 50L) is missing, it is assumed to be the Creditor (field 50A or 50K).
+      applies_to: MT107
+      substitution:
+        missing_fields: [50C, 50L]
+        assumed_party: 50A_or_50K
+
+    - id: U3
+      description: >
+        If the Debtor's bank (field 57a) is missing, it is assumed to be the Receiver.
+      applies_to: MT107
+      substitution:
+        missing_field: 57a
+        assumed_party: Receiver

@@ -1,0 +1,4 @@
+# CODEOWNERS ensures all changes get routed through the founder for review.
+# Update this file as additional maintainers join the project.
+
+* @sonimanish0604 manish@aegissolutions.io

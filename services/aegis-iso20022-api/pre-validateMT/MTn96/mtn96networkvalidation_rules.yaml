@@ -1,0 +1,9 @@
+MTn96_Network_Usage_Rules:
+  rules:
+    - id: C1
+      description: >
+        Either field 79 or a copy of at least the mandatory fields of the message to which the answer relates may be present, but not both.
+      error_code: C31
+      exclusivity:
+        fields: [field_79, related_message_mandatory_fields_copy]
+        constraint: only_one_allowed
