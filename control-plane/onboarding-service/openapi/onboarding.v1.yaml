@@ -1,0 +1,108 @@
+openapi: 3.0.3
+info:
+  title: Aegis Onboarding Service
+  version: 1.0.0
+  description: Unified onboarding across direct/AWS/Azure/GCP with normalized entitlements.
+servers:
+  - url: https://localhost:8000
+paths:
+  /healthz:
+    get:
+      summary: Liveness
+      responses:
+        "200": { description: OK }
+  /api/v1/tenants:
+    post:
+      summary: Create or link a tenant (idempotent)
+      operationId: createTenantV1
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          schema: { type: string }
+          required: false
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTenantRequest"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TenantResponse" }
+        "200":
+          description: Idempotent replay (existing)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TenantResponse" }
+  /api/v1/tenants/{tenant_id}:
+    get:
+      summary: Get tenant by id
+      operationId: getTenantV1
+      parameters:
+        - in: path
+          name: tenant_id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: Tenant
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TenantResponse" }
+        "404": { description: Not found }
+  /api/v1/webhooks/{provider}:
+    post:
+      summary: Marketplace webhook intake
+      operationId: webhookV1
+      parameters:
+        - in: path
+          name: provider
+          required: true
+          schema:
+            type: string
+            enum: [aws, azure, gcp]
+      requestBody:
+        required: true
+        content:
+          application/json: { schema: { type: object } }
+      responses:
+        "202": { description: Accepted }
+components:
+  schemas:
+    CreateTenantRequest:
+      type: object
+      required: [name, source]
+      properties:
+        name: { type: string }
+        email: { type: string, format: email }
+        source:
+          type: string
+          enum: [direct, aws, azure, gcp]
+        product_codes:
+          type: array
+          items: { type: string }
+        plan:
+          type: string
+          enum: [free, standard, enterprise]
+        marketplace_ctx:
+          type: object
+          additionalProperties: true
+    TenantResponse:
+      type: object
+      required: [tenant_id, tenant_slug, status]
+      properties:
+        tenant_id: { type: string, format: uuid }
+        tenant_slug: { type: string }
+        status: { type: string }
+        plan: { type: string }
+        products:
+          type: array
+          items:
+            type: object
+            properties:
+              code: { type: string }
+              plan: { type: string }
+              status: { type: string }
