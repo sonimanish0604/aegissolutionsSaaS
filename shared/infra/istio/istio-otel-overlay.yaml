@@ -1,0 +1,21 @@
+apiVersion: install.istio.io/v1alpha1
+kind: IstioOperator
+spec:
+  meshConfig:
+    enableTracing: true
+    # Optional but handy: crank up sampling so we actually see spans
+    defaultConfig:
+      tracing:
+        sampling: 100.0
+
+    # 1) Define an OpenTelemetry extension provider
+    extensionProviders:
+    - name: otlp
+      opentelemetry:
+        service: otel-collector-opentelemetry-collector.observability.svc.cluster.local
+        port: 4317
+
+    # 2) Make it the default tracing provider (MUST be strings)
+    defaultProviders:
+      tracing:
+      - otlp

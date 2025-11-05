@@ -1,0 +1,13 @@
+# Disable the chart's own Grafana; we already have one
+grafana:
+  enabled: false
+
+# Keep selectors open so ServiceMonitor/PodMonitor CRs are auto-picked up
+prometheus:
+  service:
+    type: ClusterIP
+  prometheusSpec:
+    scrapeInterval: 15s
+    evaluationInterval: 15s
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false

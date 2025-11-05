@@ -1,0 +1,66 @@
+grafana:
+  additionalDataSources:
+  - isDefault: true
+    name: Prometheus
+    type: prometheus
+    url: http://prometheus-operated.observability.svc.cluster.local:9090
+  - jsonData:
+      tlsAuth: false
+      tlsAuthWithCACert: false
+      user: default
+    name: Redis (plugin)
+    secureJsonData:
+      password: <PUT_REDIS_PASSWORD_HERE>
+    type: redis-datasource
+    url: redis-master.aegis.svc.cluster.local:6379
+  dashboards:
+    default:
+      redis-overview:
+        json: "{\n  \"title\": \"Redis Overview (Prometheus)\",\n  \"description\"\
+          : \"Quick Redis health dashboard wired for Prometheus redis_exporter metrics.\"\
+          ,\n  \"tags\": [\n    \"redis\",\n    \"prometheus\",\n    \"observability\"\
+          \n  ],\n  \"timezone\": \"browser\",\n  \"schemaVersion\": 38,\n  \"version\"\
+          : 1,\n  \"refresh\": \"10s\",\n  \"time\": {\n    \"from\": \"now-1h\",\n\
+          \    \"to\": \"now\"\n  },\n  \"templating\": {\n    \"list\": [\n     \
+          \ {\n        \"name\": \"DS_PROMETHEUS\",\n        \"type\": \"datasource\"\
+          ,\n        \"query\": \"prometheus\",\n        \"refresh\": 1,\n       \
+          \ \"hide\": 0\n      }\n    ]\n  },\n  \"panels\": [\n    {\n      \"type\"\
+          : \"stat\",\n      \"title\": \"Redis Up\",\n      \"gridPos\": {\n    \
+          \    \"h\": 4,\n        \"w\": 6,\n        \"x\": 0,\n        \"y\": 0\n\
+          \      },\n      \"datasource\": {\n        \"type\": \"prometheus\",\n\
+          \        \"uid\": \"${DS_PROMETHEUS}\"\n      },\n      \"targets\": [\n\
+          \        {\n          \"refId\": \"A\",\n          \"expr\": \"max(redis_up)\"\
+          \n        }\n      ],\n      \"options\": {\n        \"reduceOptions\":\
+          \ {\n          \"calcs\": [\n            \"lastNotNull\"\n          ]\n\
+          \        },\n        \"orientation\": \"horizontal\"\n      }\n    },\n\
+          \    {\n      \"type\": \"timeseries\",\n      \"title\": \"Ops / sec\"\
+          ,\n      \"gridPos\": {\n        \"h\": 8,\n        \"w\": 12,\n       \
+          \ \"x\": 6,\n        \"y\": 0\n      },\n      \"datasource\": {\n     \
+          \   \"type\": \"prometheus\",\n        \"uid\": \"${DS_PROMETHEUS}\"\n \
+          \     },\n      \"targets\": [\n        {\n          \"refId\": \"A\",\n\
+          \          \"expr\": \"sum(rate(redis_commands_processed_total[5m]))\"\n\
+          \        }\n      ],\n      \"fieldConfig\": {\n        \"defaults\": {\n\
+          \          \"unit\": \"ops\"\n        }\n      }\n    },\n    {\n      \"\
+          type\": \"timeseries\",\n      \"title\": \"Connected Clients\",\n     \
+          \ \"gridPos\": {\n        \"h\": 8,\n        \"w\": 6,\n        \"x\": 0,\n\
+          \        \"y\": 4\n      },\n      \"datasource\": {\n        \"type\":\
+          \ \"prometheus\",\n        \"uid\": \"${DS_PROMETHEUS}\"\n      },\n   \
+          \   \"targets\": [\n        {\n          \"refId\": \"A\",\n          \"\
+          expr\": \"sum(redis_connected_clients)\"\n        }\n      ]\n    },\n \
+          \   {\n      \"type\": \"timeseries\",\n      \"title\": \"Memory Used (MB)\"\
+          ,\n      \"gridPos\": {\n        \"h\": 8,\n        \"w\": 9,\n        \"\
+          x\": 6,\n        \"y\": 8\n      },\n      \"datasource\": {\n        \"\
+          type\": \"prometheus\",\n        \"uid\": \"${DS_PROMETHEUS}\"\n      },\n\
+          \      \"targets\": [\n        {\n          \"refId\": \"A\",\n        \
+          \  \"expr\": \"sum(redis_memory_used_bytes) / 1024 / 1024\"\n        }\n\
+          \      ],\n      \"fieldConfig\": {\n        \"defaults\": {\n         \
+          \ \"unit\": \"megabytes\"\n        }\n      }\n    },\n    {\n      \"type\"\
+          : \"timeseries\",\n      \"title\": \"Keyspace Hit Ratio\",\n      \"gridPos\"\
+          : {\n        \"h\": 8,\n        \"w\": 9,\n        \"x\": 15,\n        \"\
+          y\": 8\n      },\n      \"datasource\": {\n        \"type\": \"prometheus\"\
+          ,\n        \"uid\": \"${DS_PROMETHEUS}\"\n      },\n      \"targets\": [\n\
+          \        {\n          \"refId\": \"A\",\n          \"expr\": \"sum(rate(redis_keyspace_hits_total[5m]))\
+          \ / clamp_min(sum(rate(redis_keyspace_hits_total[5m])) + sum(rate(redis_keyspace_misses_total[5m])),\
+          \ 1)\"\n        }\n      ],\n      \"fieldConfig\": {\n        \"defaults\"\
+          : {\n          \"unit\": \"percentunit\"\n        }\n      }\n    }\n  ]\n\
+          }"

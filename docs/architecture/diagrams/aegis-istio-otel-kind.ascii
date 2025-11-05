@@ -1,0 +1,50 @@
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                     Developer Host (Browser / curl)                         │
+│                                                                             │
+│  http://localhost:80 / https://localhost:443                                │
+│      │                                                                       │
+│      │  (Kind port map)                                                      │
+│      ▼                                                                       │
+│  ┌───────────────────────────────────────────────────────────────────────┐   │
+│  │               kind cluster: aegis (Docker container)                  │   │
+│  │                                                                       │   │
+│  │  Host→NodePort map: 80→30080, 443→30443                               │   │
+│  │                                                                       │   │
+│  │  ┌───────────────────────────────┐   ┌─────────────────────────────┐  │   │
+│  │  │  Namespace: istio-system      │   │  Namespace: observability   │  │   │
+│  │  │                               │   │                             │  │   │
+│  │  │  [istiod]  (control plane)    │   │  [otel-collector]           │  │   │
+│  │  │                               │   │    - Receivers: OTLP        │  │   │
+│  │  │  [istio-ingressgateway SVC]   │   │        gRPC:4317 HTTP:4318  │  │   │
+│  │  │    Type: NodePort             │   │    - Pipelines: traces,     │  │   │
+│  │  │    Ports:                     │   │      metrics, logs → logging│  │   │
+│  │  │      80  → nodePort 30080     │   └─────────────────────────────┘  │   │
+│  │  │      443 → nodePort 30443     │                                    │   │
+│  │  └───────────────────────────────┘                                    │   │
+│  │                                                                       │   │
+│  │  ┌─────────────────────────────────────────────────────────────────┐  │   │
+│  │  │ Namespace: aegis   (label: istio-injection=enabled)             │  │   │
+│  │  │                                                                 │  │   │
+│  │  │  Inbound traffic path:                                          │  │   │
+│  │  │    Host:80/443                                                  │  │   │
+│  │  │      → istio-ingressgateway:30080/30443                         │  │   │
+│  │  │        → Gateway/VirtualService routing                         │  │   │
+│  │  │          → Service: httpbin:8000                                │  │   │
+│  │  │             Pod: httpbin + Envoy sidecar                        │  │   │
+│  │  │                                                                 │  │   │
+│  │  │  Telemetry path (mesh tracing):                                  │  │   │
+│  │  │    Envoy sidecar ──────── OTLP gRPC ───────→ otel-collector     │  │   │
+│  │  │                                  (observability ns)             │  │   │
+│  │  └─────────────────────────────────────────────────────────────────┘  │   │
+│  │                                                                       │   │
+│  └───────────────────────────────────────────────────────────────────────┘   │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+Legend:
+- istiod = Istio control plane (minimal profile)
+- istio-ingressgateway = ingress gateway Service (NodePort: 30080/30443)
+- istio-injection=enabled = namespace label for automatic Envoy sidecars
+- otel-collector = OpenTelemetry Collector (OTLP gRPC 4317 / HTTP 4318)
+- Traffic path: Host → Ingress → Gateway/VS → Service → Pod(+sidecar)
+- Telemetry path: Envoy sidecar → OTLP → OTel Collector (logging exporter for now)

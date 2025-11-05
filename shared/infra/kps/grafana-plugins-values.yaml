@@ -1,0 +1,4 @@
+# shared/infra/kps/grafana-plugins-values.yaml
+grafana:
+  plugins:
+    - redis-datasource
