@@ -1,0 +1,360 @@
+{
+  "meta": {
+    "template_version": "1.0.0",
+    "use_case": "MT110_TO_CAMT107",
+    "source": {
+      "standard": "SWIFT_MT",
+      "message_type": "MT110",
+      "variant": "FIN"
+    },
+    "target": {
+      "standard": "ISO20022",
+      "message": "camt.107",
+      "schema_id": "camt.107.001.02"
+    },
+    "mx_root": "ChqPresntmntNtfctn",
+    "created_by": "aegis",
+    "created_at": "2025-10-28T00:00:00Z"
+  },
+  "namespaces": {
+    "mx": "urn:iso:std:iso:20022:tech:xsd:camt.107.001.02"
+  },
+  "defaults": {
+    "GrpHdr/MsgId": {
+      "value": "$context.request_id"
+    },
+    "GrpHdr/CreDtTm": {
+      "value": "$now"
+    },
+    "GrpHdr/NbOfChqs": {
+      "value": "1"
+    }
+  },
+  "blocks": [
+    {
+      "id": "group_header",
+      "mappings": [
+        {
+          "source": "20",
+          "target": "GrpHdr/MsgId"
+        }
+      ]
+    },
+    {
+      "id": "cheque",
+      "target_root": "Chq",
+      "mappings": [
+        {
+          "source": "20",
+          "target": "InstrId"
+        },
+        {
+          "source": "21",
+          "target": "ChqNb"
+        },
+        {
+          "source": "30",
+          "target": "IsseDt",
+          "transform": [
+            {
+              "fn": "date_parse",
+              "args": {
+                "format": "%y%m%d"
+              }
+            }
+          ]
+        },
+        {
+          "when_any": [
+            {
+              "exists": "32A"
+            },
+            {
+              "exists": "32B"
+            }
+          ],
+          "switch": [
+            {
+              "if": {
+                "exists": "32A"
+              },
+              "mappings": [
+                {
+                  "source": "32A",
+                  "target": "Amt",
+                  "transform": [
+                    {
+                      "fn": "regex_extract",
+                      "args": {
+                        "pattern": "^(\\d{6})([A-Z]{3})(.+)$",
+                        "group": 3
+                      }
+                    },
+                    "to_decimal"
+                  ]
+                },
+                {
+                  "source": "32A",
+                  "target": "Amt/@Ccy",
+                  "transform": {
+                    "fn": "regex_extract",
+                    "args": {
+                      "pattern": "^(\\d{6})([A-Z]{3})(.+)$",
+                      "group": 2
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "if": {
+                "exists": "32B"
+              },
+              "mappings": [
+                {
+                  "source": "32B",
+                  "target": "Amt",
+                  "transform": [
+                    {
+                      "fn": "regex_extract",
+                      "args": {
+                        "pattern": "^([A-Z]{3})(.+)$",
+                        "group": 2
+                      }
+                    },
+                    "to_decimal"
+                  ]
+                },
+                {
+                  "source": "32B",
+                  "target": "Amt/@Ccy",
+                  "transform": {
+                    "fn": "regex_extract",
+                    "args": {
+                      "pattern": "^([A-Z]{3})(.+)$",
+                      "group": 1
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "source": "50F",
+          "target": "Pyer/Nm",
+          "transform": {
+            "fn": "regex_extract",
+            "args": {
+              "pattern": "^/[^\\n]+\\n1/([^\\n]+)",
+              "group": 1
+            }
+          }
+        },
+        {
+          "source": "50F",
+          "target": "Pyer/PstlAdr/StrtNm",
+          "transform": {
+            "fn": "regex_extract",
+            "args": {
+              "pattern": "^/[^\\n]+\\n1/[^\\n]+\\n2/([^\\n]+)",
+              "group": 1
+            }
+          }
+        },
+        {
+          "source": "50F",
+          "target": "Pyer/PstlAdr/TwnNm",
+          "transform": {
+            "fn": "regex_extract",
+            "args": {
+              "pattern": "^/[^\\n]+\\n1/[^\\n]+\\n2/[^\\n]+\\n3/[A-Z]{2}/([^\\n]+)",
+              "group": 1
+            }
+          },
+          "on_fail": "Pyer/PstlAdr/TwnNm"
+        },
+        {
+          "source": "50F",
+          "target": "Pyer/PstlAdr/Ctry",
+          "transform": {
+            "fn": "regex_extract",
+            "args": {
+              "pattern": "^/[^\\n]+\\n1/[^\\n]+\\n2/[^\\n]+\\n3/([A-Z]{2})/",
+              "group": 1
+            }
+          },
+          "on_fail": "Pyer/PstlAdr/Ctry"
+        },
+        {
+          "source": "50F",
+          "target": "PyerAcct/Id/Othr/Id",
+          "transform": {
+            "fn": "regex_extract",
+            "args": {
+              "pattern": "^/([^\\n]+)",
+              "group": 1
+            }
+          }
+        },
+        {
+          "when_any": [
+            {
+              "exists": "59"
+            },
+            {
+              "exists": "59F"
+            }
+          ],
+          "switch": [
+            {
+              "if": {
+                "exists": "59F"
+              },
+              "mappings": [
+                {
+                  "source": "59F",
+                  "target": "Pyee/Nm",
+                  "transform": {
+                    "fn": "regex_extract",
+                    "args": {
+                      "pattern": "(?m)^1/([^\\n]+)",
+                      "group": 1
+                    }
+                  }
+                },
+                {
+                  "source": "59F",
+                  "target": "Pyee/PstlAdr/StrtNm",
+                  "transform": {
+                    "fn": "regex_extract",
+                    "args": {
+                      "pattern": "(?m)^2/([^\\n]+)",
+                      "group": 1
+                    }
+                  },
+                  "on_fail": "Pyee/PstlAdr/AdrLine"
+                },
+                {
+                  "source": "59F",
+                  "target": "Pyee/PstlAdr/TwnNm",
+                  "transform": {
+                    "fn": "regex_extract",
+                    "args": {
+                      "pattern": "(?m)^3/[A-Z]{2}/([^\\n]+)",
+                      "group": 1
+                    }
+                  },
+                  "on_fail": "Pyee/PstlAdr/TwnNm"
+                },
+                {
+                  "source": "59F",
+                  "target": "Pyee/PstlAdr/Ctry",
+                  "transform": {
+                    "fn": "regex_extract",
+                    "args": {
+                      "pattern": "(?m)^3/([A-Z]{2})/",
+                      "group": 1
+                    }
+                  },
+                  "on_fail": "Pyee/PstlAdr/Ctry"
+                },
+                {
+                  "source": "59F",
+                  "target": "Pyee/PstlAdr/AdrLine",
+                  "transform": [
+                    {
+                      "fn": "regex_extract",
+                      "args": {
+                        "pattern": "(?s)^.*?(?:\\n4/(.+))",
+                        "group": 1
+                      }
+                    },
+                    "lines"
+                  ],
+                  "on_fail": "Pyee/PstlAdr/AdrLine"
+                }
+              ]
+            },
+            {
+              "if": {
+                "exists": "59"
+              },
+              "mappings": [
+                {
+                  "source": "59",
+                  "target": "Pyee/Nm",
+                  "transform": {
+                    "fn": "regex_extract",
+                    "args": {
+                      "pattern": "^([^\\n]+)",
+                      "group": 1
+                    }
+                  }
+                },
+                {
+                  "source": "59",
+                  "target": "Pyee/PstlAdr/AdrLine",
+                  "transform": [
+                    {
+                      "fn": "regex_extract",
+                      "args": {
+                        "pattern": "^([^\\n]+)\\n(.+)$",
+                        "group": 2
+                      }
+                    },
+                    "lines"
+                  ],
+                  "on_fail": "Pyee/PstlAdr/AdrLine"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "source": "70",
+          "target": "InstrForChqAgt/InstrInf",
+          "transform": [
+            {
+              "fn": "truncate",
+              "args": {
+                "max": 140
+              }
+            }
+          ],
+          "on_fail": "InstrForChqAgt/InstrInf"
+        }
+      ]
+    }
+  ],
+  "validations": [
+    {
+      "path": "GrpHdr/MsgId",
+      "required": true
+    },
+    {
+      "path": "Chq/ChqNb",
+      "required": true
+    },
+    {
+      "path": "Chq/Amt",
+      "required": true
+    },
+    {
+      "path": "Chq/Pyee/Nm",
+      "required": true
+    }
+  ],
+  "transforms_catalog": [
+    "regex_extract(pattern,group)",
+    "to_decimal",
+    "date_parse(format)",
+    "lines",
+    "truncate(max)"
+  ],
+  "error_policies": {
+    "on_missing_required": "fail",
+    "on_transform_error": "warn_and_copy_raw",
+    "on_unknown_tag": "ignore"
+  }
+}

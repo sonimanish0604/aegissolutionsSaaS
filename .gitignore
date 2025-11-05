@@ -23,6 +23,9 @@ coverage/
 .DS_Store
 Thumbs.db
 
+# Binary documents
+*.docx
+
 # Docker
 *.log
 docker-data/

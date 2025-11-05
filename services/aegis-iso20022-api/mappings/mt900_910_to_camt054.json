@@ -1,0 +1,22 @@
+{
+  "20": {
+    "description": "Transaction Reference Number",
+    "xpath": "Document.BkToCstmrDbtCdtNtfctn.GrpHdr.MsgId"
+  },
+  "25": {
+    "description": "Account Identification",
+    "xpath": "Document.BkToCstmrDbtCdtNtfctn.Ntfctn.Acct.Id.IBAN"
+  },
+  "32A": {
+    "description": "Value Date, Currency, Amount",
+    "xpath": "Document.BkToCstmrDbtCdtNtfctn.Ntfctn.TxDtls.Amt",
+    "parser": "parse32A"
+  },
+  "_meta": {
+    "source": "MT900/910",
+    "target": "camt.054.001.08",
+    "generated_by": "Copilot",
+    "confidence": "high",
+    "timestamp": "2025-10-19T03:18:00Z"
+  }
+}

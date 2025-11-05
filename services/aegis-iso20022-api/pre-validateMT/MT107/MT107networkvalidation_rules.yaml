@@ -1,0 +1,106 @@
+MT107_Network_Validation_Rules:
+  rules:
+    - id: C1
+      description: >
+        Field 23E and field 50a (option A or K) must, independently, be present either in sequence A or in each occurrence of sequence B, but not in both.
+      error_code: D86
+      exclusivity:
+        fields: [23E, 50a_option_AK]
+        sequence_A: exclusive_with_sequence_B
+
+    - id: C2
+      description: >
+        Fields 21E, 26T, 77B, 71A, 52a, and 50a (option C or L) must not appear in both sequence A and sequence B.
+        If present in A → not allowed in B; if present in B → not allowed in A.
+      error_code: D73
+      exclusivity:
+        fields: [21E, 26T, 77B, 71A, 52a, 50a_option_CL]
+        sequence_A: exclusive_with_sequence_B
+
+    - id: C3
+      description: >
+        If field 21E is present in sequence A, then field 50a (option A or K) must also be present in A.
+        If field 21E is present in sequence B, then field 50a (option A or K) must be present in the same occurrence.
+      error_code: D77
+      sequence_A:
+        field_21E: present
+        field_50a_option_AK: mandatory
+      sequence_B:
+        field_21E: present
+        field_50a_option_AK: mandatory
+
+    - id: C4
+      description: >
+        If field 23E in sequence A contains RTND, then field 72 must be present.
+        Otherwise, field 72 must not be present.
+      error_code: C82
+      sequence_A:
+        field_23E:
+          contains_RTND:
+            field_72: mandatory
+          not_present_or_not_RTND:
+            field_72: not_allowed
+
+    - id: C5
+      description: >
+        Fields 71F and 71G must be mirrored between sequence B and sequence C.
+        If present in one → must be present in the other.
+      error_code: D79
+      cross_sequence:
+        cross_sequence:
+          field_71F:
+            sequence_B:
+              present: mandatory_in_sequence_C
+            sequence_C:
+              present: mandatory_in_sequence_B
+
+
+    - id: C6
+      description: >
+        In each occurrence of sequence B, if field 33B is present, then currency code or amount must differ from field 32B.
+      error_code: D21
+      sequence_B:
+        field_33B: present
+        field_32B:
+          must_differ: currency_or_amount
+
+    - id: C7
+      description: >
+        In any occurrence of sequence B, if field 33B is present and currency differs from 32B, then field 36 must be present.
+        Otherwise, field 36 must not be present.
+      error_code: D75
+      sequence_B:
+        field_33B: present
+        currency_mismatch_with_32B: true
+        field_36: mandatory
+      fallback:
+        field_36: not_allowed
+
+    - id: C8
+      description: >
+        The sum of all 32B amounts in sequence B must be placed either in field 32B of sequence C (if no charges),
+        or in field 19 of sequence C (if charges included).
+        If 32B is used in C → field 19 must not be present.
+        If 19 is used → must equal sum of all 32B in B.
+      error_codes:
+        no_charges: D80
+        with_charges: C01
+      sequence_C:
+        field_32B_equals_sum_of_B:
+          field_19: not_allowed
+        field_19_present:
+          must_equal_sum_of_sequence_B_field_32B: true
+
+    - id: C9
+      description: >
+        Currency codes in fields 32B and 71G must be consistent across all occurrences in sequences B and C.
+        Currency codes in fields 71F must also be consistent across all occurrences in sequences B and C.
+      error_code: C02
+      consistency:
+        fields: [32B, 71G]
+        across_sequences: [B, C]
+        must_match: true
+      consistency_71F:
+        fields: [71F]
+        across_sequences: [B, C]
+        must_match: true

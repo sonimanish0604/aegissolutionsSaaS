@@ -1,0 +1,41 @@
+@startuml
+skinparam componentStyle rectangle
+skinparam defaultFontName monospace
+skinparam shadowing false
+skinparam wrapWidth 200
+
+actor User
+
+package "Aegis API" {
+  [FastAPI App] as app
+  [AuditMiddleware] as middleware
+  [KafkaAuditEmitter] as emitter
+}
+
+package "Kafka" {
+  [audit.events topic] as topic
+  [Kafka Connect S3 Sink] as sink
+}
+
+package "S3 Archive" {
+  [Parquet Objects
+(part-0000, part-0001...)] as parquet
+  [Manifest Builder
+(Lambda/Container)] as builder
+  [MANIFEST.json + MANIFEST.sig] as manifest
+}
+
+package "AWS KMS" {
+  [GenerateMac API] as kms
+}
+
+User --> app : HTTPS /translate
+a pp --> middleware : request context
+middleware --> emitter : AuditEvent (tenant/event id)
+emitter --> topic : produce (key=tenant)
+topic --> sink : consume batches
+sink --> parquet : write dt=YYYY/MM/DD/HH/tenant=...
+sink --> builder : invoke hourly
+builder --> kms : sign(manifest)
+builder --> manifest : write MANIFEST.json / MANIFEST.sig
+@enduml

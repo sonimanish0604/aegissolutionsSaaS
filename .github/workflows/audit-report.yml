@@ -1,0 +1,40 @@
+name: Monthly Audit Integrity Report
+
+on:
+  schedule:
+    - cron: "0 5 1 * *"  # 1st of every month 05:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  generate-report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install requirements
+        run: |
+          pip install --upgrade pip
+          pip install -r services/aegis-iso20022-api/requirements.txt
+
+      - name: Generate audit report
+        run: |
+          python services/aegis-iso20022-api/scripts/generate_audit_report.py \
+            --period-start "$(date -u -d 'last month' +%Y-%m-01)" \
+            --period-end "$(date -u -d 'last day of last month' +%Y-%m-%d)" \
+            --environment "Production" \
+            --output audit_log_integrity_report_generated.md
+
+      - name: Upload report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: audit-log-integrity-report
+          path: audit_log_integrity_report_generated.md
