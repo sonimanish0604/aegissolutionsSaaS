@@ -1,0 +1,49 @@
+name: AWS Role Connectivity
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment to target (testing|staging|production)"
+        required: true
+        default: "testing"
+        type: choice
+        options:
+          - testing
+          - staging
+          - production
+
+jobs:
+  assume-role:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve role ARN
+        id: target
+        run: |
+          case "${{ github.event.inputs.environment }}" in
+            testing) role="${{ secrets.AWS_TESTING_DEPLOY_ROLE_ARN }}" ;;
+            staging) role="${{ secrets.AWS_STAGING_DEPLOY_ROLE_ARN }}" ;;
+            production) role="${{ secrets.AWS_PRODUCTION_DEPLOY_ROLE_ARN }}" ;;
+            *) echo "Unsupported environment"; exit 1 ;;
+          esac
+          if [[ -z "$role" ]]; then
+            echo "::error ::Missing role ARN secret for environment."
+            exit 1
+          fi
+          echo "role=${role}" >> "$GITHUB_OUTPUT"
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ steps.target.outputs.role }}
+          aws-region: us-east-1
+
+      - name: Show caller identity
+        run: aws sts get-caller-identity
