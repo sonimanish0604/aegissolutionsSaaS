@@ -27,7 +27,7 @@ jobs:
           terraform_wrapper: false
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           role-to-assume: ${{ secrets.AWS_TESTING_DEPLOY_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
@@ -49,7 +49,7 @@ jobs:
           terraform_wrapper: false
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           role-to-assume: ${{ secrets.AWS_TESTING_DEPLOY_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
