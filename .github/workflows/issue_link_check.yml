@@ -29,16 +29,12 @@ jobs:
             const issueRefRegex = /\b(?:closes|fixes|resolves)\s+#(\d+)\b/ig;
             const bodyMatches = [...body.matchAll(issueRefRegex)].map(m => m[1]);
 
-            const plainRefRegex = /#(\d+)/g;
-            const plainMatches = [...body.matchAll(plainRefRegex)].map(m => m[1]);
-
             const brRegex = /(?:^|[\/\-])(\d{1,6})(?:[\/\-]|$)/;
             const brMatch = head.match(brRegex);
             const branchIssue = brMatch ? brMatch[1] : null;
 
             const unique = new Set([
               ...bodyMatches,
-              ...plainMatches,
               ...(branchIssue ? [branchIssue] : [])
             ].filter(Boolean));
 
