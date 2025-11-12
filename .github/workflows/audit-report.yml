@@ -34,7 +34,7 @@ jobs:
             --output audit_log_integrity_report_generated.md
 
       - name: Upload report artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: audit-log-integrity-report
           path: audit_log_integrity_report_generated.md

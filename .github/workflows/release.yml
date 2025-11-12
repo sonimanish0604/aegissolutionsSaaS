@@ -56,7 +56,7 @@ jobs:
           python scripts/soc2_compliance.py --output "$GITHUB_WORKSPACE/artifacts/soc2_report.json"
 
       - name: Archive compliance report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: soc2-report-${{ github.ref_name }}
           path: artifacts/soc2_report.json

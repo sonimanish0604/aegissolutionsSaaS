@@ -63,7 +63,7 @@ jobs:
 
       - name: Upload pytest output
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: audit-integration-logs
           path: .pytest_cache/v/
