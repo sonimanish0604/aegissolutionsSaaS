@@ -1,0 +1,72 @@
+name: Terraform AWS Staging
+
+on:
+  pull_request:
+    branches: [staging]
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "Choose plan or apply"
+        type: choice
+        options:
+          - plan
+          - apply
+        default: plan
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  TF_WORKING_DIR: marketplace-adapters/aws/environments/staging
+  AWS_REGION: us-east-1
+
+jobs:
+  plan:
+    if: >
+      github.event_name == 'pull_request' ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'plan')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_wrapper: false
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_STAGING_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Terraform Init
+        run: terraform -chdir="${TF_WORKING_DIR}" init
+
+      - name: Terraform Plan
+        run: terraform -chdir="${TF_WORKING_DIR}" plan
+
+  apply:
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'apply'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_wrapper: false
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_STAGING_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Terraform Init
+        run: terraform -chdir="${TF_WORKING_DIR}" init
+
+      - name: Terraform Plan
+        run: terraform -chdir="${TF_WORKING_DIR}" plan
+
+      - name: Terraform Apply
+        run: terraform -chdir="${TF_WORKING_DIR}" apply -auto-approve

@@ -1,0 +1,73 @@
+name: Task
+description: Track a discrete engineering task.
+title: "[Task]: "
+labels:
+  - "type: task"
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Task Summary
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - infra
+        - api
+        - security
+        - ci-cd
+        - mapping-engine
+        - validator
+        - rule-engine
+    validations:
+      required: true
+  - type: dropdown
+    id: change_type
+    attributes:
+      label: Change Type
+      options:
+        - feature
+        - fix
+        - hotfix
+        - perf
+        - docs
+        - refactor
+        - build
+        - ci
+        - test
+        - chore
+    validations:
+      required: true
+  - type: dropdown
+    id: change_risk
+    attributes:
+      label: Change Risk
+      options:
+        - low
+        - medium
+        - high
+    validations:
+      required: true
+  - type: checkboxes
+    id: environment
+    attributes:
+      label: Environments
+      options:
+        - label: testing
+        - label: staging
+        - label: prod
+    validations:
+      required: true
+  - type: textarea
+    id: done
+    attributes:
+      label: Definition of Done / Verification Steps
+    validations:
+      required: true
+  - type: textarea
+    id: rollback
+    attributes:
+      label: Rollback / Mitigation

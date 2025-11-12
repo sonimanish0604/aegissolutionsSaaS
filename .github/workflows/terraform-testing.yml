@@ -1,0 +1,68 @@
+name: Terraform AWS Testing
+
+on:
+  pull_request:
+    branches: [testing]
+  push:
+    branches: [testing]
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  TF_WORKING_DIR: marketplace-adapters/aws/environments/testing
+  AWS_REGION: us-east-1
+
+jobs:
+  plan:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_wrapper: false
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_TESTING_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Terraform Init
+        run: terraform -chdir="${TF_WORKING_DIR}" init
+
+      - name: Terraform Plan
+        run: terraform -chdir="${TF_WORKING_DIR}" plan
+
+  apply-and-destroy:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_wrapper: false
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_TESTING_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Terraform Init
+        run: terraform -chdir="${TF_WORKING_DIR}" init
+
+      - name: Terraform Plan
+        run: terraform -chdir="${TF_WORKING_DIR}" plan
+
+      - name: Terraform Apply
+        run: terraform -chdir="${TF_WORKING_DIR}" apply -auto-approve
+
+      - name: Terraform Destroy
+        if: always()
+        run: terraform -chdir="${TF_WORKING_DIR}" destroy -auto-approve

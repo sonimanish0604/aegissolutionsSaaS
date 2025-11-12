@@ -41,3 +41,27 @@ variable "tags" {
     "Product" = "aegis-iso20022"
   }
 }
+
+variable "cloudtrail_retention_days" {
+  description = "Number of days to retain CloudTrail logs for testing."
+  type        = number
+  default     = 30
+}
+
+variable "cloudtrail_include_data_events" {
+  description = "Capture S3/Lambda data events in CloudTrail."
+  type        = bool
+  default     = true
+}
+
+variable "cloudtrail_enable_insights" {
+  description = "Enable CloudTrail Insights."
+  type        = bool
+  default     = true
+}
+
+variable "cloudtrail_audit_reader_principals" {
+  description = "Additional principals allowed to assume the CloudTrail reader role."
+  type        = list(string)
+  default     = []
+}

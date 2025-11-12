@@ -1,6 +1,11 @@
 name: AWS Role Connectivity
 
 on:
+  push:
+    branches:
+      - testing
+      - staging
+      - main
   workflow_dispatch:
     inputs:
       environment:
@@ -27,17 +32,30 @@ jobs:
       - name: Resolve role ARN
         id: target
         run: |
-          case "${{ github.event.inputs.environment }}" in
-            testing) role="${{ secrets.AWS_TESTING_DEPLOY_ROLE_ARN }}" ;;
-            staging) role="${{ secrets.AWS_STAGING_DEPLOY_ROLE_ARN }}" ;;
-            production) role="${{ secrets.AWS_PRODUCTION_DEPLOY_ROLE_ARN }}" ;;
-            *) echo "Unsupported environment"; exit 1 ;;
-          esac
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            case "${{ github.ref_name }}" in
+              testing) env_name="testing"; role="${{ secrets.AWS_TESTING_DEPLOY_ROLE_ARN }}" ;;
+              staging) env_name="staging"; role="${{ secrets.AWS_STAGING_DEPLOY_ROLE_ARN }}" ;;
+              main) env_name="production"; role="${{ secrets.AWS_PRODUCTION_DEPLOY_ROLE_ARN }}" ;;
+              *) echo "Unsupported branch ${{ github.ref_name }}"; exit 1 ;;
+            esac
+          else
+            env_name="${{ github.event.inputs.environment }}"
+            case "$env_name" in
+              testing) role="${{ secrets.AWS_TESTING_DEPLOY_ROLE_ARN }}" ;;
+              staging) role="${{ secrets.AWS_STAGING_DEPLOY_ROLE_ARN }}" ;;
+              production) role="${{ secrets.AWS_PRODUCTION_DEPLOY_ROLE_ARN }}" ;;
+              *) echo "Unsupported environment $env_name"; exit 1 ;;
+            esac
+          fi
+
           if [[ -z "$role" ]]; then
             echo "::error ::Missing role ARN secret for environment."
             exit 1
           fi
+
           echo "role=${role}" >> "$GITHUB_OUTPUT"
+          echo "display_env=${env_name}" >> "$GITHUB_OUTPUT"
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -46,4 +64,6 @@ jobs:
           aws-region: us-east-1
 
       - name: Show caller identity
-        run: aws sts get-caller-identity
+        run: |
+          echo "Environment: ${{ steps.target.outputs.display_env }}"
+          aws sts get-caller-identity
