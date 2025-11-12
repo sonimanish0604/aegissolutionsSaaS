@@ -58,7 +58,7 @@ jobs:
           echo "display_env=${env_name}" >> "$GITHUB_OUTPUT"
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           role-to-assume: ${{ steps.target.outputs.role }}
           aws-region: us-east-1
