@@ -32,7 +32,7 @@ This policy applies to:
 
 5. **Merge / Release**
    - PR is merged only to protected branches.
-   - All merges generate a Change Manifest and upload it to immutable storage.
+   - Automated dependency updates created by GitHub Dependabot are treated as pre-approved standard changes. These PRs may proceed without a dedicated Issue provided automated checks succeed and branch protections remain enforced. All other changes require a linked Issue with documented approval.
 
 6. **Audit Logging**
    - Each change produces a signed record containing Issue → Branch → PR → Commits → Tests → Approvals → Deployment.
