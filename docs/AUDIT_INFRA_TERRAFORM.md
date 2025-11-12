@@ -11,16 +11,20 @@ emitted by the ISO 20022 API.
 marketplace-adapters/
   modules/
     aws_audit_pipeline/     # AWS MSK + S3 + KMS
+    aws_cloudtrail/         # AWS CloudTrail + log bucket + KMS + reader role
     gcp_audit_pipeline/     # GCP Pub/Sub + GCS + KMS
     azure_audit_pipeline/   # Azure Event Hubs + Storage + Key Vault
   aws/deploy-roles/         # GitHub OIDC provider + IAM deploy roles
-  aws/testing/              # Example “testing” environment wiring the AWS module
+  aws/environments/
+    testing/                # Ephemeral testing stack
+    staging/                # Long-lived staging stack
+    production/             # Production stack
   gcp/testing/              # GCP testing environment using the module
   azure/testing/            # Azure testing environment using the module
 ```
 
-Each “testing” configuration is intended for CI-driven integration runs. Use different
-workspaces or variable files to adapt them for staging/production.
+Each directory under `aws/environments/` is a complete Terraform configuration that reuses the
+shared modules. See `docs/TERRAFORM_ENVIRONMENTS.md` for the lifecycle and automation details.
 
 ## Common Capabilities
 
@@ -42,8 +46,12 @@ respective key-management service so manifest signatures remain verifiable.
   the cluster or orchestrator that runs the translator service.
 - Destroy the testing stacks after the integration workflow completes to avoid message broker
   charges.
+- Every AWS environment automatically enables CloudTrail (management + S3/Lambda data events +
+  Insights). Logs are encrypted with dedicated KMS keys and stored in per-environment S3 buckets
+  with optional audit-reader IAM roles.
 
 Refer to the README in each cloud-specific directory for detailed invocation instructions.
+For AWS, use the environment-specific README at `marketplace-adapters/aws/environments/README.md`.
 
 ## GitHub Actions Integration
 
@@ -53,6 +61,9 @@ Refer to the README in each cloud-specific directory for detailed invocation ins
 - Store the resulting role ARNs as repository secrets:
   `AWS_TESTING_DEPLOY_ROLE_ARN`, `AWS_STAGING_DEPLOY_ROLE_ARN`,
   `AWS_PRODUCTION_DEPLOY_ROLE_ARN`.
-- The `.github/workflows/audit-aws-terraform.yml` workflow assumes the
-  appropriate role (based on branch) and generates a Terraform plan for the AWS
-  audit stack.
+- The `.github/workflows/aws-role-connectivity.yml` workflow validates that GitHub can assume the
+  environment-specific IAM roles.
+- Terraform workflows manage each AWS environment:
+  - `.github/workflows/terraform-testing.yml` – applies/destroys the ephemeral testing stack.
+  - `.github/workflows/terraform-staging.yml` – runs plans on PRs targeting `staging` and requires a manual dispatch to apply.
+  - `.github/workflows/terraform-production.yml` – manual-only plan/apply for production.

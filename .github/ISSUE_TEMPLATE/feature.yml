@@ -1,0 +1,109 @@
+name: Feature
+description: Plan and track a new capability or enhancement.
+title: "[Feature]: "
+labels:
+  - "type: feature"
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: Describe the change, business value, and scope.
+      placeholder: "Add ISO 20022 mapping for new message type..."
+    validations:
+      required: true
+  - type: dropdown
+    id: product
+    attributes:
+      label: Product
+      description: Which product or domain does this impact?
+      options:
+        - payments:iso20022
+        - security
+        - doc-analyzer
+        - privacy:anonymization
+    validations:
+      required: true
+  - type: dropdown
+    id: change_type
+    attributes:
+      label: Change Type
+      options:
+        - feature
+        - fix
+        - hotfix
+        - perf
+        - docs
+        - refactor
+        - build
+        - ci
+        - test
+        - chore
+    validations:
+      required: true
+  - type: dropdown
+    id: change_risk
+    attributes:
+      label: Change Risk
+      options:
+        - low
+        - medium
+        - high
+    validations:
+      required: true
+  - type: checkboxes
+    id: cloud_provider
+    attributes:
+      label: Cloud Provider Impacted
+      options:
+        - label: AWS
+        - label: Azure
+        - label: GCP
+    validations:
+      required: false
+  - type: checkboxes
+    id: environment
+    attributes:
+      label: Environments
+      description: Select all environments this change must reach.
+      options:
+        - label: testing
+        - label: staging
+        - label: prod
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - infra
+        - api
+        - security
+        - ci-cd
+        - mapping-engine
+        - validator
+        - rule-engine
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance Criteria
+      description: Bullet list of functional/non-functional expectations.
+      placeholder: "- Given X when Y then Z"
+    validations:
+      required: true
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies & References
+      description: Link related issues, ADRs, or upstream work.
+  - type: textarea
+    id: rollback
+    attributes:
+      label: Rollback / Mitigation Plan
+      description: Describe how to undo the change or mitigate failure.
+      placeholder: "Rollback to previous mapping version..."
+    validations:
+      required: true

@@ -1,0 +1,101 @@
+name: Cloud Subtask Fan-out
+
+on:
+  issues:
+    types: [labeled]
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: "Existing issue number to backfill (must have the cloud label)"
+        required: true
+        type: number
+      force:
+        description: "Set to true to re-create subtasks even if already triaged."
+        required: false
+        default: "false"
+
+permissions:
+  contents: read
+
+jobs:
+  fanout:
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      contains(github.event.issue.labels.*.name, 'cloud')
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.PROJECT_AUTOMATION_TOKEN }}
+      CLOUDS: "AWS GCP Azure"
+
+    steps:
+      - name: Resolve issue number
+        id: parent
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            issue="${{ github.event.inputs.issue_number }}"
+            force="${{ github.event.inputs.force }}"
+          else
+            issue="${{ github.event.issue.number }}"
+            force="false"
+          fi
+
+          if [[ -z "$issue" ]]; then
+            echo "::error ::issue_number is required when running manually."
+            exit 1
+          fi
+
+          echo "issue=$issue" >> "$GITHUB_OUTPUT"
+          echo "force=$force" >> "$GITHUB_OUTPUT"
+
+      - name: Fetch issue metadata
+        id: issue
+        run: |
+          set -euo pipefail
+          issue="${{ steps.parent.outputs.issue }}"
+          gh api repos/${{ github.repository }}/issues/"$issue" > issue.json
+
+          title=$(jq -r '.title' issue.json)
+          echo "title=$title" >> "$GITHUB_OUTPUT"
+
+          if ! jq -e '.labels[].name | select(. == "cloud")' issue.json >/dev/null; then
+            echo "::error ::Issue #$issue does not have the 'cloud' label."
+            exit 1
+          fi
+
+          if jq -e '.labels[].name | select(. == "cloud-triaged")' issue.json >/dev/null; then
+            if [[ "${{ steps.parent.outputs.force }}" != "true" ]]; then
+              echo "::notice ::Issue #$issue already has cloud subtasks."
+              exit 0
+            fi
+          fi
+
+          echo "proceed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Create subtasks
+        if: steps.issue.outputs.proceed == 'true'
+        id: subtasks
+        run: |
+          set -euo pipefail
+          issue="${{ steps.parent.outputs.issue }}"
+          title='${{ steps.issue.outputs.title }}'
+          touch checklist.txt
+
+          for cloud in $CLOUDS; do
+            payload=$(gh issue create \
+              --title "${title} – ${cloud}" \
+              --body "Subtask for ${cloud}.\nParent: #${issue}" \
+              --label "cloud-subtask" \
+              --json number,url)
+
+            number=$(echo "$payload" | jq -r '.number')
+            echo "- [ ] #${number} (${cloud})" >> checklist.txt
+          done
+
+          echo "created=true" >> "$GITHUB_OUTPUT"
+
+      - name: Comment on parent
+        if: steps.subtasks.outputs.created == 'true'
+        run: |
+          issue="${{ steps.parent.outputs.issue }}"
+          gh issue comment "$issue" -F checklist.txt
+          gh issue edit "$issue" --add-label cloud-triaged
