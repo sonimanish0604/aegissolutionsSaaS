@@ -28,7 +28,7 @@ jobs:
       (github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'plan')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: hashicorp/setup-terraform@v2
         with:
@@ -50,7 +50,7 @@ jobs:
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'apply'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: hashicorp/setup-terraform@v2
         with:
