@@ -17,16 +17,8 @@ jobs:
   validate-issue-link:
     runs-on: ubuntu-latest
     steps:
-      - name: Skip issue enforcement for Dependabot
-        shell: bash
-        run: |
-          head="${{ github.event.pull_request.head.ref }}"
-          if [[ "$head" == dependabot/* ]]; then
-            echo "Dependabot PR detected; change is treated as a pre-approved standard change per policy. Skipping issue link enforcement."
-            exit 0
-          fi
-
       - name: Extract PR metadata
+        if: ${{ !startsWith(github.event.pull_request.head.ref, 'dependabot/') }}
         id: pr
         uses: actions/github-script@v7
         with:
@@ -51,12 +43,13 @@ jobs:
             core.setOutput("issue_numbers", JSON.stringify(list));
 
       - name: Fail if no issue references found
-        if: steps.pr.outputs.issue_numbers == '[]'
+        if: ${{ !startsWith(github.event.pull_request.head.ref, 'dependabot/') && steps.pr.outputs.issue_numbers == '[]' }}
         run: |
           echo "No linked issues found. Please add 'Closes #<issue>' in the PR body and/or include the issue id in the branch name."
           exit 1
 
       - name: Validate referenced issues are open and approved
+        if: ${{ !startsWith(github.event.pull_request.head.ref, 'dependabot/') }}
         id: validate
         uses: actions/github-script@v7
         env:
