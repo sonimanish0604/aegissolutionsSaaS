@@ -25,6 +25,8 @@ jobs:
 
           if [[ "$base" == "develop" && "$head" == feature/* ]]; then
             allowed="true"
+          elif [[ "$base" == "develop" && "$head" == dependabot/* ]]; then
+            allowed="true"
           elif [[ "$base" == "testing" && "$head" == "develop" ]]; then
             allowed="true"
           elif [[ "$base" == "staging" && "$head" == "testing" ]]; then
