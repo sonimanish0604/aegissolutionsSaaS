@@ -1,6 +1,6 @@
 fastapi==0.121.1
 uvicorn[standard]==0.38.0
-pydantic==2.12.3
+pydantic==2.12.4
 lxml==6.0.2
 PyYAML==6.0.3
 xmlschema>=2.0,<3
