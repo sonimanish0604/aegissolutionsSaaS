@@ -1,3 +1,25 @@
+# [1.0.0-beta.2](https://github.com/sonimanish0604/aegissolutionsSaaS/compare/v1.0.0-beta.1...v1.0.0-beta.2) (2025-11-13)
+
+
+### Bug Fixes
+
+* **ci:** allow dependabot PRs to bypass issue gate [[#123](https://github.com/sonimanish0604/aegissolutionsSaaS/issues/123)] ([ee9ff06](https://github.com/sonimanish0604/aegissolutionsSaaS/commit/ee9ff06a1302c0afed801c857feaa6d096caef5c))
+* **ci:** auto-insert issue scaffold in PR body [[#126](https://github.com/sonimanish0604/aegissolutionsSaaS/issues/126)] ([16bc762](https://github.com/sonimanish0604/aegissolutionsSaaS/commit/16bc762609d801f908acf1959d1f506fff06ca81))
+* **ci:** broaden branch flow prefixes [[#128](https://github.com/sonimanish0604/aegissolutionsSaaS/issues/128)] ([9ad6ddf](https://github.com/sonimanish0604/aegissolutionsSaaS/commit/9ad6ddf75640d92de2caf07121a1d74cb6302b02))
+* **ci:** inline pr body enforcement action [[#129](https://github.com/sonimanish0604/aegissolutionsSaaS/issues/129)] ([84831ce](https://github.com/sonimanish0604/aegissolutionsSaaS/commit/84831cef76e4eac666f4ae6d0d7b813afaa83776))
+* **ci:** parse issue refs from PR title as well [[#123](https://github.com/sonimanish0604/aegissolutionsSaaS/issues/123)] ([91f375d](https://github.com/sonimanish0604/aegissolutionsSaaS/commit/91f375d1894d6d00e2efec7a5d3d935629c3b5fc))
+* **ci:** relax issue open requirement for main merges [[#128](https://github.com/sonimanish0604/aegissolutionsSaaS/issues/128)] ([0dd022d](https://github.com/sonimanish0604/aegissolutionsSaaS/commit/0dd022d574997970c93896958ad59aec904e8240))
+* **ci:** skip issue gate for dependabot updates [[#123](https://github.com/sonimanish0604/aegissolutionsSaaS/issues/123)] ([c563b10](https://github.com/sonimanish0604/aegissolutionsSaaS/commit/c563b1060a5a8651ba4d8a3a73e675323cb1b601))
+* **terraform:** align audit pipeline resources with provider schema [[#133](https://github.com/sonimanish0604/aegissolutionsSaaS/issues/133)] ([39dd76a](https://github.com/sonimanish0604/aegissolutionsSaaS/commit/39dd76a4431f9a44df497a5293be3a1cff2c81b2))
+* **terraform:** point env stacks to shared modules [[#133](https://github.com/sonimanish0604/aegissolutionsSaaS/issues/133)] ([bd70d76](https://github.com/sonimanish0604/aegissolutionsSaaS/commit/bd70d76a2d2870f2a6344b9a219d1ba01e6cbfa0))
+* **terraform:** resolve cloudtrail selector conflicts [[#133](https://github.com/sonimanish0604/aegissolutionsSaaS/issues/133)] ([5aff0d4](https://github.com/sonimanish0604/aegissolutionsSaaS/commit/5aff0d4c8d6611ea8c9f9bb59e35f609c666d793))
+
+
+### Features
+
+* **change-mgmt:** add issue automation and AWS CloudTrail [[#89](https://github.com/sonimanish0604/aegissolutionsSaaS/issues/89)] ([9dbc06b](https://github.com/sonimanish0604/aegissolutionsSaaS/commit/9dbc06bc4ae1d7af61ea95740fdb12eea4558277))
+* **ci:** gate terraform on aws connectivity [[#129](https://github.com/sonimanish0604/aegissolutionsSaaS/issues/129)] ([44b34cc](https://github.com/sonimanish0604/aegissolutionsSaaS/commit/44b34cc5eb1545d244cdb1da4c04e92d4815af83))
+
 # 1.0.0-beta.1 (2025-11-05)
 
 
