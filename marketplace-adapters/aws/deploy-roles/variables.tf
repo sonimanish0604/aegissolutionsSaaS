@@ -7,7 +7,7 @@ variable "aws_region" {
 variable "github_repository" {
   description = "GitHub repository in <owner>/<repo> format authorised to deploy."
   type        = string
-  default     = "AegisSolutions/SaaS-Core"
+  default     = "sonimanish0604/aegissolutionsSaaS"
 
   validation {
     condition     = can(regex("^[^/]+/[^/]+$", var.github_repository))
