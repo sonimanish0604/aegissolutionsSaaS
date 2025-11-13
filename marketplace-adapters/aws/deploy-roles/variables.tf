@@ -36,7 +36,13 @@ variable "production_branch" {
 variable "managed_policy_arns" {
   description = "Managed policies that will be attached to every deploy role."
   type        = list(string)
-  default     = ["arn:aws:iam::aws:policy/AdministratorAccess"]
+  default     = []
+}
+
+variable "resource_prefix" {
+  description = "Base prefix shared by environment resources (matches name_prefix in env stacks)."
+  type        = string
+  default     = "aegis"
 }
 
 variable "max_session_duration" {
