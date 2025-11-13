@@ -15,19 +15,16 @@ resource "aws_iam_openid_connect_provider" "github" {
 locals {
   deploy_roles = {
     testing = {
-      role_name   = "AegisTestingDeploy"
       branch      = var.testing_branch
       description = "GitHub Actions deploy role for the testing environment"
       tags        = merge(var.tags, { "Environment" = "testing" })
     }
     staging = {
-      role_name   = "AegisStagingDeploy"
       branch      = var.staging_branch
       description = "GitHub Actions deploy role for the staging environment"
       tags        = merge(var.tags, { "Environment" = "staging" })
     }
     production = {
-      role_name   = "AegisProductionDeploy"
       branch      = var.production_branch
       description = "GitHub Actions deploy role for the production environment"
       tags        = merge(var.tags, { "Environment" = "production" })
@@ -75,8 +72,7 @@ locals {
     "ec2:AuthorizeSecurityGroupIngress"
   ]
 
-  s3_actions = [
-    "s3:CreateBucket",
+  s3_bucket_actions = [
     "s3:DeleteBucket",
     "s3:DeleteObject",
     "s3:GetAccelerateConfiguration",
@@ -98,6 +94,11 @@ locals {
     "s3:PutBucketTagging",
     "s3:PutBucketVersioning",
     "s3:PutObject"
+  ]
+
+  s3_global_actions = [
+    "s3:CreateBucket",
+    "s3:ListAllMyBuckets"
   ]
 
   iam_role_scope = {
@@ -141,8 +142,14 @@ data "aws_iam_policy_document" "deploy_permissions" {
   }
 
   statement {
+    sid       = "S3Create"
+    actions   = local.s3_global_actions
+    resources = ["*"]
+  }
+
+  statement {
     sid       = "S3AuditBuckets"
-    actions   = local.s3_actions
+    actions   = local.s3_bucket_actions
     resources = local.s3_bucket_arns[each.key]
   }
 
@@ -187,7 +194,6 @@ data "aws_iam_policy_document" "deploy_permissions" {
       "kms:CreateAlias",
       "kms:UpdateAlias",
       "kms:DeleteAlias",
-      "kms:ListAliases",
       "kms:PutKeyPolicy",
       "kms:GetKeyPolicy",
       "kms:GenerateDataKey",
@@ -202,6 +208,15 @@ data "aws_iam_policy_document" "deploy_permissions" {
   }
 
   statement {
+    sid = "KMSList"
+    actions = [
+      "kms:ListAliases",
+      "kms:ListKeys"
+    ]
+    resources = ["*"]
+  }
+
+  statement {
     sid = "CloudWatchLogs"
     actions = [
       "logs:CreateLogGroup",
@@ -212,7 +227,7 @@ data "aws_iam_policy_document" "deploy_permissions" {
       "logs:TagLogGroup",
       "logs:UntagLogGroup"
     ]
-    resources = [local.logs_arn]
+    resources = ["*"]
   }
 
   statement {
@@ -257,7 +272,7 @@ module "deploy_roles" {
 
   for_each = local.deploy_roles
 
-  role_name            = each.value.role_name
+  role_name            = "${var.resource_prefix}-${each.key}-deploy"
   description          = each.value.description
   oidc_provider_arn    = aws_iam_openid_connect_provider.github.arn
   github_repository    = var.github_repository

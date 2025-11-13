@@ -42,7 +42,7 @@ variable "managed_policy_arns" {
 variable "resource_prefix" {
   description = "Base prefix shared by environment resources (matches name_prefix in env stacks)."
   type        = string
-  default     = "aegis"
+  default     = "aegis-iso20022"
 }
 
 variable "max_session_duration" {

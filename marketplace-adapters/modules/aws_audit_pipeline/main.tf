@@ -203,7 +203,7 @@ resource "aws_cloudwatch_log_group" "msk" {
 
 resource "aws_msk_configuration" "audit" {
   name              = "${local.base_name}-audit-config"
-  kafka_versions    = ["3.7.0"]
+  kafka_versions    = ["3.8.0"]
   server_properties = <<-EOF
 auto.create.topics.enable = true
 delete.topic.enable = true
