@@ -1,38 +1,86 @@
-## 🧭 Summary
-<!-- Briefly describe what this PR does and why -->
+# PR Title
+<!-- Conventional Commits preferred: feat:, fix:, chore:, docs:, refactor:, perf:, test:, ci:, build: -->
 
-## 🧩 Changes Introduced
-- [ ] Added Docker Compose setup for local Postgres
-- [ ] Added initial schema and migrations
-- [ ] Added pre-commit hooks
-- [ ] Updated .gitignore
-
-## 🧪 How to Test
-1. Run `docker compose up -d` from `/deployment/docker`
-2. Execute `./scripts/db-apply.sh` under onboarding-service
-3. Verify tables in Adminer (`http://localhost:8080`)
-
-## 📸 Screenshots / Output (if applicable)
-<!-- Add screenshots, logs, or Adminer output -->
-
-## 🔐 Security & Compliance
-- [ ] No sensitive data committed
-- [ ] Environment variables handled via `.env`
-- [ ] Confirmed DB credentials not in code
-
-## ✅ Checklist Before Merge
-- [ ] All tests/lints pass locally
-- [ ] Pre-commit hooks run cleanly (`pre-commit run --all-files`)
-- [ ] Documentation updated if needed
-- [ ] CI checks pass
+## 0) Linked Work Item(s)
+- Use `Refs #<issue_id>` for develop/testing/staging promotions so the issue stays open.
+- Use `Closes #<issue_id>` only when merging to `main` to auto-close the issue.
+- Tracking Issue (required): Refs #<issue_id>
+- Final Merge (optional): Closes #<issue_id>
+- Change Type: □ Feature □ Bugfix □ Security □ Docs □ Refactor
+- Affected Service/Area: `aegis-iso20022-api` | `infra` | `pipeline` | other: _____
+- Environments touched: □ Testing (ephemeral) □ Staging □ Production
 
 ---
 
-**Reviewer Notes:**  
-_Anything specific for reviewers to look at (e.g., schema naming, migration order, etc.)_
+## 1) Summary (What/Why)
+<!-- Business value, user impact, and scope -->
 
 ---
 
-> 🟩 **Merging Rule:**  
-> Feature branches → `develop`  
-> Staging/tested → `main` (after QA)
+## 2) Design & Risk Assessment
+**Approach:**  
+<!-- Design notes or ADR link -->
+
+**Risks & Mitigations:**  
+- Risk → Mitigation
+
+**Breaking Changes:** □ No □ Yes (describe + rollback)
+
+---
+
+## 3) Security / Privacy / Compliance
+- Threat modeling touched? □ N/A □ Yes (link)
+- Secrets/keys changed? □ No □ Yes (rotation details)
+- Data classification impact? □ N/A □ Yes (describe)
+- Controls referenced:
+  - ISO 27001: A.8, A.12, A.14, A.18
+  - SOC 2: CC1.x, CC5.x, CC6.x, CC7.x
+  - NIST 800-53: CM-3, CM-5, CM-8 (optional)
+
+---
+
+## 4) Tests & Evidence
+- Unit tests: □ Added □ Updated □ N/A
+- Integration: □ Added □ Updated □ N/A
+- Regression suite impact: □ None □ New cases (list)
+- CI / Coverage / Static Analysis links:
+
+---
+
+## 5) Deployment / Rollout / Rollback
+- Infra/IaC change? □ No □ Yes (Terraform plan link)
+- Rollout plan (env order, canary, freeze windows):
+- Rollback plan (explicit steps, data considerations):
+- Ops runbook updated? □ N/A □ Yes (link)
+
+---
+
+## 6) Audit Log & Manifest
+- Change Record ID:
+- S3 URI: `s3://change-mgmt-logs/changes/<yyyy>/<mm>/<dd>/<changeId>/`
+- `manifest.json` SHA256: ______
+- `manifest.sig` SHA256: ______
+- Signer (KMS key / PGP): ______
+- Evidence bundle uploaded? □ Yes □ No (explain)
+
+---
+
+## 7) Checklist Before Merge
+- [ ] Issue linked (no Issue → no merge)
+- [ ] Branch follows convention (`feature/<issue>-slug`, etc.)
+- [ ] Conventional commit messages used
+- [ ] CI (tests + security scans) succeeded
+- [ ] Terraform plan reviewed & stored (if IaC)
+- [ ] Docs/CHANGELOG updated
+- [ ] Evidence pushed to S3 + manifest signed
+
+---
+
+## 8) Screenshots / Logs (optional)
+
+---
+
+## 9) Approvals
+- Reviewer(s): @_____
+- Security/Privacy (if applicable): @_____
+- Change authorization note (solo dev): _self-approval allowed per CM policy, automated gates enforced_
