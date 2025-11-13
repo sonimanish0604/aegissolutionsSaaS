@@ -1,0 +1,30 @@
+name: Ensure PR body references Issue
+
+on:
+  pull_request_target:
+    types: [opened, edited]
+    branches:
+      - develop
+      - testing
+      - staging
+      - main
+
+permissions:
+  pull-requests: write
+
+jobs:
+  enforce:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require issue reference in body
+        if: github.actor != 'dependabot[bot]'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const body = (pr.body || "").trim();
+            const issueRefRegex = /\b(?:closes|fixes|resolves)\s+#\d+\b/i;
+
+            if (!issueRefRegex.test(body)) {
+              core.setFailed("PR body must include an issue reference like 'Closes #<issue>'.");
+            }

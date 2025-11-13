@@ -1,0 +1,116 @@
+name: Require Issue Link
+
+on:
+  pull_request:
+    branches:
+      - develop
+      - testing
+      - staging
+      - main
+
+permissions:
+  pull-requests: read
+  contents: read
+  issues: read
+
+jobs:
+  validate-issue-link:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Extract PR metadata
+        if: ${{ !startsWith(github.event.pull_request.head.ref, 'dependabot/') }}
+        id: pr
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const body = ((pr.title || "") + "\n" + (pr.body || "")).trim();
+            const head = pr.head.ref || "";
+            const base = pr.base.ref || "";
+
+            const issueRefRegex = /\b(?:closes|fixes|resolves)\s+#(\d+)\b/ig;
+            const bodyMatches = [...body.matchAll(issueRefRegex)].map(m => m[1]);
+
+            const brRegex = /(?:^|[\/\-])(\d{1,6})(?:[\/\-]|$)/;
+            const brMatch = head.match(brRegex);
+            const branchIssue = brMatch ? brMatch[1] : null;
+
+            const unique = new Set([
+              ...bodyMatches,
+              ...(branchIssue ? [branchIssue] : [])
+            ].filter(Boolean));
+
+            const list = [...unique];
+            core.setOutput("issue_numbers", JSON.stringify(list));
+            core.setOutput("base_branch", base);
+
+      - name: Fail if no issue references found
+        if: ${{ !startsWith(github.event.pull_request.head.ref, 'dependabot/') && steps.pr.outputs.issue_numbers == '[]' }}
+        run: |
+          echo "No linked issues found. Please add 'Closes #<issue>' in the PR body and/or include the issue id in the branch name."
+          exit 1
+
+      - name: Validate referenced issues are open and approved
+        if: ${{ !startsWith(github.event.pull_request.head.ref, 'dependabot/') }}
+        id: validate
+        uses: actions/github-script@v7
+        env:
+          ISSUE_NUMBERS: ${{ steps.pr.outputs.issue_numbers }}
+          BASE_BRANCH: ${{ steps.pr.outputs.base_branch }}
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const numbers = JSON.parse(process.env.ISSUE_NUMBERS || "[]");
+            const base = process.env.BASE_BRANCH || "";
+            const requiredApprovalLabel = 'change-approved';
+            const requireOpenIssue = base !== 'main';
+            let ok = false;
+            let reasons = [];
+
+            for (const num of numbers) {
+              try {
+                const { data: issue } = await github.rest.issues.get({
+                  owner,
+                  repo,
+                  issue_number: Number(num)
+                });
+
+                const isOpen = issue.state === 'open';
+                const hasApproval = issue.labels.some(l => (l.name || '').toLowerCase() === requiredApprovalLabel);
+                const stateAccepted = requireOpenIssue ? isOpen : true;
+
+                if (stateAccepted && hasApproval) {
+                  ok = true;
+                  break;
+                } else {
+                  const detail = requireOpenIssue
+                    ? `open:${isOpen}`
+                    : `open state ignored for base '${base}'`;
+                  reasons.push(`#${num} -> ${detail}, has '${requiredApprovalLabel}':${hasApproval}`);
+                }
+              } catch (e) {
+                reasons.push(`#${num} -> not found or inaccessible`);
+              }
+            }
+
+            if (!ok) {
+              const stateMsg = requireOpenIssue ? "open" : "open/closed";
+              core.setFailed(`No referenced issue is both ${stateMsg} (per branch policy) and labeled '${requiredApprovalLabel}'. Details: ${reasons.join(' | ')}`);
+            }
+
+      # Optional strict mode for commit messages
+      - name: Ensure commit messages reference an issue
+        if: false
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const prNum = context.payload.pull_request.number;
+            const commits = await github.paginate(github.rest.pulls.listCommits, { owner, repo, pull_number: prNum });
+            const re = /#\d+/;
+            const bad = commits.filter(c => !re.test(c.commit.message));
+            if (bad.length) {
+              core.setFailed(`Commit messages missing issue refs:\n${bad.map(b => `- ${b.sha.slice(0,7)} ${b.commit.message}`).join('\n')}`);
+            }

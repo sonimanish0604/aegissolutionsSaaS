@@ -127,6 +127,9 @@ resource "aws_s3_bucket_lifecycle_configuration" "audit" {
   rule {
     id     = "TransitionToDeepArchive"
     status = "Enabled"
+    filter {
+      prefix = ""
+    }
     transition {
       days          = var.bucket_retention_days
       storage_class = "DEEP_ARCHIVE"
@@ -172,7 +175,9 @@ resource "aws_msk_serverless_cluster" "audit" {
   cluster_name = "${local.base_name}-audit"
   client_authentication {
     sasl {
-      iam = true
+      iam {
+        enabled = true
+      }
     }
   }
 

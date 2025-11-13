@@ -18,7 +18,7 @@ jobs:
       id-token: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
@@ -56,13 +56,13 @@ jobs:
           python scripts/soc2_compliance.py --output "$GITHUB_WORKSPACE/artifacts/soc2_report.json"
 
       - name: Archive compliance report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: soc2-report-${{ github.ref_name }}
           path: artifacts/soc2_report.json
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: "20"
 
