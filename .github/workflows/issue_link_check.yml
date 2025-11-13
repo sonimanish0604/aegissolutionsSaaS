@@ -28,7 +28,7 @@ jobs:
             const head = pr.head.ref || "";
             const base = pr.base.ref || "";
 
-            const issueRefRegex = /\b(?:closes|fixes|resolves)\s+#(\d+)\b/ig;
+            const issueRefRegex = /\b(?:closes|fixes|resolves|refs)\s+#(\d+)\b/ig;
             const bodyMatches = [...body.matchAll(issueRefRegex)].map(m => m[1]);
 
             const brRegex = /(?:^|[\/\-])(\d{1,6})(?:[\/\-]|$)/;

@@ -2,7 +2,10 @@
 <!-- Conventional Commits preferred: feat:, fix:, chore:, docs:, refactor:, perf:, test:, ci:, build: -->
 
 ## 0) Linked Work Item(s)
-- Closes #<issue_id> (REQUIRED)
+- Use `Refs #<issue_id>` for develop/testing/staging promotions so the issue stays open.
+- Use `Closes #<issue_id>` only when merging to `main` to auto-close the issue.
+- Tracking Issue (required): Refs #<issue_id>
+- Final Merge (optional): Closes #<issue_id>
 - Change Type: □ Feature □ Bugfix □ Security □ Docs □ Refactor
 - Affected Service/Area: `aegis-iso20022-api` | `infra` | `pipeline` | other: _____
 - Environments touched: □ Testing (ephemeral) □ Staging □ Production

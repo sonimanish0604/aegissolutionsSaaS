@@ -23,8 +23,8 @@ jobs:
           script: |
             const pr = context.payload.pull_request;
             const body = (pr.body || "").trim();
-            const issueRefRegex = /\b(?:closes|fixes|resolves)\s+#\d+\b/i;
+            const issueRefRegex = /\b(?:closes|fixes|resolves|refs)\s+#\d+\b/i;
 
             if (!issueRefRegex.test(body)) {
-              core.setFailed("PR body must include an issue reference like 'Closes #<issue>'.");
+              core.setFailed("PR body must include 'Refs #<issue>' (non-prod) or 'Closes #<issue>' (prod).");
             }
