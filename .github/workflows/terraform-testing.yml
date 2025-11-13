@@ -16,7 +16,20 @@ env:
   AWS_REGION: us-east-1
 
 jobs:
+  verify-connectivity:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_TESTING_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Validate AWS connectivity
+        run: aws sts get-caller-identity
+
   plan:
+    needs: verify-connectivity
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
@@ -39,6 +52,7 @@ jobs:
         run: terraform -chdir="${TF_WORKING_DIR}" plan
 
   apply-and-destroy:
+    needs: verify-connectivity
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     steps:
