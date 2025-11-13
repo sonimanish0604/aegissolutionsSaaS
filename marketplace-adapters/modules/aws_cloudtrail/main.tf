@@ -97,6 +97,9 @@ resource "aws_s3_bucket_lifecycle_configuration" "logs" {
   rule {
     id     = "RetainAndExpire"
     status = "Enabled"
+    filter {
+      prefix = ""
+    }
 
     expiration {
       days = var.retention_days
@@ -192,12 +195,16 @@ resource "aws_cloudtrail" "this" {
   enable_log_file_validation    = true
   is_organization_trail         = false
 
-  cloud_watch_logs_group_arn  = null
-  cloud_watch_logs_role_arn   = null
+  cloud_watch_logs_group_arn = null
+  cloud_watch_logs_role_arn  = null
 
-  event_selector {
-    include_management_events = true
-    read_write_type          = "All"
+  # Always capture management events via advanced selector
+  advanced_event_selector {
+    name = "ManagementEvents"
+    field_selector {
+      field  = "eventCategory"
+      equals = ["Management"]
+    }
   }
 
   dynamic "advanced_event_selector" {
