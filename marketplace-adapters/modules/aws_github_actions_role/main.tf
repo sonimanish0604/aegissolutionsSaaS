@@ -3,7 +3,10 @@ data "aws_partition" "current" {}
 data "aws_caller_identity" "current" {}
 
 locals {
-  oidc_condition_sub = "repo:${var.github_repository}:ref:refs/heads/${var.branch}"
+  oidc_condition_subs = [
+    "repo:${var.github_repository}:ref:refs/heads/${var.branch}",
+    "repo:${var.github_repository}:pull_request:*"
+  ]
 }
 
 data "aws_iam_policy_document" "assume_role" {
@@ -24,9 +27,9 @@ data "aws_iam_policy_document" "assume_role" {
     }
 
     condition {
-      test     = "StringEquals"
+      test     = "StringLike"
       variable = "token.actions.githubusercontent.com:sub"
-      values   = [local.oidc_condition_sub]
+      values   = local.oidc_condition_subs
     }
   }
 }
