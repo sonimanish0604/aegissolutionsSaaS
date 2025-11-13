@@ -1,3 +1,12 @@
+# [1.0.0-beta.3](https://github.com/sonimanish0604/aegissolutionsSaaS/compare/v1.0.0-beta.2...v1.0.0-beta.3) (2025-11-13)
+
+
+### Bug Fixes
+
+* **ci:** accept refs in pr template and gates [[#138](https://github.com/sonimanish0604/aegissolutionsSaaS/issues/138) [#141](https://github.com/sonimanish0604/aegissolutionsSaaS/issues/141)] ([39ad953](https://github.com/sonimanish0604/aegissolutionsSaaS/commit/39ad953f89113aa97d8be4c5a1bff752670a80c3))
+* **ci:** auto-populate pr refs and use live data [[#138](https://github.com/sonimanish0604/aegissolutionsSaaS/issues/138) [#141](https://github.com/sonimanish0604/aegissolutionsSaaS/issues/141)] ([fbfbaaa](https://github.com/sonimanish0604/aegissolutionsSaaS/commit/fbfbaaadccae93e5aafdb410473b1432483a7e64))
+* **terraform:** codify deploy roles and policies [[#138](https://github.com/sonimanish0604/aegissolutionsSaaS/issues/138)] ([bc5f0b3](https://github.com/sonimanish0604/aegissolutionsSaaS/commit/bc5f0b36f99214d86d6d3d00be95bb77a9ef62a9))
+
 # [1.0.0-beta.2](https://github.com/sonimanish0604/aegissolutionsSaaS/compare/v1.0.0-beta.1...v1.0.0-beta.2) (2025-11-13)
 
 
