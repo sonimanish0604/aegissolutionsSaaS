@@ -23,10 +23,18 @@ jobs:
 
           allowed="false"
 
-          if [[ "$base" == "develop" && "$head" == feature/* ]]; then
-            allowed="true"
-          elif [[ "$base" == "develop" && "$head" == dependabot/* ]]; then
-            allowed="true"
+          valid_prefixes=(feature fix bug hotfix perf docs refactor build ci test chore)
+
+          if [[ "$base" == "develop" ]]; then
+            for prefix in "${valid_prefixes[@]}"; do
+              if [[ "$head" == $prefix/* ]]; then
+                allowed="true"
+                break
+              fi
+            done
+            if [[ "$head" == dependabot/* ]]; then
+              allowed="true"
+            fi
           elif [[ "$base" == "testing" && "$head" == "develop" ]]; then
             allowed="true"
           elif [[ "$base" == "staging" && "$head" == "testing" ]]; then

@@ -26,6 +26,7 @@ jobs:
             const pr = context.payload.pull_request;
             const body = ((pr.title || "") + "\n" + (pr.body || "")).trim();
             const head = pr.head.ref || "";
+            const base = pr.base.ref || "";
 
             const issueRefRegex = /\b(?:closes|fixes|resolves)\s+#(\d+)\b/ig;
             const bodyMatches = [...body.matchAll(issueRefRegex)].map(m => m[1]);
@@ -41,6 +42,7 @@ jobs:
 
             const list = [...unique];
             core.setOutput("issue_numbers", JSON.stringify(list));
+            core.setOutput("base_branch", base);
 
       - name: Fail if no issue references found
         if: ${{ !startsWith(github.event.pull_request.head.ref, 'dependabot/') && steps.pr.outputs.issue_numbers == '[]' }}
@@ -54,12 +56,15 @@ jobs:
         uses: actions/github-script@v7
         env:
           ISSUE_NUMBERS: ${{ steps.pr.outputs.issue_numbers }}
+          BASE_BRANCH: ${{ steps.pr.outputs.base_branch }}
         with:
           script: |
             const owner = context.repo.owner;
             const repo = context.repo.repo;
             const numbers = JSON.parse(process.env.ISSUE_NUMBERS || "[]");
+            const base = process.env.BASE_BRANCH || "";
             const requiredApprovalLabel = 'change-approved';
+            const requireOpenIssue = base !== 'main';
             let ok = false;
             let reasons = [];
 
@@ -73,12 +78,16 @@ jobs:
 
                 const isOpen = issue.state === 'open';
                 const hasApproval = issue.labels.some(l => (l.name || '').toLowerCase() === requiredApprovalLabel);
+                const stateAccepted = requireOpenIssue ? isOpen : true;
 
-                if (isOpen && hasApproval) {
+                if (stateAccepted && hasApproval) {
                   ok = true;
                   break;
                 } else {
-                  reasons.push(`#${num} -> open:${isOpen}, has '${requiredApprovalLabel}':${hasApproval}`);
+                  const detail = requireOpenIssue
+                    ? `open:${isOpen}`
+                    : `open state ignored for base '${base}'`;
+                  reasons.push(`#${num} -> ${detail}, has '${requiredApprovalLabel}':${hasApproval}`);
                 }
               } catch (e) {
                 reasons.push(`#${num} -> not found or inaccessible`);
@@ -86,7 +95,8 @@ jobs:
             }
 
             if (!ok) {
-              core.setFailed(`No referenced issue is both OPEN and labeled '${requiredApprovalLabel}'. Details: ${reasons.join(' | ')}`);
+              const stateMsg = requireOpenIssue ? "open" : "open/closed";
+              core.setFailed(`No referenced issue is both ${stateMsg} (per branch policy) and labeled '${requiredApprovalLabel}'. Details: ${reasons.join(' | ')}`);
             }
 
       # Optional strict mode for commit messages
