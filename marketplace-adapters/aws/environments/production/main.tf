@@ -76,7 +76,7 @@ resource "aws_iam_role" "manifest" {
 }
 
 module "audit_pipeline" {
-  source      = "../../modules/aws_audit_pipeline"
+  source      = "../../../modules/aws_audit_pipeline"
   name_prefix = var.name_prefix
   environment = var.environment
   vpc_id      = module.network.vpc_id
@@ -180,7 +180,7 @@ resource "aws_iam_role_policy_attachment" "manifest" {
 }
 
 module "cloudtrail" {
-  source = "../../modules/aws_cloudtrail"
+  source = "../../../modules/aws_cloudtrail"
 
   name_prefix             = var.name_prefix
   environment             = var.environment
