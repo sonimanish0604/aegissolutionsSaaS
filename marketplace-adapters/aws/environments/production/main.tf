@@ -76,7 +76,7 @@ resource "aws_iam_role" "manifest" {
 }
 
 module "audit_pipeline" {
-  source      = "../../modules/aws_audit_pipeline"
+  source      = "../../../modules/aws_audit_pipeline"
   name_prefix = var.name_prefix
   environment = var.environment
   vpc_id      = module.network.vpc_id
@@ -177,4 +177,16 @@ resource "aws_iam_policy" "manifest" {
 resource "aws_iam_role_policy_attachment" "manifest" {
   role       = aws_iam_role.manifest.name
   policy_arn = aws_iam_policy.manifest.arn
+}
+
+module "cloudtrail" {
+  source = "../../../modules/aws_cloudtrail"
+
+  name_prefix             = var.name_prefix
+  environment             = var.environment
+  retention_days          = var.cloudtrail_retention_days
+  include_data_events     = var.cloudtrail_include_data_events
+  enable_insights         = var.cloudtrail_enable_insights
+  audit_reader_principals = var.cloudtrail_audit_reader_principals
+  tags                    = var.tags
 }

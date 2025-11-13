@@ -1,0 +1,73 @@
+name: Ensure PR body references Issue
+
+on:
+  pull_request_target:
+    types: [opened, edited]
+    branches:
+      - develop
+      - testing
+      - staging
+      - main
+
+permissions:
+  pull-requests: write
+
+jobs:
+  enforce:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require issue reference in body
+        if: github.actor != 'dependabot[bot]'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issueRefRegex = /\b(?:closes|fixes|resolves|refs)\s+#\d+\b/i;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const pull_number = context.payload.pull_request.number;
+            const baseBranch = context.payload.pull_request.base.ref || "";
+            const closingKeyword = baseBranch === "main" ? "Closes" : "Refs";
+
+            async function getPull() {
+              const { data } = await github.rest.pulls.get({ owner, repo, pull_number });
+              return data;
+            }
+
+            function extractIssueIds(pr) {
+              const titleMatches = [...(pr.title || "").matchAll(/#(\d+)/g)].map(m => m[1]);
+              const headMatches = [...(pr.head?.ref || "").matchAll(/(\d{1,6})/g)].map(m => m[1]);
+              return [...new Set([...titleMatches, ...headMatches])];
+            }
+
+            async function ensureReference(pr) {
+              const body = (pr.body || "").trim();
+              if (issueRefRegex.test(body)) {
+                return body;
+              }
+
+              const ids = extractIssueIds(pr);
+              if (!ids.length) {
+                core.warning("Could not derive issue id from PR title or branch. Please edit the PR body manually to include 'Refs #<issue>'.");
+                return body;
+              }
+
+              const newLine = `${closingKeyword} #${ids[0]}`;
+              const newBody = body ? `${body}\n\n${newLine}` : newLine;
+
+              await github.rest.pulls.update({
+                owner,
+                repo,
+                pull_number,
+                body: newBody
+              });
+
+              core.notice(`PR body updated automatically with '${newLine}'.`);
+              return newBody;
+            }
+
+            const initial = await getPull();
+            const updatedBody = await ensureReference(initial);
+
+            if (!issueRefRegex.test(updatedBody || "")) {
+              core.setFailed("PR body must include 'Refs #<issue>' (non-prod) or 'Closes #<issue>' (prod). Unable to auto-populate.");
+            }

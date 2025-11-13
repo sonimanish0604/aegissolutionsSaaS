@@ -22,3 +22,13 @@ output "manifest_role_arn" {
   description = "IAM role for manifest writer."
   value       = aws_iam_role.manifest.arn
 }
+
+output "cloudtrail_trail_arn" {
+  description = "CloudTrail ARN for this environment."
+  value       = module.cloudtrail.trail_arn
+}
+
+output "cloudtrail_bucket_name" {
+  description = "S3 bucket storing CloudTrail logs."
+  value       = module.cloudtrail.log_bucket_name
+}
