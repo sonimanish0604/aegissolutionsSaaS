@@ -13,7 +13,7 @@ variable "environment" {
 variable "name_prefix" {
   description = "Prefix applied to resource names."
   type        = string
-  default     = "aegis"
+  default     = "aegis-iso20022"
 }
 
 variable "vpc_cidr" {
