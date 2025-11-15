@@ -31,6 +31,36 @@ locals {
     }
   }
 
+  github_subject_prefix = "repo:${var.github_repository}"
+
+  connectivity_roles = {
+    testing = {
+      branch = var.testing_branch
+      oidc_subjects = distinct(compact([
+        "${local.github_subject_prefix}:ref:refs/heads/${var.testing_branch}",
+        "${local.github_subject_prefix}:pull_request:*",
+        var.develop_branch != "" ? "${local.github_subject_prefix}:ref:refs/heads/${var.develop_branch}" : null
+      ]))
+      tags = merge(var.tags, { "Environment" = "testing", "Purpose" = "connectivity-check" })
+    }
+    staging = {
+      branch = var.staging_branch
+      oidc_subjects = [
+        "${local.github_subject_prefix}:ref:refs/heads/${var.staging_branch}",
+        "${local.github_subject_prefix}:pull_request:*"
+      ]
+      tags = merge(var.tags, { "Environment" = "staging", "Purpose" = "connectivity-check" })
+    }
+    production = {
+      branch = var.production_branch
+      oidc_subjects = [
+        "${local.github_subject_prefix}:ref:refs/heads/${var.production_branch}",
+        "${local.github_subject_prefix}:pull_request:*"
+      ]
+      tags = merge(var.tags, { "Environment" = "production", "Purpose" = "connectivity-check" })
+    }
+  }
+
   ec2_actions = [
     "ec2:AllocateAddress",
     "ec2:AssociateRouteTable",
@@ -297,6 +327,16 @@ data "aws_iam_policy_document" "deploy_permissions" {
   }
 }
 
+data "aws_iam_policy_document" "connectivity_permissions" {
+  for_each = local.connectivity_roles
+
+  statement {
+    sid       = "AllowCallerIdentity"
+    actions   = ["sts:GetCallerIdentity"]
+    resources = ["*"]
+  }
+}
+
 module "deploy_roles" {
   source = "../../modules/aws_github_actions_role"
 
@@ -310,6 +350,22 @@ module "deploy_roles" {
   oidc_subjects        = var.github_oidc_subjects
   managed_policy_arns  = var.managed_policy_arns
   inline_policies      = { "environment-access" = data.aws_iam_policy_document.deploy_permissions[each.key].json }
+  max_session_duration = var.max_session_duration
+  tags                 = each.value.tags
+}
+
+module "connectivity_roles" {
+  source = "../../modules/aws_github_actions_role"
+
+  for_each = local.connectivity_roles
+
+  role_name            = "${var.resource_prefix}-${each.key}-connectivity"
+  description          = "GitHub Actions connectivity role for the ${each.key} environment"
+  oidc_provider_arn    = aws_iam_openid_connect_provider.github.arn
+  github_repository    = var.github_repository
+  branch               = each.value.branch
+  oidc_subjects        = each.value.oidc_subjects
+  inline_policies      = { "connectivity-access" = data.aws_iam_policy_document.connectivity_permissions[each.key].json }
   max_session_duration = var.max_session_duration
   tags                 = each.value.tags
 }

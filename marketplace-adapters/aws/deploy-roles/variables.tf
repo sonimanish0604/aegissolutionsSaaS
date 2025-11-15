@@ -21,6 +21,12 @@ variable "testing_branch" {
   default     = "testing"
 }
 
+variable "develop_branch" {
+  description = "Primary integration branch used ahead of testing (allowed to run connectivity checks)."
+  type        = string
+  default     = "develop"
+}
+
 variable "staging_branch" {
   description = "Branch that maps to the staging environment."
   type        = string
