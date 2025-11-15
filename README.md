@@ -2,6 +2,8 @@
 
 This repository contains the core services and automation that underpin the Aegis ISO 20022 platform.
 
+Environment-specific Terraform workflows (issue #151) now live under `.github/workflows` to reflect the current change-management controls.
+
 ## Documentation
 
 - [MT→MX sample payloads](services/aegis-iso20022-api/docs/mt-mx-samples.md)
