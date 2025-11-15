@@ -106,6 +106,11 @@ locals {
     env => "arn:aws:iam::*:role/${var.resource_prefix}-${env}-*"
   }
 
+  iam_policy_scope = {
+    for env in keys(local.deploy_roles) :
+    env => "arn:aws:iam::*:policy/${var.resource_prefix}-${env}-*"
+  }
+
   s3_bucket_arns = {
     for env in keys(local.deploy_roles) :
     env => [
@@ -136,8 +141,8 @@ data "aws_iam_policy_document" "deploy_permissions" {
   for_each = local.deploy_roles
 
   statement {
-    sid     = "EC2Networking"
-    actions = local.ec2_actions
+    sid       = "EC2Networking"
+    actions   = local.ec2_actions
     resources = ["*"]
   }
 
@@ -175,9 +180,34 @@ data "aws_iam_policy_document" "deploy_permissions" {
       "iam:DeleteRolePolicy",
       "iam:AttachRolePolicy",
       "iam:DetachRolePolicy",
-      "iam:PassRole"
+      "iam:PassRole",
+      "iam:ListAttachedRolePolicies"
     ]
     resources = [local.iam_role_scope[each.key]]
+  }
+
+  statement {
+    sid = "IAMPolicyLifecycle"
+    actions = [
+      "iam:CreatePolicy",
+      "iam:DeletePolicy",
+      "iam:CreatePolicyVersion",
+      "iam:DeletePolicyVersion",
+      "iam:SetDefaultPolicyVersion"
+    ]
+    resources = [local.iam_policy_scope[each.key]]
+  }
+
+  statement {
+    sid = "IAMPolicyInsights"
+    actions = [
+      "iam:GetPolicy",
+      "iam:GetPolicyVersion",
+      "iam:ListPolicyVersions",
+      "iam:TagPolicy",
+      "iam:UntagPolicy"
+    ]
+    resources = [local.iam_policy_scope[each.key]]
   }
 
   statement {
