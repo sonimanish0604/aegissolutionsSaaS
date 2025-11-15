@@ -307,6 +307,7 @@ module "deploy_roles" {
   oidc_provider_arn    = aws_iam_openid_connect_provider.github.arn
   github_repository    = var.github_repository
   branch               = each.value.branch
+  oidc_subjects        = var.github_oidc_subjects
   managed_policy_arns  = var.managed_policy_arns
   inline_policies      = { "environment-access" = data.aws_iam_policy_document.deploy_permissions[each.key].json }
   max_session_duration = var.max_session_duration

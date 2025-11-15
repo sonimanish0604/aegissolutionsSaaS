@@ -39,6 +39,12 @@ variable "managed_policy_arns" {
   default     = []
 }
 
+variable "github_oidc_subjects" {
+  description = "Optional explicit list of GitHub token.sub values allowed for deploy roles (overrides branch defaults)."
+  type        = list(string)
+  default     = []
+}
+
 variable "resource_prefix" {
   description = "Base prefix shared by environment resources (matches name_prefix in env stacks)."
   type        = string

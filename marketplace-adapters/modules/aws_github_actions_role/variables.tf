@@ -24,6 +24,12 @@ variable "branch" {
   type        = string
 }
 
+variable "oidc_subjects" {
+  description = "Optional explicit list of token.sub values allowed to assume the role. Overrides branch defaults when non-empty."
+  type        = list(string)
+  default     = []
+}
+
 variable "audience" {
   description = "Expected OIDC audience claim."
   type        = string
