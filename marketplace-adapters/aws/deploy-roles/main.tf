@@ -46,19 +46,26 @@ locals {
     staging = {
       branch = var.staging_branch
       oidc_subjects = [
-        "${local.github_subject_prefix}:ref:refs/heads/${var.staging_branch}",
-        "${local.github_subject_prefix}:pull_request:*"
+        "${local.github_subject_prefix}:ref:refs/heads/${var.staging_branch}"
       ]
       tags = merge(var.tags, { "Environment" = "staging", "Purpose" = "connectivity-check" })
     }
     production = {
       branch = var.production_branch
       oidc_subjects = [
-        "${local.github_subject_prefix}:ref:refs/heads/${var.production_branch}",
-        "${local.github_subject_prefix}:pull_request:*"
+        "${local.github_subject_prefix}:ref:refs/heads/${var.production_branch}"
       ]
       tags = merge(var.tags, { "Environment" = "production", "Purpose" = "connectivity-check" })
     }
+  }
+
+  pr_validation_role = {
+    branch = var.develop_branch
+    oidc_subjects = distinct(compact([
+      "${local.github_subject_prefix}:ref:refs/heads/${var.develop_branch}",
+      "${local.github_subject_prefix}:pull_request:*"
+    ]))
+    tags = merge(var.tags, { "Environment" = "neutral-pr", "Purpose" = "pr-connectivity-check" })
   }
 
   ec2_actions = [
@@ -337,6 +344,14 @@ data "aws_iam_policy_document" "connectivity_permissions" {
   }
 }
 
+data "aws_iam_policy_document" "pr_connectivity_permissions" {
+  statement {
+    sid       = "AllowCallerIdentity"
+    actions   = ["sts:GetCallerIdentity"]
+    resources = ["*"]
+  }
+}
+
 module "deploy_roles" {
   source = "../../modules/aws_github_actions_role"
 
@@ -368,4 +383,18 @@ module "connectivity_roles" {
   inline_policies      = { "connectivity-access" = data.aws_iam_policy_document.connectivity_permissions[each.key].json }
   max_session_duration = var.max_session_duration
   tags                 = each.value.tags
+}
+
+module "pr_connectivity_role" {
+  source = "../../modules/aws_github_actions_role"
+
+  role_name            = "${var.resource_prefix}-pr-connectivity"
+  description          = "Neutral GitHub Actions connectivity role for PR validation"
+  oidc_provider_arn    = aws_iam_openid_connect_provider.github.arn
+  github_repository    = var.github_repository
+  branch               = local.pr_validation_role.branch
+  oidc_subjects        = local.pr_validation_role.oidc_subjects
+  inline_policies      = { "pr-connectivity-access" = data.aws_iam_policy_document.pr_connectivity_permissions.json }
+  max_session_duration = var.max_session_duration
+  tags                 = local.pr_validation_role.tags
 }
