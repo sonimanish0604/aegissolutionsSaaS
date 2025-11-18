@@ -15,23 +15,58 @@ resource "aws_iam_openid_connect_provider" "github" {
 locals {
   deploy_roles = {
     testing = {
-      role_name   = "AegisTestingDeploy"
       branch      = var.testing_branch
       description = "GitHub Actions deploy role for the testing environment"
       tags        = merge(var.tags, { "Environment" = "testing" })
     }
     staging = {
-      role_name   = "AegisStagingDeploy"
       branch      = var.staging_branch
       description = "GitHub Actions deploy role for the staging environment"
       tags        = merge(var.tags, { "Environment" = "staging" })
     }
     production = {
-      role_name   = "AegisProductionDeploy"
       branch      = var.production_branch
       description = "GitHub Actions deploy role for the production environment"
       tags        = merge(var.tags, { "Environment" = "production" })
     }
+  }
+
+  github_subject_prefix = "repo:${var.github_repository}"
+
+  connectivity_roles = {
+    testing = {
+      branch = var.testing_branch
+      oidc_subjects = distinct(compact([
+        "${local.github_subject_prefix}:ref:refs/heads/${var.testing_branch}",
+        "${local.github_subject_prefix}:pull_request",
+        "${local.github_subject_prefix}:pull_request:*",
+        var.develop_branch != "" ? "${local.github_subject_prefix}:ref:refs/heads/${var.develop_branch}" : null
+      ]))
+      tags = merge(var.tags, { "Environment" = "testing", "Purpose" = "connectivity-check" })
+    }
+    staging = {
+      branch = var.staging_branch
+      oidc_subjects = [
+        "${local.github_subject_prefix}:ref:refs/heads/${var.staging_branch}"
+      ]
+      tags = merge(var.tags, { "Environment" = "staging", "Purpose" = "connectivity-check" })
+    }
+    production = {
+      branch = var.production_branch
+      oidc_subjects = [
+        "${local.github_subject_prefix}:ref:refs/heads/${var.production_branch}"
+      ]
+      tags = merge(var.tags, { "Environment" = "production", "Purpose" = "connectivity-check" })
+    }
+  }
+
+  pr_validation_role = {
+    branch = var.develop_branch
+    oidc_subjects = distinct(compact([
+      "${local.github_subject_prefix}:ref:refs/heads/${var.develop_branch}",
+      "${local.github_subject_prefix}:pull_request:*"
+    ]))
+    tags = merge(var.tags, { "Environment" = "neutral-pr", "Purpose" = "pr-connectivity-check" })
   }
 
   ec2_actions = [
@@ -75,8 +110,7 @@ locals {
     "ec2:AuthorizeSecurityGroupIngress"
   ]
 
-  s3_actions = [
-    "s3:CreateBucket",
+  s3_bucket_actions = [
     "s3:DeleteBucket",
     "s3:DeleteObject",
     "s3:GetAccelerateConfiguration",
@@ -100,9 +134,19 @@ locals {
     "s3:PutObject"
   ]
 
+  s3_global_actions = [
+    "s3:CreateBucket",
+    "s3:ListAllMyBuckets"
+  ]
+
   iam_role_scope = {
     for env in keys(local.deploy_roles) :
     env => "arn:aws:iam::*:role/${var.resource_prefix}-${env}-*"
+  }
+
+  iam_policy_scope = {
+    for env in keys(local.deploy_roles) :
+    env => "arn:aws:iam::*:policy/${var.resource_prefix}-${env}-*"
   }
 
   s3_bucket_arns = {
@@ -135,14 +179,20 @@ data "aws_iam_policy_document" "deploy_permissions" {
   for_each = local.deploy_roles
 
   statement {
-    sid     = "EC2Networking"
-    actions = local.ec2_actions
+    sid       = "EC2Networking"
+    actions   = local.ec2_actions
+    resources = ["*"]
+  }
+
+  statement {
+    sid       = "S3Create"
+    actions   = local.s3_global_actions
     resources = ["*"]
   }
 
   statement {
     sid       = "S3AuditBuckets"
-    actions   = local.s3_actions
+    actions   = local.s3_bucket_actions
     resources = local.s3_bucket_arns[each.key]
   }
 
@@ -168,9 +218,34 @@ data "aws_iam_policy_document" "deploy_permissions" {
       "iam:DeleteRolePolicy",
       "iam:AttachRolePolicy",
       "iam:DetachRolePolicy",
-      "iam:PassRole"
+      "iam:PassRole",
+      "iam:ListAttachedRolePolicies"
     ]
     resources = [local.iam_role_scope[each.key]]
+  }
+
+  statement {
+    sid = "IAMPolicyLifecycle"
+    actions = [
+      "iam:CreatePolicy",
+      "iam:DeletePolicy",
+      "iam:CreatePolicyVersion",
+      "iam:DeletePolicyVersion",
+      "iam:SetDefaultPolicyVersion"
+    ]
+    resources = [local.iam_policy_scope[each.key]]
+  }
+
+  statement {
+    sid = "IAMPolicyInsights"
+    actions = [
+      "iam:GetPolicy",
+      "iam:GetPolicyVersion",
+      "iam:ListPolicyVersions",
+      "iam:TagPolicy",
+      "iam:UntagPolicy"
+    ]
+    resources = [local.iam_policy_scope[each.key]]
   }
 
   statement {
@@ -187,7 +262,6 @@ data "aws_iam_policy_document" "deploy_permissions" {
       "kms:CreateAlias",
       "kms:UpdateAlias",
       "kms:DeleteAlias",
-      "kms:ListAliases",
       "kms:PutKeyPolicy",
       "kms:GetKeyPolicy",
       "kms:GenerateDataKey",
@@ -202,6 +276,15 @@ data "aws_iam_policy_document" "deploy_permissions" {
   }
 
   statement {
+    sid = "KMSList"
+    actions = [
+      "kms:ListAliases",
+      "kms:ListKeys"
+    ]
+    resources = ["*"]
+  }
+
+  statement {
     sid = "CloudWatchLogs"
     actions = [
       "logs:CreateLogGroup",
@@ -212,7 +295,7 @@ data "aws_iam_policy_document" "deploy_permissions" {
       "logs:TagLogGroup",
       "logs:UntagLogGroup"
     ]
-    resources = [local.logs_arn]
+    resources = ["*"]
   }
 
   statement {
@@ -252,18 +335,67 @@ data "aws_iam_policy_document" "deploy_permissions" {
   }
 }
 
+data "aws_iam_policy_document" "connectivity_permissions" {
+  for_each = local.connectivity_roles
+
+  statement {
+    sid       = "AllowCallerIdentity"
+    actions   = ["sts:GetCallerIdentity"]
+    resources = ["*"]
+  }
+}
+
+data "aws_iam_policy_document" "pr_connectivity_permissions" {
+  statement {
+    sid       = "AllowCallerIdentity"
+    actions   = ["sts:GetCallerIdentity"]
+    resources = ["*"]
+  }
+}
+
 module "deploy_roles" {
   source = "../../modules/aws_github_actions_role"
 
   for_each = local.deploy_roles
 
-  role_name            = each.value.role_name
+  role_name            = "${var.resource_prefix}-${each.key}-deploy"
   description          = each.value.description
   oidc_provider_arn    = aws_iam_openid_connect_provider.github.arn
   github_repository    = var.github_repository
   branch               = each.value.branch
+  oidc_subjects        = var.github_oidc_subjects
   managed_policy_arns  = var.managed_policy_arns
   inline_policies      = { "environment-access" = data.aws_iam_policy_document.deploy_permissions[each.key].json }
   max_session_duration = var.max_session_duration
   tags                 = each.value.tags
+}
+
+module "connectivity_roles" {
+  source = "../../modules/aws_github_actions_role"
+
+  for_each = local.connectivity_roles
+
+  role_name            = "${var.resource_prefix}-${each.key}-connectivity"
+  description          = "GitHub Actions connectivity role for the ${each.key} environment"
+  oidc_provider_arn    = aws_iam_openid_connect_provider.github.arn
+  github_repository    = var.github_repository
+  branch               = each.value.branch
+  oidc_subjects        = each.value.oidc_subjects
+  inline_policies      = { "connectivity-access" = data.aws_iam_policy_document.connectivity_permissions[each.key].json }
+  max_session_duration = var.max_session_duration
+  tags                 = each.value.tags
+}
+
+module "pr_connectivity_role" {
+  source = "../../modules/aws_github_actions_role"
+
+  role_name            = "${var.resource_prefix}-pr-connectivity"
+  description          = "Neutral GitHub Actions connectivity role for PR validation"
+  oidc_provider_arn    = aws_iam_openid_connect_provider.github.arn
+  github_repository    = var.github_repository
+  branch               = local.pr_validation_role.branch
+  oidc_subjects        = local.pr_validation_role.oidc_subjects
+  inline_policies      = { "pr-connectivity-access" = data.aws_iam_policy_document.pr_connectivity_permissions.json }
+  max_session_duration = var.max_session_duration
+  tags                 = local.pr_validation_role.tags
 }

@@ -7,7 +7,7 @@ variable "aws_region" {
 variable "github_repository" {
   description = "GitHub repository in <owner>/<repo> format authorised to deploy."
   type        = string
-  default     = "AegisSolutions/SaaS-Core"
+  default     = "sonimanish0604/aegissolutionsSaaS"
 
   validation {
     condition     = can(regex("^[^/]+/[^/]+$", var.github_repository))
@@ -19,6 +19,12 @@ variable "testing_branch" {
   description = "Branch that maps to the testing environment."
   type        = string
   default     = "testing"
+}
+
+variable "develop_branch" {
+  description = "Primary integration branch used ahead of testing (allowed to run connectivity checks)."
+  type        = string
+  default     = "develop"
 }
 
 variable "staging_branch" {
@@ -39,10 +45,16 @@ variable "managed_policy_arns" {
   default     = []
 }
 
+variable "github_oidc_subjects" {
+  description = "Optional explicit list of GitHub token.sub values allowed for deploy roles (overrides branch defaults)."
+  type        = list(string)
+  default     = []
+}
+
 variable "resource_prefix" {
   description = "Base prefix shared by environment resources (matches name_prefix in env stacks)."
   type        = string
-  default     = "aegis"
+  default     = "aegis-iso20022"
 }
 
 variable "max_session_duration" {
