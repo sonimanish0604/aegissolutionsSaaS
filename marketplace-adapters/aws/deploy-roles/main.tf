@@ -38,6 +38,7 @@ locals {
       branch = var.testing_branch
       oidc_subjects = distinct(compact([
         "${local.github_subject_prefix}:ref:refs/heads/${var.testing_branch}",
+        "${local.github_subject_prefix}:pull_request",
         "${local.github_subject_prefix}:pull_request:*",
         var.develop_branch != "" ? "${local.github_subject_prefix}:ref:refs/heads/${var.develop_branch}" : null
       ]))
