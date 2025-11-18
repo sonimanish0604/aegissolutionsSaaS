@@ -1,3 +1,11 @@
+# [1.0.0-beta.4](https://github.com/sonimanish0604/aegissolutionsSaaS/compare/v1.0.0-beta.3...v1.0.0-beta.4) (2025-11-18)
+
+
+### Bug Fixes
+
+* **iam:** allow pull_request principals in gha roles [[#138](https://github.com/sonimanish0604/aegissolutionsSaaS/issues/138)] ([4473235](https://github.com/sonimanish0604/aegissolutionsSaaS/commit/4473235f0ce2688d8d2da6f5d319af420c1455fc))
+* **terraform:** expand deploy role perms and update naming [[#138](https://github.com/sonimanish0604/aegissolutionsSaaS/issues/138)] ([4e06f21](https://github.com/sonimanish0604/aegissolutionsSaaS/commit/4e06f21ab9c74fb93c7878de1de52a4cd68305d2))
+
 # [1.0.0-beta.3](https://github.com/sonimanish0604/aegissolutionsSaaS/compare/v1.0.0-beta.2...v1.0.0-beta.3) (2025-11-13)
 
 
