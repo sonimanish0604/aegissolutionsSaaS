@@ -5,6 +5,7 @@ data "aws_caller_identity" "current" {}
 locals {
   default_oidc_condition_subs = [
     "repo:${var.github_repository}:ref:refs/heads/${var.branch}",
+    "repo:${var.github_repository}:pull_request",
     "repo:${var.github_repository}:pull_request:*"
   ]
 
