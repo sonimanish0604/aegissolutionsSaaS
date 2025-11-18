@@ -86,7 +86,7 @@ jobs:
           aws sts get-caller-identity
 
   pr-connectivity:
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'develop'
     runs-on: ubuntu-latest
     permissions:
       id-token: write
