@@ -1,0 +1,82 @@
+name: Docker Compose Production
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  prod-deploy:
+    runs-on: ubuntu-latest
+    env:
+      KAFKA_BOOTSTRAP_SERVERS: ${{ secrets.PROD_KAFKA_BOOTSTRAP }}
+      AUDIT_S3_BUCKET: ${{ secrets.PROD_AUDIT_BUCKET }}
+      AWS_REGION: us-east-1
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Start production stack
+        run: docker compose -f docker-compose.dev.yml -f docker-compose.prod.yml up -d --build
+
+      - name: Wait for translator
+        uses: jtalk/url-health-check-action@v4
+        with:
+          url: http://localhost:8080/
+          retry-delay: 5s
+          max-attempts: 30
+
+      - name: Wait for prevalidator
+        uses: jtalk/url-health-check-action@v4
+        with:
+          url: http://localhost:8081/
+          retry-delay: 5s
+          max-attempts: 30
+
+      - name: Smoke test
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - run: |
+          python -m pip install --upgrade pip
+          pip install -r services/aegis-iso20022-api/requirements.txt
+      - run: python tests/system/audit_smoke.py
+        env:
+          TRANSLATOR_URL: http://localhost:8080
+          PREVALIDATOR_URL: http://localhost:8081
+          S3_ENDPOINT_URL: ${{ secrets.PROD_S3_ENDPOINT }}
+          AUDIT_S3_BUCKET: ${{ secrets.PROD_AUDIT_BUCKET }}
+          AWS_REGION: us-east-1
+          AWS_ACCESS_KEY_ID: ${{ secrets.PROD_AWS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.PROD_AWS_SECRET }}
+
+      - name: Publish production evidence
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.COMPLIANCE_BOT_TOKEN }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "COMPLIANCE_BOT_TOKEN missing; skipping evidence publish." && exit 0
+          fi
+          REPORT_REPO="https://github.com/sonimanish0604/aegis-compliance-evidence.git"
+          WORKDIR=$(mktemp -d)
+          git clone --depth=1 https://${GH_TOKEN}@github.com/sonimanish0604/aegis-compliance-evidence.git "$WORKDIR"
+          TIMESTAMP=$(date -u +"%Y%m%dT%H%M%SZ")
+          IDENTIFIER="prod-${GITHUB_SHA:0:7}"
+          DEST_DIR="$WORKDIR/smoke/${TIMESTAMP:0:4}/${TIMESTAMP:4:2}"
+          mkdir -p "$DEST_DIR"
+          LOG_DEST="$DEST_DIR/docker_prod_${IDENTIFIER}_${TIMESTAMP}.log"
+          docker compose -f docker-compose.dev.yml -f docker-compose.prod.yml logs > "$LOG_DEST"
+          META_PATH="$DEST_DIR/docker_prod_${IDENTIFIER}_${TIMESTAMP}.json"
+          cat <<JSON > "$META_PATH"
+          {
+            "identifier": "${IDENTIFIER}",
+            "timestamp": "${TIMESTAMP}",
+            "source_workflow": "${GITHUB_WORKFLOW}",
+            "run_url": "https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          }
+          JSON
+          cd "$WORKDIR"
+          git config user.name "aegis-compliance-bot"
+          git config user.email "compliance-bot@aegis.local"
+          git add "$LOG_DEST" "$META_PATH"
+          git commit -m "Add production docker evidence ${IDENTIFIER} (${TIMESTAMP})"
+          git push origin HEAD

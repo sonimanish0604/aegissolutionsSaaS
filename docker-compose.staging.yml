@@ -1,0 +1,35 @@
+version: "3.9"
+
+services:
+  translator:
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS}
+      AUDIT_TOPIC: ${AUDIT_TOPIC:-audit.events}
+      LOG_LEVEL: INFO
+
+  prevalidator:
+    environment:
+      LOG_LEVEL: INFO
+
+  audit-worker:
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS}
+      AUDIT_TOPIC: ${AUDIT_TOPIC:-audit.events}
+      AUDIT_S3_BUCKET: ${AUDIT_S3_BUCKET}
+      AWS_REGION: ${AWS_REGION:-us-east-1}
+      AUDIT_MANIFEST_BATCH: 3
+      LOG_LEVEL: INFO
+
+  localstack:
+    image: localstack/localstack:3.3
+    restart: "no"
+    logging:
+      driver: "none"
+
+  kafka:
+    logging:
+      driver: "none"
+
+  zookeeper:
+    logging:
+      driver: "none"

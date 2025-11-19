@@ -9,6 +9,7 @@ import io
 import json
 import zipfile
 import logging
+import os
 from ..translator_core.detector import Detector
 from ..translator_core.mt_parser import MTParser
 from ..translator_core.mapping_store import MappingStore
@@ -20,12 +21,46 @@ from ..translator_core.metrics import timer
 from ..prevalidator_api.routes import router as prevalidator_router
 from ..prevalidator_core import PrevalidationEngine
 from .batch import BatchFile, BatchParseError, parse_batch_payload
+from audit_middleware import AuditMiddleware
+from audit_emitter import KafkaAuditEmitter, LoggingEmitter
 
 app = FastAPI(title="Aegis ISO20022 Translator")
 app.include_router(prevalidator_router)
 logger = logging.getLogger(__name__)
 
 prevalidation_engine = PrevalidationEngine()
+_audit_emitter = None
+
+
+def _init_audit_emitter():
+    global _audit_emitter
+    if _audit_emitter is not None:
+        return _audit_emitter
+    bootstrap = os.getenv("KAFKA_BOOTSTRAP_SERVERS")
+    topic = os.getenv("AUDIT_TOPIC", "audit.events")
+    emitter = None
+    if bootstrap and KafkaAuditEmitter:
+        try:
+            emitter = KafkaAuditEmitter(bootstrap_servers=bootstrap, topic=topic)
+            logger.info("Audit emitter configured for Kafka topic %s", topic)
+        except Exception as exc:  # pragma: no cover - fallback path
+            logger.warning("Falling back to logging audit emitter: %s", exc)
+            emitter = None
+    if emitter is None:
+        emitter = LoggingEmitter()
+    _audit_emitter = emitter
+    return emitter
+
+
+app.add_middleware(AuditMiddleware, emitter=_init_audit_emitter())
+
+
+@app.on_event("shutdown")
+async def shutdown_audit_emitter():
+    emitter = _init_audit_emitter()
+    close = getattr(emitter, "close", None)
+    if callable(close):  # pragma: no cover - clean shutdown
+        close()
 
 
 @app.get("/")

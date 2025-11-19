@@ -1,0 +1,13 @@
+version: "3.9"
+
+services:
+  translator:
+    environment:
+      LOG_LEVEL: INFO
+  prevalidator:
+    environment:
+      LOG_LEVEL: INFO
+  audit-worker:
+    environment:
+      LOG_LEVEL: INFO
+      AUDIT_MANIFEST_BATCH: 3
