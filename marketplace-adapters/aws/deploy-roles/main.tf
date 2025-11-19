@@ -129,6 +129,7 @@ locals {
     "s3:GetBucketPublicAccessBlock",
     "s3:GetBucketTagging",
     "s3:GetBucketVersioning",
+    "s3:GetReplicationConfiguration",
     "s3:GetLifecycleConfiguration",
     "s3:GetObject",
     "s3:ListBucket",
@@ -264,6 +265,7 @@ data "aws_iam_policy_document" "deploy_permissions" {
   statement {
     sid = "KMSManagement"
     actions = [
+      "kms:GetKeyRotationStatus",
       "kms:ScheduleKeyDeletion",
       "kms:CancelKeyDeletion",
       "kms:TagResource",
