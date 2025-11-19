@@ -41,4 +41,9 @@ PY
 fi
 
 echo "Starting translator API"
-exec uvicorn src.translator_api.routes:app --host 0.0.0.0 --port 8080
+export PYTHONPATH="${APP_HOME:-/app}/src:${PYTHONPATH:-}"
+exec uvicorn translator_api.routes:app --host 0.0.0.0 --port 8080
+
+if [ -z "$BOOTSTRAPS" ]; then
+  echo "Kafka bootstrap servers not set; proceeding with dummy emitter"
+fi
