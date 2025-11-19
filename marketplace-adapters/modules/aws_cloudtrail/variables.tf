@@ -3,6 +3,11 @@ variable "name_prefix" {
   type        = string
 }
 
+variable "aws_region" {
+  description = "AWS region where CloudTrail resources are deployed."
+  type        = string
+}
+
 variable "environment" {
   description = "Environment label (testing|staging|production)."
   type        = string
