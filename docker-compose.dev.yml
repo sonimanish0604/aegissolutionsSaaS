@@ -43,8 +43,10 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       AUDIT_TOPIC: audit.events
       LOG_LEVEL: INFO
+      WAIT_FOR_KAFKA_TIMEOUT: 240
     ports:
       - "8080:8080"
+    command: ["bash", "scripts/run_translator.sh"]
 
   prevalidator:
     image: aegis-iso20022-api:dev

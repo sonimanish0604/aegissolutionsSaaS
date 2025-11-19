@@ -4,6 +4,8 @@ services:
   translator:
     environment:
       LOG_LEVEL: INFO
+      WAIT_FOR_KAFKA_TIMEOUT: 240
+    command: ["bash", "scripts/run_translator.sh"]
   prevalidator:
     environment:
       LOG_LEVEL: INFO
