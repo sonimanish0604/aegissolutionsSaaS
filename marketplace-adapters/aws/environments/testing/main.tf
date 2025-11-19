@@ -35,6 +35,9 @@ module "network" {
     "kubernetes.io/role/internal-elb" = "1"
   }
 
+  manage_default_security_group = true
+  manage_default_network_acl    = true
+
   tags = merge(var.tags, {
     "Environment" = var.environment
     "Name"        = "${var.name_prefix}-${var.environment}-vpc"
