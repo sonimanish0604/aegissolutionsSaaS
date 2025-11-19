@@ -76,6 +76,7 @@ locals {
     "ec2:AssociateRouteTable",
     "ec2:AssociateVpcCidrBlock",
     "ec2:AttachInternetGateway",
+    "ec2:DescribeSecurityGroupRules",
     "ec2:CreateInternetGateway",
     "ec2:CreateNatGateway",
     "ec2:CreateRoute",
@@ -117,6 +118,7 @@ locals {
     "s3:DeleteObject",
     "s3:GetAccelerateConfiguration",
     "s3:GetBucketAcl",
+    "s3:GetBucketWebsite",
     "s3:GetBucketCORS",
     "s3:GetBucketEncryption",
     "s3:GetBucketLifecycleConfiguration",
@@ -329,6 +331,7 @@ data "aws_iam_policy_document" "deploy_permissions" {
     sid = "KafkaServerless"
     actions = [
       "kafka:CreateCluster",
+      "kafka:CreateClusterV2",
       "kafka:DeleteCluster",
       "kafka:DescribeCluster",
       "kafka:ListClusters",
