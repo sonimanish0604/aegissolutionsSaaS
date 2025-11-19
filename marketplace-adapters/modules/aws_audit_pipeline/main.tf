@@ -15,7 +15,7 @@ resource "aws_kms_key" "audit" {
 }
 
 resource "aws_kms_alias" "audit" {
-  name          = "alias/${local.base_name}-audit"
+  name          = "alias/${local.base_name}-audit-${random_id.suffix.hex}"
   target_key_id = aws_kms_key.audit.key_id
 }
 
@@ -217,14 +217,28 @@ resource "aws_msk_cluster_policy" "audit" {
 
 data "aws_iam_policy_document" "msk_policy" {
   statement {
-    sid       = "AllowIAMPublish"
-    effect    = "Allow"
-    actions   = ["kafka:Connect", "kafka:DescribeCluster", "kafka:DescribeTopic", "kafka:CreateTopic", "kafka:WriteData", "kafka:ReadData", "kafka:AlterTopic"]
+    sid    = "AllowTranslatorAccess"
+    effect = "Allow"
+    actions = [
+      "kafka:GetBootstrapBrokers"
+    ]
     resources = [aws_msk_serverless_cluster.audit.arn]
-
     principals {
       type        = "AWS"
-      identifiers = compact([var.translator_service_principal, var.manifest_service_principal])
+      identifiers = compact([var.translator_service_principal])
+    }
+  }
+
+  statement {
+    sid    = "AllowManifestAccess"
+    effect = "Allow"
+    actions = [
+      "kafka:GetBootstrapBrokers"
+    ]
+    resources = [aws_msk_serverless_cluster.audit.arn]
+    principals {
+      type        = "AWS"
+      identifiers = compact([var.manifest_service_principal])
     }
   }
 }
