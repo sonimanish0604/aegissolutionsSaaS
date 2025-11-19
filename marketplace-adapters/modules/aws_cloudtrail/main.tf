@@ -18,9 +18,9 @@ resource "aws_kms_key" "this" {
     Version : "2012-10-17",
     Statement : [
       {
-        Sid       : "AllowRootAccount",
+        Sid       : "AllowAccountRoot",
         Effect    : "Allow",
-        Principal : { AWS : data.aws_caller_identity.current.arn },
+        Principal : { AWS : "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root" },
         Action    : "kms:*",
         Resource  : "*"
       },
@@ -37,7 +37,7 @@ resource "aws_kms_key" "this" {
         Resource : "*",
         Condition: {
           StringEquals : {
-            "kms:EncryptionContext:aws:cloudtrail:arn" : "arn:aws:cloudtrail:${data.aws_caller_identity.current.account_id}:trail/${local.base_name}"
+            "kms:EncryptionContext:aws:cloudtrail:arn" : "arn:aws:cloudtrail:${var.aws_region}:${data.aws_caller_identity.current.account_id}:trail/${local.base_name}"
           }
         }
       }
@@ -51,7 +51,7 @@ resource "aws_kms_key" "this" {
 }
 
 resource "aws_kms_alias" "this" {
-  name          = "alias/${local.base_name}"
+  name          = "alias/${local.base_name}-${random_id.bucket.hex}"
   target_key_id = aws_kms_key.this.key_id
 }
 

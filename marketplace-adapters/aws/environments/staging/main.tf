@@ -183,6 +183,7 @@ module "cloudtrail" {
   source = "../../../modules/aws_cloudtrail"
 
   name_prefix             = var.name_prefix
+  aws_region              = var.aws_region
   environment             = var.environment
   retention_days          = var.cloudtrail_retention_days
   include_data_events     = var.cloudtrail_include_data_events

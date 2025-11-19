@@ -96,14 +96,12 @@ data "aws_iam_policy_document" "translator_access" {
     effect = "Allow"
     actions = [
       "kafka-cluster:Connect",
-      "kafka-cluster:AlterCluster",
       "kafka-cluster:DescribeCluster",
-      "kafka:DescribeCluster",
-      "kafka:GetBootstrapBrokers",
-      "kafka:DescribeTopic",
       "kafka-cluster:DescribeTopic",
-      "kafka-cluster:WriteData",
-      "kafka-cluster:AlterTopic"
+      "kafka-cluster:CreateTopic",
+      "kafka-cluster:AlterTopic",
+      "kafka-cluster:DeleteTopic",
+      "kafka-cluster:WriteData"
     ]
     resources = [module.audit_pipeline.msk_cluster_arn]
   }
@@ -148,6 +146,16 @@ data "aws_iam_policy_document" "manifest_access" {
   statement {
     effect = "Allow"
     actions = [
+      "kafka-cluster:Connect",
+      "kafka-cluster:DescribeCluster",
+      "kafka-cluster:DescribeTopic",
+      "kafka-cluster:ReadData"
+    ]
+    resources = [module.audit_pipeline.msk_cluster_arn]
+  }
+  statement {
+    effect = "Allow"
+    actions = [
       "s3:GetObject",
       "s3:PutObject",
       "s3:ListBucket"
@@ -186,6 +194,7 @@ module "cloudtrail" {
   source = "../../../modules/aws_cloudtrail"
 
   name_prefix               = var.name_prefix
+  aws_region                = var.aws_region
   environment               = var.environment
   retention_days            = var.cloudtrail_retention_days
   include_data_events       = var.cloudtrail_include_data_events
