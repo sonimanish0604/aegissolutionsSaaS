@@ -120,6 +120,7 @@ locals {
     "s3:GetBucketAcl",
     "s3:GetBucketRequestPayment",
     "s3:GetBucketWebsite",
+    "s3:GetBucketLogging",
     "s3:GetBucketCORS",
     "s3:GetBucketEncryption",
     "s3:GetBucketLifecycleConfiguration",
