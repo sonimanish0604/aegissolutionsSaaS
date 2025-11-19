@@ -118,6 +118,7 @@ locals {
     "s3:DeleteObject",
     "s3:GetAccelerateConfiguration",
     "s3:GetBucketAcl",
+    "s3:GetBucketRequestPayment",
     "s3:GetBucketWebsite",
     "s3:GetBucketCORS",
     "s3:GetBucketEncryption",
@@ -302,6 +303,7 @@ data "aws_iam_policy_document" "deploy_permissions" {
     actions = [
       "logs:CreateLogGroup",
       "logs:DeleteLogGroup",
+      "logs:ListTagsForResource",
       "logs:DescribeLogGroups",
       "logs:PutRetentionPolicy",
       "logs:DeleteRetentionPolicy",
@@ -332,6 +334,7 @@ data "aws_iam_policy_document" "deploy_permissions" {
     actions = [
       "kafka:CreateCluster",
       "kafka:CreateClusterV2",
+      "kafka:DescribeClusterV2",
       "kafka:DeleteCluster",
       "kafka:DescribeCluster",
       "kafka:ListClusters",
