@@ -4,6 +4,10 @@ set -euo pipefail
 BOOTSTRAPS=${KAFKA_BOOTSTRAP_SERVERS:-}
 TIMEOUT=${WAIT_FOR_KAFKA_TIMEOUT:-180}
 
+if [ -z "$BOOTSTRAPS" ]; then
+  echo "Kafka bootstrap servers not set; proceeding with logging emitter"
+fi
+
 if [ -n "$BOOTSTRAPS" ]; then
   for endpoint in ${BOOTSTRAPS//,/ }; do
     host=${endpoint%%:*}
@@ -43,7 +47,3 @@ fi
 echo "Starting translator API"
 export PYTHONPATH="${APP_HOME:-/app}:${PYTHONPATH:-}"
 exec uvicorn src.translator_api.routes:app --host 0.0.0.0 --port 8080
-
-if [ -z "$BOOTSTRAPS" ]; then
-  echo "Kafka bootstrap servers not set; proceeding with dummy emitter"
-fi
