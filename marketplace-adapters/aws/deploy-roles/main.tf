@@ -64,6 +64,7 @@ locals {
     branch = var.develop_branch
     oidc_subjects = distinct(compact([
       "${local.github_subject_prefix}:ref:refs/heads/${var.develop_branch}",
+      "${local.github_subject_prefix}:pull_request",
       "${local.github_subject_prefix}:pull_request:*"
     ]))
     tags = merge(var.tags, { "Environment" = "neutral-pr", "Purpose" = "pr-connectivity-check" })
@@ -71,6 +72,7 @@ locals {
 
   ec2_actions = [
     "ec2:AllocateAddress",
+    "ec2:DescribeVpcAttribute",
     "ec2:AssociateRouteTable",
     "ec2:AssociateVpcCidrBlock",
     "ec2:AttachInternetGateway",
@@ -115,6 +117,7 @@ locals {
     "s3:DeleteObject",
     "s3:GetAccelerateConfiguration",
     "s3:GetBucketAcl",
+    "s3:GetBucketCORS",
     "s3:GetBucketEncryption",
     "s3:GetBucketLifecycleConfiguration",
     "s3:GetBucketLocation",
@@ -125,9 +128,11 @@ locals {
     "s3:GetObject",
     "s3:ListBucket",
     "s3:PutBucketAcl",
+    "s3:PutBucketCORS",
     "s3:PutBucketEncryption",
     "s3:PutBucketLifecycleConfiguration",
     "s3:PutBucketPolicy",
+    "s3:PutBucketObjectLockConfiguration",
     "s3:PutBucketPublicAccessBlock",
     "s3:PutBucketTagging",
     "s3:PutBucketVersioning",
@@ -219,7 +224,8 @@ data "aws_iam_policy_document" "deploy_permissions" {
       "iam:AttachRolePolicy",
       "iam:DetachRolePolicy",
       "iam:PassRole",
-      "iam:ListAttachedRolePolicies"
+      "iam:ListAttachedRolePolicies",
+      "iam:ListRolePolicies"
     ]
     resources = [local.iam_role_scope[each.key]]
   }
@@ -251,7 +257,6 @@ data "aws_iam_policy_document" "deploy_permissions" {
   statement {
     sid = "KMSManagement"
     actions = [
-      "kms:CreateKey",
       "kms:ScheduleKeyDeletion",
       "kms:CancelKeyDeletion",
       "kms:TagResource",
@@ -273,6 +278,12 @@ data "aws_iam_policy_document" "deploy_permissions" {
       "kms:ListGrants"
     ]
     resources = local.kms_arns[each.key]
+  }
+
+  statement {
+    sid       = "KMSCreateKey"
+    actions   = ["kms:CreateKey"]
+    resources = ["*"]
   }
 
   statement {
