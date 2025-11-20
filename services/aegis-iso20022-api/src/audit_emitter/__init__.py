@@ -1,3 +1,7 @@
+from kafka_vendor_patch import ensure_vendor_modules
+
+ensure_vendor_modules()
+
 from .base import AuditEmitter
 from .logging import LoggingEmitter
 from .noop import NoopEmitter

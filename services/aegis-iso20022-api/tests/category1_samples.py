@@ -8,7 +8,7 @@ def _mt(message: str) -> str:
     return textwrap.dedent(message).strip()
 
 
-SAMPLES: dict[str, dict[str, str | None]] = {
+CATEGORY1_SAMPLES: dict[str, dict[str, str | None]] = {
     "MT101": {
         "mt_raw": _mt(
             """\

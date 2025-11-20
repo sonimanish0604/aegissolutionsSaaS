@@ -9,6 +9,10 @@ from uuid import uuid4
 
 import boto3
 from botocore.exceptions import ClientError
+
+from kafka_vendor_patch import ensure_vendor_modules
+
+ensure_vendor_modules()
 from kafka import KafkaConsumer
 
 from audit_integrity.manifest import ManifestBuilder, ManifestObject
