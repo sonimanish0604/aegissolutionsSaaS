@@ -9,7 +9,7 @@ from pathlib import Path
 import boto3
 import requests
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = Path(__file__).resolve().parents[2]
 TESTS_PATH = REPO_ROOT / "services" / "aegis-iso20022-api" / "tests"
 if str(TESTS_PATH) not in sys.path:
     sys.path.append(str(TESTS_PATH))
