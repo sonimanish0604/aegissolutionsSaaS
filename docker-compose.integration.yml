@@ -1,0 +1,76 @@
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.1
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: confluentinc/cp-kafka:7.6.1
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    ports:
+      - "9092:9092"
+
+  localstack:
+    image: localstack/localstack:3.3
+    environment:
+      SERVICES: s3
+      AWS_DEFAULT_REGION: us-east-1
+    ports:
+      - "4566:4566"
+
+  translator:
+    build:
+      context: ./services/aegis-iso20022-api
+      dockerfile: Dockerfile
+    image: aegis-iso20022-api:dev
+    depends_on:
+      kafka:
+        condition: service_started
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      AUDIT_TOPIC: audit.events
+      LOG_LEVEL: INFO
+      WAIT_FOR_KAFKA_TIMEOUT: 240
+    ports:
+      - "8080:8080"
+    command: ["bash", "scripts/run_translator.sh"]
+
+  prevalidator:
+    image: aegis-iso20022-api:dev
+    environment:
+      PREVALIDATOR_PORT: 8081
+      LOG_LEVEL: INFO
+    ports:
+      - "8081:8081"
+    command: ["bash", "scripts/run_prevalidator.sh"]
+
+  audit-worker:
+    image: aegis-iso20022-api:dev
+    depends_on:
+      kafka:
+        condition: service_started
+      localstack:
+        condition: service_started
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      AUDIT_TOPIC: audit.events
+      S3_ENDPOINT_URL: http://localstack:4566
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      AWS_REGION: us-east-1
+      AUDIT_S3_BUCKET: audit-manifests
+      LOCAL_SIGNING_SECRET: audit-dev-secret
+      AUDIT_MANIFEST_BATCH: 3
+      LOG_LEVEL: INFO
+    command: ["bash", "scripts/run_worker.sh"]

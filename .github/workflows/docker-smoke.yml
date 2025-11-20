@@ -1,0 +1,51 @@
+name: Docker Smoke Test
+
+on:
+  pull_request:
+    branches: [develop]
+  push:
+    branches: [develop]
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Build smoke image
+        run: docker compose -f docker-compose.smoke.yml build
+
+      - name: Start smoke stack
+        run: docker compose -f docker-compose.smoke.yml up -d
+
+      - name: Wait for translator
+        shell: bash
+        run: |
+          end=$((SECONDS+120))
+          until curl -fsS http://localhost:8080/ > /dev/null; do
+            if [ $SECONDS -ge $end ]; then
+              echo "Translator service did not become ready"
+              docker compose -f docker-compose.smoke.yml logs translator || true
+              exit 1
+            fi
+            echo "Waiting for translator..."
+            sleep 5
+          done
+
+      - name: Wait for prevalidator
+        shell: bash
+        run: |
+          end=$((SECONDS+120))
+          until curl -fsS http://localhost:8081/ > /dev/null; do
+            if [ $SECONDS -ge $end ]; then
+              echo "Prevalidator service did not become ready"
+              docker compose -f docker-compose.smoke.yml logs prevalidator || true
+              exit 1
+            fi
+            echo "Waiting for prevalidator..."
+            sleep 5
+          done
+
+      - name: Tear down smoke stack
+        if: always()
+        run: docker compose -f docker-compose.smoke.yml down -v --remove-orphans
