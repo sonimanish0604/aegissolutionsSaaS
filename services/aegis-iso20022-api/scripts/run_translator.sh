@@ -35,5 +35,5 @@ PY
 fi
 
 echo "Starting translator API"
-export PYTHONPATH="${APP_HOME:-/app}:${PYTHONPATH:-}"
+export PYTHONPATH="${APP_HOME:-/app}:${APP_HOME:-/app}/src:${PYTHONPATH:-}"
 exec uvicorn src.translator_api.routes:app --host 0.0.0.0 --port 8080
