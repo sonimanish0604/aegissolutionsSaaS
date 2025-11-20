@@ -53,14 +53,21 @@ jobs:
             sleep 5
           done
 
-      - name: Run audit smoke test
+      - name: Set up Python
         uses: actions/setup-python@v6
         with:
           python-version: '3.11'
-      - run: |
+
+      - name: Install Python dependencies
+        run: |
           python -m pip install --upgrade pip
           pip install -r services/aegis-iso20022-api/requirements.txt
-      - run: python tests/system/audit_smoke.py
+          pip install reportlab
+
+      - name: Run audit smoke test
+        run: |
+          set -o pipefail
+          python tests/system/audit_smoke.py 2>&1 | tee audit_smoke.log
         env:
           TRANSLATOR_URL: http://localhost:8080
           PREVALIDATOR_URL: http://localhost:8081
@@ -74,12 +81,60 @@ jobs:
         if: always()
         run: docker compose -f docker-compose.integration.yml logs > docker-compose-integration.log
 
+      - name: Generate audit report
+        if: always()
+        run: |
+          python scripts/generate_docker_audit_report.py \
+            --output artifacts/docker-audit-report.pdf \
+            --test-log audit_smoke.log \
+            --run-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            --commit "${{ github.sha }}" \
+            --branch "${{ github.ref }}" \
+            --workflow "${{ github.workflow }}" \
+            --job "Docker Audit Integration" \
+            --test-name "Audit Smoke Test" \
+            --translator-url "http://localhost:8080" \
+            --prevalidator-url "http://localhost:8081" \
+            --s3-endpoint "http://localhost:4566"
+
       - name: Upload logs artifact
         if: always()
         uses: actions/upload-artifact@v5
         with:
           name: docker-integration-logs
-          path: docker-compose-integration.log
+          path: |
+            docker-compose-integration.log
+            audit_smoke.log
+            artifacts/docker-audit-report.pdf
+
+      - name: Publish audit evidence
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.COMPLIANCE_BOT_TOKEN }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "COMPLIANCE_BOT_TOKEN not configured; skipping publish."
+            exit 0
+          fi
+          REPORT_REPO="https://github.com/sonimanish0604/aegis-compliance-evidence.git"
+          WORKDIR=$(mktemp -d)
+          git clone --depth=1 https://${GH_TOKEN}@github.com/sonimanish0604/aegis-compliance-evidence.git "$WORKDIR"
+          TIMESTAMP=$(date -u +"%Y%m%dT%H%M%SZ")
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            IDENTIFIER="PR${{ github.event.number }}"
+          else
+            IDENTIFIER="${GITHUB_REF##*/}-${GITHUB_SHA:0:7}"
+          fi
+          DEST_DIR="$WORKDIR/reports/${TIMESTAMP:0:4}/${TIMESTAMP:4:2}"
+          mkdir -p "$DEST_DIR"
+          DEST_PATH="$DEST_DIR/DockerAudit_${IDENTIFIER}_${TIMESTAMP}.pdf"
+          cp artifacts/docker-audit-report.pdf "$DEST_PATH"
+          cd "$WORKDIR"
+          git config user.name "aegis-compliance-bot"
+          git config user.email "compliance-bot@aegis.local"
+          git add "$DEST_PATH"
+          git commit -m "Add Docker audit report for ${IDENTIFIER} (${TIMESTAMP})"
+          git push origin HEAD
 
       - name: Tear down integration stack
         if: always()
