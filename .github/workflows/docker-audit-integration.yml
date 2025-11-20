@@ -1,0 +1,147 @@
+name: Docker Audit Integration
+
+on:
+  pull_request:
+    branches: [develop]
+  push:
+    branches: [develop, testing]
+
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Pull integration dependencies
+        run: docker compose -f docker-compose.integration.yml pull kafka zookeeper localstack
+
+      - name: Build integration image
+        run: docker compose -f docker-compose.integration.yml build
+
+      - name: Start core infrastructure
+        run: docker compose -f docker-compose.integration.yml up -d zookeeper kafka localstack
+
+      - name: Wait for Kafka readiness
+        shell: bash
+        run: |
+          end=$((SECONDS+300))
+          until docker compose -f docker-compose.integration.yml exec -T kafka kafka-topics --bootstrap-server kafka:9092 --list >/dev/null 2>&1; do
+            if [ $SECONDS -ge $end ]; then
+              echo "Kafka broker did not become ready"
+              docker compose -f docker-compose.integration.yml logs kafka || true
+              exit 1
+            fi
+            echo "Waiting for Kafka broker..."
+            sleep 5
+          done
+          docker compose -f docker-compose.integration.yml exec -T kafka kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic audit.events --partitions 1 --replication-factor 1 || true
+
+      - name: Start application services
+        run: docker compose -f docker-compose.integration.yml up -d translator prevalidator audit-worker
+
+      - name: Wait for translator
+        shell: bash
+        run: |
+          end=$((SECONDS+180))
+          until curl -fsS http://localhost:8080/ > /dev/null; do
+            if [ $SECONDS -ge $end ]; then
+              echo "Translator service did not become ready"
+              docker compose -f docker-compose.integration.yml logs translator || true
+              exit 1
+            fi
+            echo "Waiting for translator..."
+            sleep 5
+          done
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r services/aegis-iso20022-api/requirements.txt
+          pip install reportlab
+
+      - name: Run audit smoke test
+        run: |
+          set -o pipefail
+          python tests/system/audit_smoke.py 2>&1 | tee audit_smoke.log
+        env:
+          TRANSLATOR_URL: http://localhost:8080
+          PREVALIDATOR_URL: http://localhost:8081
+          S3_ENDPOINT_URL: http://localhost:4566
+          AUDIT_S3_BUCKET: audit-manifests
+          AWS_ACCESS_KEY_ID: test
+          AWS_SECRET_ACCESS_KEY: test
+          AWS_REGION: us-east-1
+
+      - name: Docker logs
+        if: always()
+        run: docker compose -f docker-compose.integration.yml logs > docker-compose-integration.log
+
+      - name: Generate audit report
+        if: always()
+        run: |
+          mkdir -p artifacts
+          python scripts/generate_docker_audit_report.py \
+            --output artifacts/docker-audit-report.pdf \
+            --test-log audit_smoke.log \
+            --run-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            --commit "${{ github.sha }}" \
+            --branch "${{ github.ref }}" \
+            --workflow "${{ github.workflow }}" \
+            --job "Docker Audit Integration" \
+            --test-name "Audit Smoke Test" \
+            --translator-url "http://localhost:8080" \
+            --prevalidator-url "http://localhost:8081" \
+            --s3-endpoint "http://localhost:4566" \
+            --logo "services/aegis-iso20022-api/docs/aegislogo.png"
+
+      - name: Upload logs artifact
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: docker-integration-logs
+          path: |
+            docker-compose-integration.log
+            audit_smoke.log
+            artifacts/docker-audit-report.pdf
+
+      - name: Publish audit evidence
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.COMPLIANCE_BOT_TOKEN }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "COMPLIANCE_BOT_TOKEN not configured; skipping publish."
+            exit 0
+          fi
+          if [ ! -f artifacts/docker-audit-report.pdf ]; then
+            echo "Report not found; skipping publish."
+            exit 0
+          fi
+          REPORT_REPO="https://github.com/sonimanish0604/aegis-compliance-evidence.git"
+          WORKDIR=$(mktemp -d)
+          git clone --depth=1 https://${GH_TOKEN}@github.com/sonimanish0604/aegis-compliance-evidence.git "$WORKDIR"
+          TIMESTAMP=$(date -u +"%Y%m%dT%H%M%SZ")
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            IDENTIFIER="PR${{ github.event.number }}"
+          else
+            IDENTIFIER="${GITHUB_REF##*/}-${GITHUB_SHA:0:7}"
+          fi
+          DEST_DIR="$WORKDIR/reports/${TIMESTAMP:0:4}/${TIMESTAMP:4:2}"
+          mkdir -p "$DEST_DIR"
+          DEST_PATH="$DEST_DIR/DockerAudit_${IDENTIFIER}_${TIMESTAMP}.pdf"
+          cp artifacts/docker-audit-report.pdf "$DEST_PATH"
+          cd "$WORKDIR"
+          git config user.name "aegis-compliance-bot"
+          git config user.email "compliance-bot@aegis.local"
+          git add "$DEST_PATH"
+          git commit -m "Add Docker audit report for ${IDENTIFIER} (${TIMESTAMP})"
+          git push origin HEAD
+
+      - name: Tear down integration stack
+        if: always()
+        run: docker compose -f docker-compose.integration.yml down -v --remove-orphans

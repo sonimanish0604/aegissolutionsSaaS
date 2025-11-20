@@ -15,7 +15,7 @@ for path in (ROOT, CURRENT):
     if path_str not in sys.path:
         sys.path.insert(0, path_str)
 
-from category1_samples import SAMPLES  # noqa: E402  pylint: disable=wrong-import-position
+from category1_samples import CATEGORY1_SAMPLES as SAMPLES  # noqa: E402  pylint: disable=wrong-import-position
 from src.translator_api.routes import app, TranslateRequest, translate  # noqa: E402  pylint: disable=wrong-import-position
 
 

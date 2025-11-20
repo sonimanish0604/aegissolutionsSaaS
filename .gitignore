@@ -29,6 +29,7 @@ Thumbs.db
 # Docker
 *.log
 docker-data/
+logs/
 
 # Terraform
 .terraform/

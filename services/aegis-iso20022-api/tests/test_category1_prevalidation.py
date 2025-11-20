@@ -13,7 +13,7 @@ for path in (ROOT, CURRENT):
     if path_str not in sys.path:
         sys.path.insert(0, path_str)
 
-from category1_samples import SAMPLES
+from category1_samples import CATEGORY1_SAMPLES as SAMPLES
 from src.prevalidator_core import PrevalidationEngine
 
 
