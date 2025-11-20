@@ -10,6 +10,7 @@ import json
 import zipfile
 import logging
 import os
+import time
 from ..translator_core.detector import Detector
 from ..translator_core.mt_parser import MTParser
 from ..translator_core.mapping_store import MappingStore
@@ -38,15 +39,32 @@ def _init_audit_emitter():
         return _audit_emitter
     bootstrap = os.getenv("KAFKA_BOOTSTRAP_SERVERS")
     topic = os.getenv("AUDIT_TOPIC", "audit.events")
+    require_emitter = os.getenv("REQUIRE_KAFKA_EMITTER", "false").lower() == "true"
+    max_attempts = max(1, int(os.getenv("KAFKA_EMITTER_MAX_ATTEMPTS", "5")))
+    retry_delay = float(os.getenv("KAFKA_EMITTER_RETRY_DELAY", "5"))
     emitter = None
+    last_exc: Exception | None = None
     if bootstrap and KafkaAuditEmitter:
-        try:
-            emitter = KafkaAuditEmitter(bootstrap_servers=bootstrap, topic=topic)
-            logger.info("Audit emitter configured for Kafka topic %s", topic)
-        except Exception as exc:  # pragma: no cover - fallback path
-            logger.warning("Falling back to logging audit emitter: %s", exc)
+        for attempt in range(1, max_attempts + 1):
+            try:
+                emitter = KafkaAuditEmitter(bootstrap_servers=bootstrap, topic=topic)
+                logger.info("Audit emitter configured for Kafka topic %s", topic)
+                break
+            except Exception as exc:  # pragma: no cover - fallback path
+                last_exc = exc
+                logger.warning(
+                    "Kafka audit emitter attempt %s/%s failed: %s",
+                    attempt,
+                    max_attempts,
+                    exc,
+                )
+                if attempt < max_attempts:
+                    time.sleep(retry_delay)
+        else:
             emitter = None
     if emitter is None:
+        if require_emitter:
+            raise RuntimeError("Kafka audit emitter required but unavailable") from last_exc
         emitter = LoggingEmitter()
     _audit_emitter = emitter
     return emitter

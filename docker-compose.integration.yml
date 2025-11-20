@@ -42,6 +42,9 @@ services:
       LOG_LEVEL: INFO
       WAIT_FOR_KAFKA_TIMEOUT: 240
       REQUIRE_KAFKA: "true"
+      REQUIRE_KAFKA_EMITTER: "true"
+      KAFKA_EMITTER_MAX_ATTEMPTS: 12
+      KAFKA_EMITTER_RETRY_DELAY: 5
     ports:
       - "8080:8080"
     command: ["bash", "scripts/run_translator.sh"]
