@@ -47,7 +47,7 @@ def build_pdf(args: argparse.Namespace) -> None:
     if args.logo:
         logo_path = Path(args.logo)
         if logo_path.exists():
-            img = Image(str(logo_path), width=140, height=60, preserveAspectRatio=True)
+            img = Image(str(logo_path), width=140, height=60)
             elements.append(img)
             elements.append(Spacer(1, 12))
 
