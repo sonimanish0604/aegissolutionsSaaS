@@ -95,7 +95,8 @@ jobs:
             --test-name "Audit Smoke Test" \
             --translator-url "http://localhost:8080" \
             --prevalidator-url "http://localhost:8081" \
-            --s3-endpoint "http://localhost:4566"
+            --s3-endpoint "http://localhost:4566" \
+            --logo "services/aegis-iso20022-api/docs/aegislogo.png"
 
       - name: Upload logs artifact
         if: always()

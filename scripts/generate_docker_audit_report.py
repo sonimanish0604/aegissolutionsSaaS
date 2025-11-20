@@ -8,8 +8,10 @@ import re
 from datetime import datetime, timezone
 from pathlib import Path
 
+from reportlab.lib import colors
 from reportlab.lib.pagesizes import LETTER
-from reportlab.pdfgen import canvas
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.platypus import Image, Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
 
 def parse_manifest_summary(log_path: Path) -> tuple[str, int] | tuple[None, int]:
@@ -38,49 +40,69 @@ def build_pdf(args: argparse.Namespace) -> None:
     generated_at = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S %Z")
     manifest_line, manifest_count = parse_manifest_summary(Path(args.test_log))
 
-    width, height = LETTER
-    c = canvas.Canvas(str(output), pagesize=LETTER)
-    text = c.beginText(40, height - 50)
+    doc = SimpleDocTemplate(str(output), pagesize=LETTER, title="Docker Audit Integration Report")
+    styles = getSampleStyleSheet()
+    elements = []
 
-    text.setFont("Helvetica-Bold", 14)
-    text.textLine("Aegis ISO 20022 - Docker Audit Integration Report")
-    text.setFont("Helvetica", 10)
-    text.textLine(f"Generated: {generated_at}")
-    text.textLine(f"Workflow: {args.workflow} / {args.job}")
-    text.textLine(f"Run URL: {args.run_url}")
-    text.textLine(f"Branch: {args.branch}")
-    text.textLine(f"Commit: {args.commit}")
-    text.textLine("")
+    if args.logo:
+        logo_path = Path(args.logo)
+        if logo_path.exists():
+            img = Image(str(logo_path), width=140, height=60, preserveAspectRatio=True)
+            elements.append(img)
+            elements.append(Spacer(1, 12))
 
-    text.setFont("Helvetica-Bold", 12)
-    text.textLine("Test Summary")
-    text.setFont("Helvetica", 10)
-    text.textLine(f"Test Name: {args.test_name}")
-    text.textLine("Result: PASS")
-    if manifest_line:
-        text.textLine(f"Manifest objects detected: {manifest_count}")
-        text.textLine(f"Manifest keys: {manifest_line}")
-    else:
-        text.textLine("Manifest details: (not found in log)")
-    text.textLine("")
+    title = Paragraph("Aegis ISO 20022 – Docker Audit Integration Report", styles["Title"])
+    elements.append(title)
+    elements.append(Spacer(1, 6))
 
-    text.setFont("Helvetica-Bold", 12)
-    text.textLine("Environment")
-    text.setFont("Helvetica", 10)
-    text.textLine(f"Translator URL: {args.translator_url}")
-    text.textLine(f"Prevalidator URL: {args.prevalidator_url}")
-    text.textLine(f"S3 Endpoint: {args.s3_endpoint}")
-    text.textLine("")
+    meta_table = Table(
+        [
+            ["Generated", generated_at],
+            ["Workflow", f"{args.workflow} / {args.job}"],
+            ["Run URL", args.run_url],
+            ["Branch", args.branch],
+            ["Commit", args.commit],
+        ],
+        colWidths=[120, 360],
+    )
+    meta_table.setStyle(TableStyle([("BACKGROUND", (0, 0), (0, -1), colors.whitesmoke), ("BOX", (0, 0), (-1, -1), 0.25, colors.black), ("INNERGRID", (0, 0), (-1, -1), 0.25, colors.grey)]))
+    elements.append(meta_table)
+    elements.append(Spacer(1, 18))
 
-    text.setFont("Helvetica-Bold", 12)
-    text.textLine("Notes")
-    text.setFont("Helvetica", 10)
-    text.textLine("This report summarizes the automated Docker audit integration run.")
-    text.textLine("Detailed logs (translator, audit worker, Localstack) are attached to the workflow artifacts.")
+    summary_data = [
+        ["Test Name", args.test_name],
+        ["Result", "PASS"],
+        ["Manifest objects detected", str(manifest_count)],
+        ["Manifest keys", manifest_line or "not available"],
+    ]
+    summary_table = Table(summary_data, colWidths=[200, 280])
+    summary_table.setStyle(TableStyle([("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey), ("BOX", (0, 0), (-1, -1), 0.25, colors.black), ("INNERGRID", (0, 0), (-1, -1), 0.25, colors.black)]))
+    elements.append(Paragraph("Test Summary", styles["Heading2"]))
+    elements.append(summary_table)
+    elements.append(Spacer(1, 18))
 
-    c.drawText(text)
-    c.showPage()
-    c.save()
+    env_table = Table(
+        [
+            ["Translator URL", args.translator_url],
+            ["Prevalidator URL", args.prevalidator_url],
+            ["S3 Endpoint", args.s3_endpoint],
+        ],
+        colWidths=[200, 280],
+    )
+    env_table.setStyle(TableStyle([("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey), ("BOX", (0, 0), (-1, -1), 0.25, colors.black), ("INNERGRID", (0, 0), (-1, -1), 0.25, colors.black)]))
+    elements.append(Paragraph("Environment", styles["Heading2"]))
+    elements.append(env_table)
+    elements.append(Spacer(1, 18))
+
+    notes = Paragraph(
+        "This report follows the unit-test template defined in services/aegis-iso20022-api/docs/unit-test-report.md. "
+        "Detailed container logs (translator, audit worker, Localstack) are attached to the workflow artifacts.",
+        styles["BodyText"],
+    )
+    elements.append(Paragraph("Notes", styles["Heading2"]))
+    elements.append(notes)
+
+    doc.build(elements)
 
 
 def main() -> None:
@@ -96,6 +118,7 @@ def main() -> None:
     parser.add_argument("--translator-url", required=True)
     parser.add_argument("--prevalidator-url", required=True)
     parser.add_argument("--s3-endpoint", required=True)
+    parser.add_argument("--logo")
 
     args = parser.parse_args()
     build_pdf(args)
