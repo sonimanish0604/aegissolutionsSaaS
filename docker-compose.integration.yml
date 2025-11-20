@@ -20,6 +20,11 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     ports:
       - "9092:9092"
+    healthcheck:
+      test: ["CMD", "bash", "-c", "kafka-broker-api-versions --bootstrap-server localhost:9092 >/dev/null 2>&1"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
 
   localstack:
     image: localstack/localstack:3.3
@@ -28,6 +33,11 @@ services:
       AWS_DEFAULT_REGION: us-east-1
     ports:
       - "4566:4566"
+    healthcheck:
+      test: ["CMD", "bash", "-c", "curl -sf http://localhost:4566/health >/dev/null"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
 
   translator:
     build:
@@ -36,12 +46,13 @@ services:
     image: aegis-iso20022-api:dev
     depends_on:
       kafka:
-        condition: service_started
+        condition: service_healthy
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       AUDIT_TOPIC: audit.events
       LOG_LEVEL: INFO
       WAIT_FOR_KAFKA_TIMEOUT: 240
+      REQUIRE_KAFKA: "true"
     ports:
       - "8080:8080"
     command: ["bash", "scripts/run_translator.sh"]
@@ -59,9 +70,9 @@ services:
     image: aegis-iso20022-api:dev
     depends_on:
       kafka:
-        condition: service_started
+        condition: service_healthy
       localstack:
-        condition: service_started
+        condition: service_healthy
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       AUDIT_TOPIC: audit.events

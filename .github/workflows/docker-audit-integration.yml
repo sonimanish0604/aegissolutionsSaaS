@@ -12,6 +12,9 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - name: Pull integration dependencies
+        run: docker compose -f docker-compose.integration.yml pull kafka zookeeper localstack
+
       - name: Build integration image
         run: docker compose -f docker-compose.integration.yml build
 
@@ -21,7 +24,7 @@ jobs:
       - name: Wait for translator
         shell: bash
         run: |
-          end=$((SECONDS+240))
+          end=$((SECONDS+60))
           until curl -fsS http://localhost:8080/ > /dev/null; do
             if [ $SECONDS -ge $end ]; then
               echo "Translator service did not become ready"

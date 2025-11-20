@@ -3,32 +3,55 @@ set -euo pipefail
 
 BOOTSTRAPS=${KAFKA_BOOTSTRAP_SERVERS:-}
 TIMEOUT=${WAIT_FOR_KAFKA_TIMEOUT:-60}
+SLEEP_INTERVAL=${WAIT_FOR_KAFKA_SLEEP:-5}
+REQUIRE_KAFKA=${REQUIRE_KAFKA:-false}
 
 if [ -z "$BOOTSTRAPS" ]; then
   echo "Kafka bootstrap servers not set; proceeding with logging emitter"
 else
-  for endpoint in ${BOOTSTRAPS//,/ }; do
-    host=${endpoint%%:*}
-    port=${endpoint##*:}
-    if [ "$host" = "$port" ]; then
-      port=9092
-    fi
-    echo "Waiting for Kafka broker $host:$port ..."
-    WAIT_HOST=$host WAIT_PORT=$port python - <<'PY'
-import os, socket, sys
-host = os.environ['WAIT_HOST']
-port = int(os.environ['WAIT_PORT'])
-sock = socket.socket()
-sock.settimeout(int(os.environ.get('TIMEOUT', '60')))
-try:
-    sock.connect((host, port))
-except OSError:
-    sys.exit(1)
-else:
-    sys.exit(0)
+  echo "Kafka bootstrap servers: $BOOTSTRAPS"
+  check_kafka() {
+    python - "$@" <<'PY'
+import socket, sys
+status = 0
+for endpoint in sys.argv[1:]:
+    if ':' in endpoint:
+        host, port = endpoint.rsplit(':', 1)
+    else:
+        host, port = endpoint, '9092'
+    sock = socket.socket()
+    sock.settimeout(3)
+    try:
+        sock.connect((host, int(port)))
+    except OSError:
+        status = 1
+        break
+    finally:
+        sock.close()
+sys.exit(status)
 PY
-    if [ $? -ne 0 ]; then
-      echo "Kafka broker $host:$port unreachable, falling back to logging emitter"
+  }
+
+  deadline=$((SECONDS+TIMEOUT))
+  while true; do
+    set +e
+    check_kafka ${BOOTSTRAPS//,/ }
+    status=$?
+    set -e
+    if [ $status -eq 0 ]; then
+      echo "Kafka brokers reachable"
+      break
+    fi
+
+    if [ "$REQUIRE_KAFKA" = "true" ]; then
+      if [ $SECONDS -ge $deadline ]; then
+        echo "Kafka brokers still unavailable after ${TIMEOUT}s; exiting"
+        exit 1
+      fi
+      echo "Kafka not ready yet; retrying in ${SLEEP_INTERVAL}s"
+      sleep "$SLEEP_INTERVAL"
+    else
+      echo "Kafka unreachable, falling back to logging emitter"
       break
     fi
   done
