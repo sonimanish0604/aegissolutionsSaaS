@@ -17,8 +17,11 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Build and start stack
-        run: docker compose -f docker-compose.dev.yml up -d --build
+      - name: Build image
+        run: docker compose -f docker-compose.dev.yml build
+
+      - name: Start stack
+        run: docker compose -f docker-compose.dev.yml up -d
 
       - name: Wait for translator
         shell: bash

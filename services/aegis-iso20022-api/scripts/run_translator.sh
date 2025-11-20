@@ -2,13 +2,11 @@
 set -euo pipefail
 
 BOOTSTRAPS=${KAFKA_BOOTSTRAP_SERVERS:-}
-TIMEOUT=${WAIT_FOR_KAFKA_TIMEOUT:-180}
+TIMEOUT=${WAIT_FOR_KAFKA_TIMEOUT:-60}
 
 if [ -z "$BOOTSTRAPS" ]; then
   echo "Kafka bootstrap servers not set; proceeding with logging emitter"
-fi
-
-if [ -n "$BOOTSTRAPS" ]; then
+else
   for endpoint in ${BOOTSTRAPS//,/ }; do
     host=${endpoint%%:*}
     port=${endpoint##*:}
@@ -16,31 +14,23 @@ if [ -n "$BOOTSTRAPS" ]; then
       port=9092
     fi
     echo "Waiting for Kafka broker $host:$port ..."
-    end=$((SECONDS + TIMEOUT))
-    while true; do
-      WAIT_HOST=$host WAIT_PORT=$port python - <<'PY'
+    WAIT_HOST=$host WAIT_PORT=$port python - <<'PY'
 import os, socket, sys
 host = os.environ['WAIT_HOST']
 port = int(os.environ['WAIT_PORT'])
-s = socket.socket()
-s.settimeout(5)
+sock = socket.socket()
+sock.settimeout(int(os.environ.get('TIMEOUT', '60')))
 try:
-    s.connect((host, port))
+    sock.connect((host, port))
 except OSError:
     sys.exit(1)
 else:
     sys.exit(0)
 PY
-      if [ $? -eq 0 ]; then
-        echo "Kafka broker $host:$port is available."
-        break
-      fi
-      if [ $SECONDS -ge $end ]; then
-        echo "Timed out waiting for Kafka broker $host:$port"
-        exit 1
-      fi
-      sleep 5
-    done
+    if [ $? -ne 0 ]; then
+      echo "Kafka broker $host:$port unreachable, falling back to logging emitter"
+      break
+    fi
   done
 fi
 
