@@ -18,13 +18,31 @@ jobs:
       - name: Build integration image
         run: docker compose -f docker-compose.integration.yml build
 
-      - name: Start integration stack
-        run: docker compose -f docker-compose.integration.yml up -d
+      - name: Start core infrastructure
+        run: docker compose -f docker-compose.integration.yml up -d zookeeper kafka localstack
+
+      - name: Wait for Kafka readiness
+        shell: bash
+        run: |
+          end=$((SECONDS+300))
+          until docker compose -f docker-compose.integration.yml exec -T kafka kafka-topics --bootstrap-server kafka:9092 --list >/dev/null 2>&1; do
+            if [ $SECONDS -ge $end ]; then
+              echo "Kafka broker did not become ready"
+              docker compose -f docker-compose.integration.yml logs kafka || true
+              exit 1
+            fi
+            echo "Waiting for Kafka broker..."
+            sleep 5
+          done
+          docker compose -f docker-compose.integration.yml exec -T kafka kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic audit.events --partitions 1 --replication-factor 1 || true
+
+      - name: Start application services
+        run: docker compose -f docker-compose.integration.yml up -d translator prevalidator audit-worker
 
       - name: Wait for translator
         shell: bash
         run: |
-          end=$((SECONDS+60))
+          end=$((SECONDS+180))
           until curl -fsS http://localhost:8080/ > /dev/null; do
             if [ $SECONDS -ge $end ]; then
               echo "Translator service did not become ready"
