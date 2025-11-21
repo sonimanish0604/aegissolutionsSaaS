@@ -24,6 +24,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r services/aegis-iso20022-api/requirements.txt
           pip install pytest
+      - name: Pytest smoke
+        run: |
+          pytest services/aegis-iso20022-api/tests/test_translate_api.py
+
       - name: Log in to GHCR
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
