@@ -1,3 +1,10 @@
+# [1.0.0-beta.6](https://github.com/sonimanish0604/aegissolutionsSaaS/compare/v1.0.0-beta.5...v1.0.0-beta.6) (2025-11-21)
+
+
+### Features
+
+* **ci-containerization:** fully tested and containerize-application-21 ([#163](https://github.com/sonimanish0604/aegissolutionsSaaS/issues/163))([#171](https://github.com/sonimanish0604/aegissolutionsSaaS/issues/171)) ([1e013c5](https://github.com/sonimanish0604/aegissolutionsSaaS/commit/1e013c5b1c7820b86615622ac68d8131d6314c34))
+
 # [1.0.0-beta.5](https://github.com/sonimanish0604/aegissolutionsSaaS/compare/v1.0.0-beta.4...v1.0.0-beta.5) (2025-11-21)
 
 
