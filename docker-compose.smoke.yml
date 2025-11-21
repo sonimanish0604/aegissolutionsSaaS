@@ -1,0 +1,20 @@
+services:
+  translator:
+    build:
+      context: ./services/aegis-iso20022-api
+      dockerfile: Dockerfile
+    image: aegis-iso20022-api:dev
+    environment:
+      LOG_LEVEL: INFO
+    ports:
+      - "8080:8080"
+    command: ["bash", "scripts/run_translator.sh"]
+
+  prevalidator:
+    image: aegis-iso20022-api:dev
+    environment:
+      PREVALIDATOR_PORT: 8081
+      LOG_LEVEL: INFO
+    ports:
+      - "8081:8081"
+    command: ["bash", "scripts/run_prevalidator.sh"]
