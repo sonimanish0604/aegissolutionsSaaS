@@ -1,3 +1,30 @@
+# [1.0.0-beta.5](https://github.com/sonimanish0604/aegissolutionsSaaS/compare/v1.0.0-beta.4...v1.0.0-beta.5) (2025-11-21)
+
+
+### Features
+
+* **ci-containerization:** containerize application ([#163](https://github.com/sonimanish0604/aegissolutionsSaaS/issues/163)) ([4b787b0](https://github.com/sonimanish0604/aegissolutionsSaaS/commit/4b787b057565ddb83587ef3c3e353ed7b3032318))
+* **ci-containerization:** feature containerize-application-10 ([#163](https://github.com/sonimanish0604/aegissolutionsSaaS/issues/163)) ([149acd3](https://github.com/sonimanish0604/aegissolutionsSaaS/commit/149acd31d4a940e16b4eb252113f15b42e9e5d47))
+* **ci-containerization:** feature containerize-application-11 ([#163](https://github.com/sonimanish0604/aegissolutionsSaaS/issues/163)) ([4d3d048](https://github.com/sonimanish0604/aegissolutionsSaaS/commit/4d3d04857101b2730b2c3101a6d640e936ac4413))
+* **ci-containerization:** feature containerize-application-2 ([#163](https://github.com/sonimanish0604/aegissolutionsSaaS/issues/163)) ([a1b4125](https://github.com/sonimanish0604/aegissolutionsSaaS/commit/a1b4125cb343ff59d63725f6f6fa0305152c166c))
+* **ci-containerization:** feature containerize-application-3 ([#163](https://github.com/sonimanish0604/aegissolutionsSaaS/issues/163)) ([0612fe8](https://github.com/sonimanish0604/aegissolutionsSaaS/commit/0612fe8e74a64dd449b545a25445034d0f6d8535))
+* **ci-containerization:** feature containerize-application-4 ([#163](https://github.com/sonimanish0604/aegissolutionsSaaS/issues/163)) ([6fa7f40](https://github.com/sonimanish0604/aegissolutionsSaaS/commit/6fa7f40a5dfeabb220d05d96b2754b4f4e1b72ee))
+* **ci-containerization:** feature containerize-application-5 ([#163](https://github.com/sonimanish0604/aegissolutionsSaaS/issues/163)) ([5514174](https://github.com/sonimanish0604/aegissolutionsSaaS/commit/5514174c5fa556cd19dd7d0715915a3dfd52eb48))
+* **ci-containerization:** feature containerize-application-6 ([#163](https://github.com/sonimanish0604/aegissolutionsSaaS/issues/163)) ([b3016ff](https://github.com/sonimanish0604/aegissolutionsSaaS/commit/b3016ff8b3f1b01e818d57ce78b0072b1ced8669))
+* **ci-containerization:** feature containerize-application-7 ([#163](https://github.com/sonimanish0604/aegissolutionsSaaS/issues/163)) ([ef15005](https://github.com/sonimanish0604/aegissolutionsSaaS/commit/ef15005b7214bf9ff6e0c369daf589fbb74dd4d1))
+* **ci-containerization:** feature containerize-application-8 ([#163](https://github.com/sonimanish0604/aegissolutionsSaaS/issues/163)) ([a069481](https://github.com/sonimanish0604/aegissolutionsSaaS/commit/a069481db9c920ede1d672e02ad0dcabf1798aa4))
+* **ci-containerization:** feature containerize-application-9 ([#163](https://github.com/sonimanish0604/aegissolutionsSaaS/issues/163)) ([95a1af6](https://github.com/sonimanish0604/aegissolutionsSaaS/commit/95a1af6f0dc1809dfb6db412c4f4f59bf9ebf824))
+* **ci-containerization:** fully tested and containerize-application-12 ([#163](https://github.com/sonimanish0604/aegissolutionsSaaS/issues/163)) ([891841e](https://github.com/sonimanish0604/aegissolutionsSaaS/commit/891841ebf7183be4b7cd3625f56a1a381a36a287))
+* **ci-containerization:** fully tested and containerize-application-13 ([#163](https://github.com/sonimanish0604/aegissolutionsSaaS/issues/163)) ([5d1cbeb](https://github.com/sonimanish0604/aegissolutionsSaaS/commit/5d1cbeb4e7bdc8dfd2b0db3d8a943b01418e461f))
+* **ci-containerization:** fully tested and containerize-application-14 ([#163](https://github.com/sonimanish0604/aegissolutionsSaaS/issues/163)) ([aeba872](https://github.com/sonimanish0604/aegissolutionsSaaS/commit/aeba8728a35850ed04f8b298d24f70d069866899))
+* **ci-containerization:** fully tested and containerize-application-15 ([#163](https://github.com/sonimanish0604/aegissolutionsSaaS/issues/163)) ([3e17cac](https://github.com/sonimanish0604/aegissolutionsSaaS/commit/3e17cacd51ae4915d140f602f145de40ed7a4b21))
+* **ci-containerization:** fully tested and containerize-application-16 ([#163](https://github.com/sonimanish0604/aegissolutionsSaaS/issues/163)) ([49a129b](https://github.com/sonimanish0604/aegissolutionsSaaS/commit/49a129b6a66d825819b8f80e59cbfd270c9773fd))
+* **ci-containerization:** fully tested and containerize-application-16 ([#163](https://github.com/sonimanish0604/aegissolutionsSaaS/issues/163))([#171](https://github.com/sonimanish0604/aegissolutionsSaaS/issues/171)) ([1060d26](https://github.com/sonimanish0604/aegissolutionsSaaS/commit/1060d268bb91380d0b7bbdae4b1c1c24a8d036ca))
+* **ci-containerization:** fully tested and containerize-application-17 ([#163](https://github.com/sonimanish0604/aegissolutionsSaaS/issues/163))([#171](https://github.com/sonimanish0604/aegissolutionsSaaS/issues/171)) ([c568f71](https://github.com/sonimanish0604/aegissolutionsSaaS/commit/c568f714018d732af3c99d58db5fdb004734d7e7))
+* **ci-containerization:** fully tested and containerize-application-18 ([#163](https://github.com/sonimanish0604/aegissolutionsSaaS/issues/163))([#171](https://github.com/sonimanish0604/aegissolutionsSaaS/issues/171)) ([e727621](https://github.com/sonimanish0604/aegissolutionsSaaS/commit/e727621d872cb8d59a821a3ae7eb6e837fc23dc7))
+* **ci-containerization:** fully tested and containerize-application-19 ([#163](https://github.com/sonimanish0604/aegissolutionsSaaS/issues/163))([#171](https://github.com/sonimanish0604/aegissolutionsSaaS/issues/171)) ([36b9543](https://github.com/sonimanish0604/aegissolutionsSaaS/commit/36b95435edc3842cc9c9fbcfb55da3098e20713b))
+* **ci-containerization:** fully tested and containerize-application-20 ([#163](https://github.com/sonimanish0604/aegissolutionsSaaS/issues/163))([#171](https://github.com/sonimanish0604/aegissolutionsSaaS/issues/171)) ([cc56e4b](https://github.com/sonimanish0604/aegissolutionsSaaS/commit/cc56e4b63b2ba6190e4327d8354b3e1cbf70c54a))
+
 # [1.0.0-beta.4](https://github.com/sonimanish0604/aegissolutionsSaaS/compare/v1.0.0-beta.3...v1.0.0-beta.4) (2025-11-18)
 
 
