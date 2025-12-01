@@ -10,7 +10,7 @@ jobs:
   integration:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Pull integration dependencies
         run: docker compose -f docker-compose.integration.yml pull kafka zookeeper localstack

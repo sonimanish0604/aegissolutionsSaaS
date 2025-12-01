@@ -13,7 +13,7 @@ jobs:
     env:
       IMAGE_REPO: ghcr.io/${{ github.repository_owner }}/aegis-iso20022-api
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Run quick sanity tests
         uses: actions/setup-python@v6
