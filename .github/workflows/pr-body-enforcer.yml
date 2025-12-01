@@ -18,7 +18,7 @@ jobs:
     steps:
       - name: Require issue reference in body
         if: github.actor != 'dependabot[bot]'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const issueRefRegex = /\b(?:closes|fixes|resolves|refs)\s+#\d+\b/i;
