@@ -9,5 +9,5 @@ python-multipart>=0.0.6
 ulid-py==1.1.0
 requests>=2.32.3,<3
 kafka-python==2.0.2
-boto3==1.35.46
+boto3==1.42.4
 six>=1.16.0
